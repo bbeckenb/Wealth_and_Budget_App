@@ -1,0 +1,17 @@
+Flask==2.0.1
+Flask-Bcrypt==0.7.1
+Flask-DebugToolbar==0.11.0
+Flask-SQLAlchemy==2.5.1
+Flask-WTF==0.15.1
+Jinja2==3.0.1
+pickleshare==0.7.5
+prompt-toolkit==3.0.18
+psycopg2-binary==2.9.1
+requests==2.25.1
+simplejson==3.17.2
+SQLAlchemy==1.4.22
+Werkzeug==2.0.1
+WTForms==2.3.3
+bcrypt==3.2.0
+plaid_python==8.0.0b12
+python-dotenv==0.15.0
