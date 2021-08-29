@@ -2,12 +2,17 @@
 
 from flask import Flask, jsonify, redirect, render_template, flash, session, g
 from flask import request
-from flask_debugtoolbar import DebugToolbarExtension
+# from flask_debugtoolbar import DebugToolbarExtension
 import os
 from plaid.model.country_code import CountryCode
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
 from plaid.model.link_token_create_request_user import LinkTokenCreateRequestUser
+from plaid.model.item_get_request import ItemGetRequest
+from plaid.model.item_remove_request import ItemRemoveRequest
+from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
+from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
+from plaid.model.accounts_balance_get_request_options import AccountsBalanceGetRequestOptions
 import plaid
 from plaid.model.products import Products
 from plaid.api import plaid_api
@@ -15,8 +20,10 @@ import base64
 import datetime
 import json
 import time
-# from forms import # Forms
-from models import db, connect_db, User, UserFinancialInstitute, Account
+import asyncio
+from forms import SignUpUserForm, LoginForm, UpdateUserForm, CreateBudgetTrackerForm, UpdateBudgetTrackerForm
+from models import db, connect_db, User, UserFinancialInstitute, Account, BudgetTracker
+from sqlalchemy.exc import IntegrityError
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -32,14 +39,16 @@ db.create_all()
 
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
 PLAID_CLIENT_ID = os.getenv('PLAID_CLIENT_ID')
-PLAID_SECRET = os.getenv('PLAID_SECRET') 
+PLAID_SECRET = os.getenv('PLAID_SECRET') # Note in sandbox env currently
 PLAID_ENV = os.getenv('PLAID_ENV')
 PLAID_PRODUCTS = os.getenv('PLAID_PRODUCTS', 'transactions').split(',')
 PLAID_COUNTRY_CODES = os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-debug = DebugToolbarExtension(app)
-host = plaid.Environment.Development
+# debug = DebugToolbarExtension(app)
+host = plaid.Environment.Sandbox #need to change back to Development
 
+##############################################################################
+#Plaid Link process functions to get access keys and ids of Items (user's financial institutions)
 # To call an endpoint you must create a PlaidApi object.
 configuration = plaid.Configuration(
     host=host,
@@ -59,39 +68,6 @@ for product in PLAID_PRODUCTS:
 
 access_token = None
 item_id = None
-
-##############################################################################
-# User signup/login/logout
-
-@app.before_request
-def add_user_to_g():
-    """If we're logged in, add curr user to Flask global."""
-
-    if CURR_USER_KEY in session:
-        g.user = User.query.get(session[CURR_USER_KEY])
-
-    else:
-        g.user = None
-
-
-def do_login(user):
-    """Log in user."""
-
-    session[CURR_USER_KEY] = user.id
-
-
-def do_logout():
-    """Logout user."""
-
-    if CURR_USER_KEY in session:
-        del session[CURR_USER_KEY]
-
-#Example View Functions
-@app.route('/')
-def homepage():
-    if g.user:
-        return render_template('')
-    return render_template('test_home.html')
 
 @app.route('/create_link_token', methods=['POST'])
 def create_link_token():
@@ -122,83 +98,431 @@ def exchange_public_token():
     response = client.item_public_token_exchange(req)
     access_token = response['access_token']
     item_id = response['item_id']
+    # new_UFI = UserFinancialInstitute()
     print(response)
-    return jsonify(response.to_dict())
-# @app.route('/users')
-# def users_list():
-#     """renders list of users"""
-#     users = User.query.order_by(User.last_name, User.first_name).all()
-#     return render_template('home.html', users=users)
+    """
+    {'access_token': 'access-sandbox-55edc404-25ae-46fd-b035-99273b14e944',
+    'item_id': 'epkBXEmbMauwGamwQzWoU3N3z99memHLArwr9',
+    'request_id': 'rQW08eW2YJ2JMBm'}
+    Flow to get to Accts:
+        1. /item/get Use client_id, secret, access_token to get institution_id
+        2. /institutions/get_by_id Use client_id, secret, institution_id, country_codes (US) WILL give us Name of institution, Logo!!!
+        
+    """
+    name = get_UFI_info()
+    new_UFI = UserFinancialInstitute(
+                                    name=name, 
+                                    user_id=g.user.id,
+                                    item_id=item_id,
+                                    plaid_access_token=access_token
+              )
+    db.session.add(new_UFI)
+    db.session.commit()
+    populate_UFI_accounts(new_UFI.id)
+    return redirect('/') #jsonify(response.to_dict())
 
-# @app.route('/users/new', methods=['GET'])
-# def create_new_user_landing_page():
-#     """landing page for form to create a new user"""
+##############################################################################
+# UFI CRUD and functions
+def get_UFI_info():
+    """retrieves institution name to create UFI instance (website, logo, and color also a possibility for customization)"""
+    item_request = ItemGetRequest(access_token=access_token)
+    item_response = client.item_get(item_request)
+    institution_request = InstitutionsGetByIdRequest(
+        institution_id=item_response['item']['institution_id'],
+        country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES))
+    )
+    institution_response = client.institutions_get_by_id(institution_request)
+    print(item_response.to_dict()) #delete
+    print(institution_response.to_dict()) #delete
+    name = institution_response['institution']['name']
+    return name
 
-#     return render_template('new_user_form.html')
+@app.route('/financial-institutions/<int:UFI_id>/delete', methods=['POST'])
+def UFI_delete(UFI_id):
+    """Deletes specified instance of UFI from database
+        If:
+        -no user or wrong user present, redirect home, flash warning
+        -UFI_id DNE, 404   
+    """
+    UFI_to_del = UserFinancialInstitute.query.get_or_404(UFI_id)
+    UFI_owner_id = UFI_to_del.user_id
 
-# @app.route('/users/new', methods=['POST'])
-# def create_user():
-#     """pulls in client info, creates a new user in the database, displays all users on main user list"""
-#     first_name = request.form['first_name']
-#     last_name = request.form['last_name']
-#     image_url = request.form['image_url']
+    if not g.user or UFI_owner_id != g.user.id:
+        flash("Access unauthorized.", 'danger')
+        return redirect('/')
+    delete_plaid_UFI_access_key(UFI_to_del.plaid_access_token)
+    flash(f"Your connection to {UFI_to_del.name} was removed and the access_token is now invalid", 'success')
 
-#     left_blank = False
-#     if first_name == '':
-#         flash('Please enter a first name to create a profile!', 'error')
-#         left_blank = True
-#     if last_name == '':
-#         left_blank = True
-#         flash('Please enter a last name to create a profile!', 'error')
-#     if image_url == '':
-#         image_url = None
-#     if left_blank:
-#         return render_template('new_user_form.html')
-#     else:
-#         new_user = User(first_name=first_name, last_name=last_name, image_url=image_url)
-#         db.session.add(new_user)
-#         db.session.commit()
-#         return redirect('/users')
+    db.session.delete(UFI_to_del)
+    db.session.commit()
+    return redirect('/')
 
-# @app.route('/users/<int:user_id>', methods=['GET'])
-# def show_user(user_id):
-#     """shows details about a user"""
-#     user = User.query.get_or_404(user_id)
-#     posts = Post.query.filter(Post.creator_id == int(user_id))
-
-#     return render_template("details.html", user=user, posts=posts)
-
-# @app.route('/users/<int:user_id>/edit', methods=['GET'])
-# def edit_user(user_id):
-#     """Gives option to change user attributes or cancel editing"""
-#     user = User.query.get_or_404(user_id)
-
-#     return render_template("edit_user.html", user=user)
-
-# @app.route('/users/<int:user_id>/edit', methods=['POST'])
-# def commit_edits(user_id):
-#     """Pushes desired edits to database then sends updates to client side"""
-#     user = User.query.get_or_404(user_id)
-#     first_name = request.form['first_name']
-#     last_name = request.form['last_name']
-#     image_url = request.form['image_url']
-#     if image_url != '':
-#         user.image_url = image_url
-#     if first_name != '':
-#         user.first_name = first_name
-#     if last_name != '':
-#         user.last_name = last_name
+def delete_plaid_UFI_access_key(UFI_access_key):
+    request = ItemRemoveRequest(access_token=UFI_access_key)
+    response = client.item_remove(request)
+    print(response) #DELETE
     
-#     db.session.add(user)
-#     db.session.commit()
-#     return redirect(f'/users/{user.id}')
 
-# @app.route('/users/<int:user_id>/delete', methods=['POST'])
-# def commit_user_delete(user_id):
-#     """Pushes desired edits to database then sends updates to client side"""
+# @app.route('/financial-institutions/<int:UFI_id>/accounts/populate')
+##############################################################################
+# BudgetTracker CRUD and functions
+def populate_UFI_accounts(UFI_id):
+    curr_UFI = UserFinancialInstitute.query.get_or_404(UFI_id)
+    request = AccountsBalanceGetRequest(access_token=curr_UFI.plaid_access_token)
+    response = client.accounts_balance_get(request)
+    accounts = response['accounts']
+    print(accounts)
+    for account in accounts:
+        budget_trackable = False
+        if str(account['type']) == 'depository':
+            available=account['balances']['available']
+            current=account['balances']['current']
+            limit=account['balances']['limit']
+            budget_trackable = True
+        elif str(account['type']) == 'credit':
+            current=account['balances']['current']
+            limit=account['balances']['limit']
+            available=limit - current
+            budget_trackable = True
+        elif str(account['type']) in ['loan', 'investment']:
+            available=account['balances']['available']
+            current=account['balances']['current']
+            limit=account['balances']['limit']
+                    
+            new_Account = Account(
+                name=account['name'],
+                UFI_id=UFI_id,
+                available=available,
+                current=current,
+                limit=limit,
+                type=str(account['type']),
+                account_id=str(account['account_id']),
+                budget_trackable=budget_trackable
+            )
+            db.session.add(new_Account)
+            db.session.commit()
+
+@app.route('/financial-institutions/<int:UFI_id>/accounts/update')
+def update_accounts(UFI_id):
+    UFI=UserFinancialInstitute.query.get_or_404(UFI_id)
+    account_ids=[]
+    for account in UFI.accounts:
+        account_ids.append(account.account_id)
+    options={}
+    request = AccountsBalanceGetRequest(access_token=UFI.plaid_access_token,
+                                        options=AccountsBalanceGetRequestOptions(
+                                            account_ids=account_ids
+                                        )
+              )
+    response = client.accounts_balance_get(request)
+    accounts = response['accounts']
+    print(accounts)
+    for account in accounts:
+        if str(account['type']) == 'depository':
+            available=account['balances']['available']
+            current=account['balances']['current']
+            limit=account['balances']['limit']
+        elif str(account['type']) == 'credit':
+            current=account['balances']['current']
+            limit=account['balances']['limit']
+            available=limit - current
+        elif str(account['type']) in ['loan', 'investment']:
+            available=account['balances']['available']
+            current=account['balances']['current']
+            limit=account['balances']['limit']
+            
+        update_account = Account.query.filter_by(account_id=account['account_id']).first()
+        update_account.name = account['name']
+        update_account.available = available
+        update_account.current = current
+        update_account.limit = limit
+        
+        db.session.add(update_account)
+        db.session.commit()
+        return redirect('/')
+
+@app.route('/accounts/<int:acct_id>/delete', methods=['POST'])
+def delete_account(acct_id):
+    acct_to_delete = Account.query.get_or_404(acct_id)
+    UFI = acct_to_delete.UFI
+    acct_owner_id = UFI.user_id
+
+    if not g.user or acct_owner_id != g.user.id:
+        flash("Access unauthorized.", 'danger')
+        return redirect('/')
     
-#     user = User.query.get_or_404(user_id)
-#     db.session.delete(user)
-#     db.session.commit()
+    db.session.delete(acct_to_delete)
+    db.session.commit()
+    return redirect('/')
+
+##############################################################################
+# BudgetTracker CRUD
+@app.route('/accounts/<int:acct_id>/budget-tracker/create', methods=['GET', 'POST'])
+def create_budget_tracker(acct_id):
+    """Displays form for a user to enter parameters for a budget tracker for their account
+        -If the account DNE, 404
+        -If a user (in session or not) tries to add a budget tracker for an account they do not own, they are redirected to home with an error message
+        -If a user does not enter all required information, it recycles the form with proper error messages
+        -If a user does enter required information, it enters a new budget tracker into the database and sends a user to their dashboard
+        -If a user tries to create a budgettracker for an account where one exists already, redirect home with error
+    """
+    specified_acct = Account.query.get_or_404(acct_id)
+    UFI_of_acct = specified_acct.UFI
+
+    if not g.user or UFI_of_acct not in g.user.UFIs:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
     
-#     return redirect('/users')
+    if specified_acct.budgettracker:
+        flash("Budget Tracker already exists for this account.", "danger")
+        return redirect("/")
+
+    form = CreateBudgetTrackerForm()
+
+    if form.validate_on_submit():
+        try:
+            new_budget_tracker = BudgetTracker(
+                budget_threshold=form.budget_threshold.data,
+                notification_frequency=form.notification_frequency.data,
+                month_start_amount=specified_acct.balance,
+                amount_spent=0,
+                account_id=specified_acct.id,
+                user_id=g.user.id
+            )
+            db.session.add(new_budget_tracker)
+            db.session.commit()
+        except:
+            flash("database error", 'danger') #DELETE
+            return render_template('budget_tracker/create.html', form=form, account=specified_acct) 
+
+
+        return redirect('/')
+
+    else:
+        return render_template('budget_tracker/create.html', form=form, account=specified_acct) 
+
+@app.route('/accounts/<int:acct_id>/budget-tracker/update', methods=['GET', 'POST'])
+def update_budget_tracker(acct_id):
+    """
+    Displays form for a user to enter parameters for a budget tracker for their account
+        -If the budget tracker DNE, 404
+        -If a user (in session or not) tries to update a budget tracker they do not own, they are redirected to home with an error message
+        -If a user does not enter all required information, it recycles the form with proper error messages
+        -If a user does enter required information, it updates the budget tracker instance in the database and sends a user to their dashboard
+        -If a user tries to create a budgettracker for an account where one exists already, redirect home with error
+    """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    specified_bt = BudgetTracker.query.filter_by(user_id=g.user.id, account_id=acct_id).first()
+
+    if not specified_bt:
+        flash("Budget Tracker not in database.", "danger")
+        return redirect("/")
+   
+    form = UpdateBudgetTrackerForm()
+
+    if form.validate_on_submit():
+        try:
+            specified_bt.budget_threshold=form.budget_threshold.data
+            specified_bt.notification_frequency=form.notification_frequency.data
+            db.session.add(specified_bt)
+            db.session.commit()
+        except:
+            flash("database error", 'danger') #DELETE
+            return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
+
+
+        return redirect('/')
+
+    else:
+        return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
+
+@app.route('/accounts/<int:acct_id>/budget-tracker/delete', methods=['POST'])
+def delete_budget_tracker(acct_id):
+    if not g.user:
+        flash("Access unauthorized.", 'danger')
+        return redirect('/')
+    
+    specified_bt = BudgetTracker.query.filter_by(user_id=g.user.id, account_id=acct_id).first()
+    
+    if not specified_bt:
+        flash("Budget Tracker not in database.", "danger")
+        return redirect("/")
+
+    db.session.delete(specified_bt)
+    db.session.commit()
+    return redirect('/')
+
+##############################################################################
+# User signup/login/logout
+
+@app.before_request
+def add_user_to_g():
+    """If we're logged in, add curr user to Flask global."""
+
+    if CURR_USER_KEY in session:
+        g.user = User.query.get(session[CURR_USER_KEY])
+
+    else:
+        g.user = None
+
+
+def do_login(user):
+    """Log in user."""
+
+    session[CURR_USER_KEY] = user.id
+
+
+def do_logout():
+    """Logout user."""
+
+    if CURR_USER_KEY in session:
+        del session[CURR_USER_KEY]
+
+@app.route('/')
+def homepage():
+    """If user is not logged in, gives them options to sign up or log in"""
+    if g.user:
+        # aggregated_finances = {}
+        # for UFI in g.user.UFIs:
+        #     aggredated_balance = 0
+        #     for account in UFI.accounts:
+        #         if account.type == 'depository':
+        #             aggredated_balance += account.balance
+        #         elif account.type == 'credit':
+        #             aggredated_balance -= account.
+        #         elif str(account['type']) in ['loan', 'investment']:
+        #             balance=account['balances']['current']
+
+        return render_template('user_home.html')
+    return render_template('no_user_home.html')
+
+@app.route('/signup', methods=['GET', 'POST'])
+def user_new_signup():
+    """Displays form for a new user to enter their information
+        -If a user is in session and tries to access the page, it sends them to home
+        -If a user does not enter all required information, it recycles the form with proper error messages
+        -If a user does enter required information but the username they want is taken, it recycles the form with proper error messages
+        -If a user does enter required information, it enters a new user into the database and sends a user to their dashboard
+    """
+    if g.user:
+        flash("Active account already logged in rerouted to home", 'danger')
+        return redirect('/')
+    form = SignUpUserForm()
+
+    if form.validate_on_submit():
+        try:
+            user = User.signup(
+                username=form.username.data,
+                password=form.password.data,
+                phone_number=form.phone_number.data,
+                first_name=form.first_name.data,
+                last_name=form.last_name.data
+            )
+            db.session.commit()
+        except:
+            flash("Username already taken", 'danger')
+            return render_template('users/signup.html', form=form) 
+
+        do_login(user)
+
+        return redirect('/')
+
+    else:
+        return render_template('users/signup.html', form=form) 
+
+@app.route('/login', methods=["GET", "POST"])
+def login():
+    """Handle user login. Makes sure if an existing user is not in the session and logs in
+        -It successfully adds their info and displays it on home
+        -it loads the user into the session
+        -Makes sure if a user is in the session and tries to go to login, it redirects home"""
+    if g.user:
+        flash("Active account already logged in rerouted to home", 'danger')
+        return redirect('/')
+
+    form = LoginForm()
+
+    if form.validate_on_submit():
+        user = User.authenticate(form.username.data,
+                                 form.password.data)
+
+        if user:
+            do_login(user)
+            flash(f"Hello, {user.username}!", "success")
+            return redirect("/")
+
+        flash("Invalid credentials.", 'danger')
+
+    return render_template('users/login.html', form=form)
+
+@app.route('/logout')
+def logout():
+    """Handle logout of user. Makes sure if a user is in session, and they logout:
+        -they are redirected home with options to sign up or login
+        -their user instance is taken out of the session
+        -if no user is in ession and they manually attempt to hit /logout
+        they are redirected to home with a warning message"""
+    
+    if CURR_USER_KEY not in session:
+        flash("No user in session", 'danger')
+        return redirect('/')
+    
+    flash(f"Goodbye, {g.user.username}!", "success")
+    do_logout()
+    
+    return redirect('/')
+
+@app.route('/users/update-profile', methods=["GET", "POST"])
+def update_profile():
+    """Update profile for current user.
+        -If no user present, reroute home with warning
+        -If desired username is taken, recycle form, notify user
+        -If password to authorize changes is incorrect, recycle form, notify user
+        -If all criteria above satisfied, make desired changes to user, update database, redirect home
+        """
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+        return redirect("/")
+
+    form = UpdateUserForm(obj=g.user)
+
+    if form.validate_on_submit():
+        if User.authenticate(g.user.username, form.password.data):
+            try:
+                g.user.username = form.username.data or g.user.username
+                g.user.phone_number = form.phone_number.data or g.user.phone_number
+                g.user.first_name = form.first_name.data or g.user.first_name
+                g.user.last_name = form.last_name.data or g.user.last_name
+                db.session.commit()
+
+            except IntegrityError:
+                db.session.rollback()
+                flash("Username already taken", 'danger')
+                return render_template('users/update.html', form=form)
+            
+            flash("Profile successfully updated!", "success")
+            return redirect('/')
+        else:
+            flash("Incorrect password", 'danger')
+
+    
+    return render_template('users/update.html', form=form)
+
+@app.route('/users/delete', methods=["POST"])
+def delete_user():
+    """Delete user."""
+
+    if not g.user:
+        flash("Access unauthorized.", "danger")
+    else:
+        user = User.query.get(g.user.id)
+        do_logout()
+        db.session.delete(user)
+        db.session.commit()
+        
+    return redirect("/")

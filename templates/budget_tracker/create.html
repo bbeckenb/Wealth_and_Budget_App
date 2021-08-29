@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %} Create Budget Tracker {% endblock %}
+{% block content %}
+    <div class="row justify-content-md-center">
+        <h3>Create budget tracker for {{account.name}}</h3>
+        <div class="container">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                {% for field in form if field.widget.input_type != 'hidden' %}
+                    {% for error in field.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                    {{ field(placeholder=field.label.text, class="form-control") }}
+                {% endfor %}
+                <button class="btn btn-primary btn-lg">Create</button>
+            </form>
+            <a href="/" class="btn btn-danger btn-lg">Cancel</a>
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends 'base.html' %}
+{% block title %} Sign up {% endblock %}
+{% block content %}
+    <div class="row justify-content-md-center">
+        <h3>Sign up for wealth budget tracker</h3>
+        <div class="container">
+            <form method="POST">
+                {{ form.hidden_tag() }}
+
+                {% for field in form if field.widget.input_type != 'hidden' %}
+                    {% for error in field.errors %}
+                        <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                    {{ field(placeholder=field.label.text, class="form-control") }}
+                {% endfor %}
+                <button class="btn btn-primary btn-lg">Register</button>
+            </form>
+            <a href="/" class="btn btn-danger btn-lg">Cancel</a>
+        </div>
+    </div>
+{% endblock %}

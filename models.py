@@ -35,6 +35,8 @@ class User(db.Model):
 
     UFIs = db.relationship('UserFinancialInstitute', cascade='all, delete, delete-orphan', backref='user')
 
+    budgettrackers = db.relationship('BudgetTracker', cascade='all, delete, delete-orphan', backref='user')
+
     @classmethod
     def signup(cls, username, password, phone_number, first_name, last_name):
         """Sign up user.
@@ -95,7 +97,9 @@ class UserFinancialInstitute(db.Model):
                         nullable=False)
     item_id = db.Column(db.String, nullable=False)
     plaid_access_token = db.Column(db.String, nullable=False)
-
+    url=db.Column(db.Text, default=None)
+    logo = db.Column(db.Text, default=None) 
+    primary_color=db.Column(db.Text, default=None)
     accounts = db.relationship('Account', cascade='all, delete, delete-orphan', backref='UFI')
 
 
@@ -115,12 +119,51 @@ class Account(db.Model):
     UFI_id = db.Column(db.Integer,
                         db.ForeignKey('users_financial_institutions.id', ondelete='CASCADE'),
                         nullable=False)
-    balance = db.Column(db.Integer,
+    available = db.Column(db.Float)
+    current = db.Column(db.Float,
                         nullable=False)
-    budget_lim = db.Column(db.Integer,
-                            default=0)
-    budget_track = db.Column(db.Boolean, default=False)
+    limit = db.Column(db.Float)                   
+    type = db.Column(db.Text,
+                        nullable=False)
+    account_id=db.Column(db.Text,
+                        nullable=False)
+    budget_trackable = db.Column(db.Boolean, default=False)
+
+    budgettracker = db.relationship('BudgetTracker', cascade='all, delete, delete-orphan', backref='account')
+
 
     def __repr__(self):
         u=self
-        return f"<Account name={u.name} id={u.id} UFI_id={u.UFI_id} balance={u.balance} budget_lim={u.budget_lim} budget_track?={u.budget_track}>"
+        return f"<Account name={u.name} id={u.id} UFI_id={u.UFI_id} available={u.available} current={u.current} limit={u.limit}>"
+
+
+class BudgetTracker(db.Model):
+    """Model representing budget tracker of a specific account"""
+    __tablename__ = 'budget_trackers'
+
+    account_id = db.Column(db.Integer,
+                        db.ForeignKey('accounts.id', ondelete='CASCADE'),
+                        nullable=False, primary_key=True)
+    user_id = db.Column(db.Integer,
+                        db.ForeignKey('users.id', ondelete='CASCADE'),
+                        nullable=False, primary_key=True)
+    budget_threshold = db.Column(db.Float,
+                                nullable=False)
+    notification_frequency = db.Column(db.Integer,
+                                        nullable=False,
+                                        default=5)
+    month_start_amount = db.Column(db.Float,
+                                        nullable=False)
+    amount_spent = db.Column(db.Float,
+                                    nullable=False,
+                                    default=0)
+    
+# # What all should this model include?
+# # -Budget threshold
+# # -frequency to notify
+# # -Amount at start of month
+# # -amount spent
+# # -Account/UFI id (FK, PK)
+# # -User id (FK, PK)
+
+# cronjob

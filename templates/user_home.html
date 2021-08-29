@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% block title %} {{g.user.username}} Dashboard {% endblock %}
+{% block content %}
+    <div class="jumbotron">
+        <h1 class="display-4">{{g.user.username}} Dashboard</h1>
+        <p class="lead">Welcome {{g.user.first_name}} {{g.user.last_name}}
+            this is your phone number: {{g.user.phone_number}}</p>
+        <hr class="my-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <div class="card text-white bg-secondary mb-3" style="max-width: 18rem;">
+                        <div class="card-header">{{g.user.username}} Profile</div>
+                        <div class="card-body">
+                            <h5 class="card-title">User Options</h5>
+                            <a href="/users/update-profile" class="btn btn-sm btn-primary">Update Profile</a>
+                            <a href="/logout" class="btn btn-sm btn-primary">Log out</a>
+                            <form action="/users/delete" method="POST"><button class="btn btn-sm btn-danger">Delete Profile</button></form>
+                            <button id="link-button" class="btn btn-sm btn-success">Link Account</button>
+                            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+                            <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+                            <script type="text/javascript">
+                                (async function($) {
+                                    const handler = Plaid.create({
+                                        // Create a new link_token to initialize Link
+                                        token: (await $.post('/create_link_token')).link_token,
+                                        onLoad: function() {
+                                        // Optional, called when Link loads
+                                        },
+                                        onSuccess: function(public_token, metadata) {
+                                        // Send the public_token to your app server.
+                                        // The metadata object contains info about the institution the
+                                        // user selected and the account ID or IDs, if the
+                                        // Account Select view is enabled.
+                                        $.post('/exchange_public_token', {
+                                            public_token: public_token,
+                                        });
+                                        },
+                                        onExit: function(err, metadata) {
+                                        // The user exited the Link flow.
+                                        if (err != null) {
+                                            // The user encountered a Plaid API error prior to exiting.
+                                        }
+                                        // metadata contains information about the institution
+                                        // that the user selected and the most recent API request IDs.
+                                        // Storing this information can be helpful for support.
+                                        },
+                                        onEvent: function(eventName, metadata) {
+                                        // Optionally capture Link flow events, streamed through
+                                        // this callback as your users connect an Item to Plaid.
+                                        // For example:
+                                        // eventName = "TRANSITION_VIEW"
+                                        // metadata  = {
+                                        //   link_session_id: "123-abc",
+                                        //   mfa_type:        "questions",
+                                        //   timestamp:       "2017-09-14T14:42:19.350Z",
+                                        //   view_name:       "MFA",
+                                        // }
+                                        }
+                                    });
+                            
+                                    $('#link-button').on('click', function(e) {
+                                        handler.open();
+                                    });
+                                    })(jQuery);
+                                </script>
+                            </div>
+                        </div>
+                </div>
+                <div class="col-sm-12 col-md-6">
+                    {% for institution in g.user.UFIs %}
+                    <div class="card bg-light mb-3" style="max-width: 24rem;">
+                        <div class="card-header">{{institution.id}}</div>
+                        <div class="card-body">
+                        <h5 class="card-title">{{institution.name}}</h5>
+                        {% if institution.accounts|length == 0 %}
+                            <!-- <a href="/financial-institutions/{{institution.id}}/accounts/populate" class="btn btn-sm btn-primary">Populate Accounts</a> -->
+                            <p>You have no accounts on record with this institution</p>
+                        {% else %}
+                            <ul>
+                                {% for account in institution.accounts %}
+                                    <li>{{account.name}} - {{account.type}} - ${{account.current}}</li>
+                                    {% if account.budget_trackable %}
+                                        {% if account.budgettracker %}
+                                            <h6>Budget Tracker Status - Amount Spent: $ {{account.budgettracker[0].amount_spent}} - Monthly Budget: $ {{account.budgettracker[0].budget_threshold}}</h6>
+                                            <a href="/accounts/{{account.id}}/budget-tracker/update" class="btn btn-sm btn-info">Update BudgetTracker</a>
+                                            <form action="/accounts/{{account.id}}/budget-tracker/delete" method="POST"><button class="btn btn-sm btn-danger">Delete Budget Tracker</button></form>
+                                        {% else %}
+                                            <a href="/accounts/{{account.id}}/budget-tracker/create" class="btn btn-sm btn-success">Create BudgetTracker</a>
+                                        {% endif %}
+                                    {% endif %}
+                                    <form action="/accounts/{{account.id}}/delete" method="POST"><button class="btn btn-sm btn-danger">Delete Account</button></form>
+                                    <hr class="my-4">
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                        <form action="/financial-institutions/{{institution.id}}/delete" method="POST"><button class="btn btn-sm btn-danger">Delete Connection</button></form>
+                        <a href="/financial-institutions/{{institution.id}}/accounts/update" class="btn btn-sm btn-primary">Update Accounts</a>
+                        </div>
+                    </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+                
+        </div>
+    
+   
+    
+
+   
+
+{% endblock %}
