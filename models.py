@@ -1,6 +1,9 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import func
 from flask_bcrypt import Bcrypt
-
+import datetime
+from datetime import timedelta, date
+import time
 db = SQLAlchemy()
 
 bcrypt = Bcrypt()
@@ -81,7 +84,11 @@ class User(db.Model):
         u=self
         return f"<User username={u.username} phone_number={u.phone_number} first_name={u.first_name} last_name={u.last_name}>"
 
-
+    def aggregate_UFI_balances(self, with_loans=False):
+        aggregated_balance=0
+        for UFI in self.UFIs:
+            aggregated_balance += UFI.aggregate_account_balances(with_loans)
+        return aggregated_balance
 
 class UserFinancialInstitute(db.Model):
     """Model links Users to financial institutions as 'Items' (in Plaid API vocabulary)"""
@@ -107,6 +114,23 @@ class UserFinancialInstitute(db.Model):
         u=self
         return f"<UFI name={u.name} Uid={u.user_id} user_id={u.user_id}>"
     
+    def aggregate_account_balances(self, with_loans=False):
+        aggregated_balance = 0
+        for account in self.accounts:
+            if account.type == 'depository':
+                if account.available:
+                    aggregated_balance += account.available #for savings and checking, this is the most up to date value accounting for outstanding charges that are not fully processed
+                else:
+                    aggregated_balance += account.current #other 'depository' accounts like money market accounts do not have an 'available' amount so we need to use 'current'
+            elif account.type == 'credit':
+                aggregated_balance -= account.current #for 'credit' accounts, 'current' is what is owed to the financial institution
+            elif account.type == 'investment':
+                aggregated_balance += account.current
+            elif account.type == 'loan':
+                if with_loans:
+                    aggregated_balance -= account.current #for 'loan' accounts, the 'current' value representings the outstanding amount still owed for the loan
+        return aggregated_balance
+
 class Account(db.Model):
     """Model representing associated accounts from a UFI"""
     __tablename__ = 'accounts'
@@ -125,12 +149,13 @@ class Account(db.Model):
     limit = db.Column(db.Float)                   
     type = db.Column(db.Text,
                         nullable=False)
+    subtype = db.Column(db.Text,
+                        nullable=False)
     account_id=db.Column(db.Text,
                         nullable=False)
     budget_trackable = db.Column(db.Boolean, default=False)
 
     budgettracker = db.relationship('BudgetTracker', cascade='all, delete, delete-orphan', backref='account')
-
 
     def __repr__(self):
         u=self
@@ -152,18 +177,31 @@ class BudgetTracker(db.Model):
     notification_frequency = db.Column(db.Integer,
                                         nullable=False,
                                         default=5)
-    month_start_amount = db.Column(db.Float,
+    next_notification_date = db.Column(db.DateTime, 
                                         nullable=False)
     amount_spent = db.Column(db.Float,
                                     nullable=False,
                                     default=0)
     
-# # What all should this model include?
-# # -Budget threshold
-# # -frequency to notify
-# # -Amount at start of month
-# # -amount spent
-# # -Account/UFI id (FK, PK)
-# # -User id (FK, PK)
+    def __repr__(self):
+        u=self
+        return f"<BudgetTracker account_id={u.account_id} user_id={u.user_id} notification_freq={u.notification_frequency} next_notification_date={u.next_notification_date}>"
 
-# cronjob
+    @classmethod
+    def find_all_scheduled_today(cls):
+        """filters budgettrackers by 'next_notification_date', all budget trackers 
+            with a 'next_notification_date' equal to that day will be returned"""
+        return cls.query.filter(func.date(cls.next_notification_date) == date.today()).all()
+
+    # def update_amount_spent(self):
+    #     today_date = datetime.datetime.today()
+    #     if today_date.day == 1:
+    #         amount_spent = 0
+    #     else:
+    #         amount_spent = get_amount_spent_for_account(self.account, today_date.replace(day=1), today_date)
+    #     self.amount_spent = amount_spent
+    #     db.session.add(bt)
+    #     db.session.commit()
+    
+    def update_next_notify_date(self):
+        self.next_notification_date = self.next_notification_date + timedelta(days=self.notification_frequency)

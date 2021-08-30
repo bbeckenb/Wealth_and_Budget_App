@@ -5,6 +5,14 @@
         <h1 class="display-4">{{g.user.username}} Dashboard</h1>
         <p class="lead">Welcome {{g.user.first_name}} {{g.user.last_name}}
             this is your phone number: {{g.user.phone_number}}</p>
+            <h3><ul>
+                <li>
+                    Total without loans: {{g.user.aggregate_UFI_balances()}}
+                </li>
+                <li>
+                    Total: {{g.user.aggregate_UFI_balances(with_loans=True)}}
+                </li>
+            </ul></h3>
         <hr class="my-4">
         <div class="container">
             <div class="row">
@@ -70,14 +78,26 @@
                 <div class="col-sm-12 col-md-6">
                     {% for institution in g.user.UFIs %}
                     <div class="card bg-light mb-3" style="max-width: 24rem;">
-                        <div class="card-header">{{institution.id}}</div>
-                        <div class="card-body">
+                        <div class="card-header">ID: {{institution.id}} 
+                        </div>
+                            <div class="card-body">
                         <h5 class="card-title">{{institution.name}}</h5>
                         {% if institution.accounts|length == 0 %}
                             <!-- <a href="/financial-institutions/{{institution.id}}/accounts/populate" class="btn btn-sm btn-primary">Populate Accounts</a> -->
                             <p>You have no accounts on record with this institution</p>
                         {% else %}
                             <ul>
+                                <div>
+                                    <ul>
+                                        <li>
+                                            Total without loans: {{institution.aggregate_account_balances()}}
+                                        </li>
+                                        <li>
+                                            Total: {{institution.aggregate_account_balances(with_loans=True)}}
+                                        </li>
+                                    </ul>
+                                    <hr class="my-4">
+                                </div>
                                 {% for account in institution.accounts %}
                                     <li>{{account.name}} - {{account.type}} - ${{account.current}}</li>
                                     {% if account.budget_trackable %}

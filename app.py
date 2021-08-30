@@ -4,6 +4,7 @@ from flask import Flask, jsonify, redirect, render_template, flash, session, g
 from flask import request
 # from flask_debugtoolbar import DebugToolbarExtension
 import os
+from twilio.rest import Client as TwilioClient
 from plaid.model.country_code import CountryCode
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
 from plaid.model.link_token_create_request import LinkTokenCreateRequest
@@ -13,14 +14,16 @@ from plaid.model.item_remove_request import ItemRemoveRequest
 from plaid.model.institutions_get_by_id_request import InstitutionsGetByIdRequest
 from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
 from plaid.model.accounts_balance_get_request_options import AccountsBalanceGetRequestOptions
+from plaid.model.transactions_get_request import TransactionsGetRequest
+from plaid.model.transactions_get_request_options import TransactionsGetRequestOptions
 import plaid
 from plaid.model.products import Products
 from plaid.api import plaid_api
-import base64
 import datetime
-import json
+from datetime import timedelta
 import time
-import asyncio
+import json
+import base64
 from forms import SignUpUserForm, LoginForm, UpdateUserForm, CreateBudgetTrackerForm, UpdateBudgetTrackerForm
 from models import db, connect_db, User, UserFinancialInstitute, Account, BudgetTracker
 from sqlalchemy.exc import IntegrityError
@@ -165,7 +168,7 @@ def delete_plaid_UFI_access_key(UFI_access_key):
 
 # @app.route('/financial-institutions/<int:UFI_id>/accounts/populate')
 ##############################################################################
-# BudgetTracker CRUD and functions
+# Accounts CRUD and functions
 def populate_UFI_accounts(UFI_id):
     curr_UFI = UserFinancialInstitute.query.get_or_404(UFI_id)
     request = AccountsBalanceGetRequest(access_token=curr_UFI.plaid_access_token)
@@ -174,11 +177,13 @@ def populate_UFI_accounts(UFI_id):
     print(accounts)
     for account in accounts:
         budget_trackable = False
+        print(str(account['type']))
         if str(account['type']) == 'depository':
             available=account['balances']['available']
             current=account['balances']['current']
             limit=account['balances']['limit']
-            budget_trackable = True
+            if str(account['subtype']) in ['checking', 'paypal']:
+                budget_trackable = True
         elif str(account['type']) == 'credit':
             current=account['balances']['current']
             limit=account['balances']['limit']
@@ -188,7 +193,8 @@ def populate_UFI_accounts(UFI_id):
             available=account['balances']['available']
             current=account['balances']['current']
             limit=account['balances']['limit']
-                    
+
+        if current:             
             new_Account = Account(
                 name=account['name'],
                 UFI_id=UFI_id,
@@ -196,14 +202,14 @@ def populate_UFI_accounts(UFI_id):
                 current=current,
                 limit=limit,
                 type=str(account['type']),
+                subtype=str(account['subtype']),
                 account_id=str(account['account_id']),
                 budget_trackable=budget_trackable
             )
             db.session.add(new_Account)
             db.session.commit()
 
-@app.route('/financial-institutions/<int:UFI_id>/accounts/update')
-def update_accounts(UFI_id):
+def update_accounts_of_UFI(UFI_id):
     UFI=UserFinancialInstitute.query.get_or_404(UFI_id)
     account_ids=[]
     for account in UFI.accounts:
@@ -211,8 +217,8 @@ def update_accounts(UFI_id):
     options={}
     request = AccountsBalanceGetRequest(access_token=UFI.plaid_access_token,
                                         options=AccountsBalanceGetRequestOptions(
-                                            account_ids=account_ids
-                                        )
+                                                account_ids=account_ids
+                                                )
               )
     response = client.accounts_balance_get(request)
     accounts = response['accounts']
@@ -239,7 +245,35 @@ def update_accounts(UFI_id):
         
         db.session.add(update_account)
         db.session.commit()
-        return redirect('/')
+
+def get_amount_spent_for_account(account, start, end):
+    access_token=account.UFI.plaid_access_token
+    request = TransactionsGetRequest(
+            access_token=access_token,
+            start_date=start.date(),
+            end_date=end.date(),
+            options=TransactionsGetRequestOptions(account_ids=[account.account_id])
+    )
+    response = client.transactions_get(request)
+    transactions = response['transactions']
+    print(transactions)
+    omit_categories = ["Transfer", "Credit Card", "Deposit", "Payment"]
+    amount_spent=0
+    for transaction in transactions:
+        category_allowed=True
+        for category in transaction['category']:
+            if category in omit_categories:
+                category_allowed=False
+        if category_allowed and transaction['amount'] > 0:
+            print(transaction['category'])
+            amount_spent+=transaction['amount']
+    return round(amount_spent,2)
+    
+
+@app.route('/financial-institutions/<int:UFI_id>/accounts/update')
+def update_UFI_accounts_on_page(UFI_id):
+    update_accounts_of_UFI(UFI_id)
+    return redirect('/')
 
 @app.route('/accounts/<int:acct_id>/delete', methods=['POST'])
 def delete_account(acct_id):
@@ -256,7 +290,7 @@ def delete_account(acct_id):
     return redirect('/')
 
 ##############################################################################
-# BudgetTracker CRUD
+# BudgetTracker CRUD and functions
 @app.route('/accounts/<int:acct_id>/budget-tracker/create', methods=['GET', 'POST'])
 def create_budget_tracker(acct_id):
     """Displays form for a user to enter parameters for a budget tracker for their account
@@ -268,36 +302,34 @@ def create_budget_tracker(acct_id):
     """
     specified_acct = Account.query.get_or_404(acct_id)
     UFI_of_acct = specified_acct.UFI
-
     if not g.user or UFI_of_acct not in g.user.UFIs:
         flash("Access unauthorized.", "danger")
         return redirect("/")
-    
     if specified_acct.budgettracker:
         flash("Budget Tracker already exists for this account.", "danger")
         return redirect("/")
-
     form = CreateBudgetTrackerForm()
-
     if form.validate_on_submit():
         try:
+            today_date = datetime.datetime.today()
+            if today_date.day == 1:
+                amount_spent = 0
+            else:
+                amount_spent = get_amount_spent_for_account(specified_acct, today_date.replace(day=1), today_date)
             new_budget_tracker = BudgetTracker(
-                budget_threshold=form.budget_threshold.data,
-                notification_frequency=form.notification_frequency.data,
-                month_start_amount=specified_acct.balance,
-                amount_spent=0,
-                account_id=specified_acct.id,
-                user_id=g.user.id
-            )
+                                                budget_threshold=form.budget_threshold.data,
+                                                notification_frequency=form.notification_frequency.data,
+                                                next_notification_date=(today_date+timedelta(days=form.notification_frequency.data)),
+                                                amount_spent=amount_spent,
+                                                account_id=specified_acct.id,
+                                                user_id=g.user.id
+                                              )
             db.session.add(new_budget_tracker)
             db.session.commit()
         except:
             flash("database error", 'danger') #DELETE
             return render_template('budget_tracker/create.html', form=form, account=specified_acct) 
-
-
         return redirect('/')
-
     else:
         return render_template('budget_tracker/create.html', form=form, account=specified_acct) 
 
@@ -333,10 +365,7 @@ def update_budget_tracker(acct_id):
         except:
             flash("database error", 'danger') #DELETE
             return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
-
-
         return redirect('/')
-
     else:
         return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
 
@@ -369,12 +398,10 @@ def add_user_to_g():
     else:
         g.user = None
 
-
 def do_login(user):
     """Log in user."""
 
     session[CURR_USER_KEY] = user.id
-
 
 def do_logout():
     """Logout user."""
@@ -385,17 +412,7 @@ def do_logout():
 @app.route('/')
 def homepage():
     """If user is not logged in, gives them options to sign up or log in"""
-    if g.user:
-        # aggregated_finances = {}
-        # for UFI in g.user.UFIs:
-        #     aggredated_balance = 0
-        #     for account in UFI.accounts:
-        #         if account.type == 'depository':
-        #             aggredated_balance += account.balance
-        #         elif account.type == 'credit':
-        #             aggredated_balance -= account.
-        #         elif str(account['type']) in ['loan', 'investment']:
-        #             balance=account['balances']['current']
+    if g.user:         
 
         return render_template('user_home.html')
     return render_template('no_user_home.html')
@@ -526,3 +543,45 @@ def delete_user():
         db.session.commit()
         
     return redirect("/")
+
+##############################################################################
+# Twilio Send Text Function
+# Find your Account SID and Auth Token at twilio.com/console
+# and set the environment variables. See http://twil.io/secure
+
+twilio_number = os.getenv('TWILIO_NUM')
+twilio_client = TwilioClient(os.getenv('TWILIO_ACCOUNT_SID'), os.getenv('TWILIO_AUTH_TOKEN'))
+
+def send_text(phone_number, msg):
+    phone_number='+1'+phone_number
+    twilio_client.api.account.messages.create(to=phone_number, from_=os.getenv('TWILIO_NUM'), body=msg)
+
+##############################################################################
+# Scheduled Jobs
+
+# Refresh accounts
+def scheduled_daily_refresh_all_accounts():
+    UFIs = UserFinancialInstitute.query.all()
+    for UFI in UFIs:
+        update_accounts_of_UFI(UFI.id)
+
+def scheduled_daily_refresh_budgettrackers():
+    budgettrackers = BudgetTracker.query.all()
+    for bt in budgettrackers:
+        today_date = datetime.datetime.today()
+        if today_date.day == 1:
+            amount_spent = 0
+        else:
+            amount_spent = get_amount_spent_for_account(bt.account, today_date.replace(day=1), today_date)
+        bt.amount_spent = amount_spent
+        db.session.add(bt)
+        db.session.commit()
+
+def scheduled_daily_send_bt_notifications():
+    """Grabs all budget trackers scheduled to send notifications to their users, sends mobile text"""
+    bt_scheduled_for_notif = BudgetTracker.find_all_scheduled_today()
+    for bt in bt_scheduled_for_notif:
+        phone_number = bt.user.phone_number
+        msg = f'BudgetTracker for {bt.account.name}\nYou have spent ${bt.amount_spent} of your ${bt.budget_threshold} budget threshold.'
+        send_text(phone_number,msg)
+        bt.update_next_notify_date()
