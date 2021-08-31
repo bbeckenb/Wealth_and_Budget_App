@@ -4,6 +4,10 @@ from flask_bcrypt import Bcrypt
 import datetime
 from datetime import timedelta, date
 import time
+# UFI
+# from plaid.model.accounts_balance_get_request import AccountsBalanceGetRequest
+# from plaid.model.accounts_balance_get_request_options import AccountsBalanceGetRequestOptions
+
 db = SQLAlchemy()
 
 bcrypt = Bcrypt()
@@ -90,6 +94,7 @@ class User(db.Model):
             aggregated_balance += UFI.aggregate_account_balances(with_loans)
         return aggregated_balance
 
+
 class UserFinancialInstitute(db.Model):
     """Model links Users to financial institutions as 'Items' (in Plaid API vocabulary)"""
     __tablename__ = 'users_financial_institutions'
@@ -113,7 +118,46 @@ class UserFinancialInstitute(db.Model):
     def __repr__(self):
         u=self
         return f"<UFI name={u.name} user_id={u.user_id}>"
-    
+
+    # def populate_UFI_accounts(self):
+    #     request = AccountsBalanceGetRequest(access_token=self.plaid_access_token)
+    #     response = plaid_client.accounts_balance_get(request)
+    #     accounts = response['accounts']
+    #     print(accounts)
+    #     for account in accounts:
+    #         budget_trackable = False
+    #         print(str(account['type']))
+    #         if str(account['type']) == 'depository':
+    #             available=account['balances']['available']
+    #             current=account['balances']['current']
+    #             limit=account['balances']['limit']
+    #             if str(account['subtype']) in ['checking', 'paypal']:
+    #                 budget_trackable = True
+    #         elif str(account['type']) == 'credit':
+    #             current=account['balances']['current']
+    #             limit=account['balances']['limit']
+    #             available=limit - current
+    #             budget_trackable = True
+    #         elif str(account['type']) in ['loan', 'investment']:
+    #             available=account['balances']['available']
+    #             current=account['balances']['current']
+    #             limit=account['balances']['limit']
+
+    #         if current:             
+    #             new_Account = Account(
+    #                 name=account['name'],
+    #                 UFI_id=self.id,
+    #                 available=available,
+    #                 current=current,
+    #                 limit=limit,
+    #                 type=str(account['type']),
+    #                 subtype=str(account['subtype']),
+    #                 account_id=str(account['account_id']),
+    #                 budget_trackable=budget_trackable
+    #             )
+    #             db.session.add(new_Account)
+    #             db.session.commit()
+
     def aggregate_account_balances(self, with_loans=False):
         aggregated_balance = 0
         for account in self.accounts:

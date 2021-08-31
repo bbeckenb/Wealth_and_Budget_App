@@ -1,8 +1,8 @@
-"""UserFinancialInstitution Model tests."""
+"""Account Model tests."""
 
 from unittest import TestCase
 
-from app import app, CURR_USER_KEY
+from app import app, CURR_USER_KEY, populate_UFI_accounts
 from models import db, User, UserFinancialInstitute, Account
 from plaid.model.item_public_token_exchange_request import ItemPublicTokenExchangeRequest
 from plaid.model.sandbox_public_token_create_request import SandboxPublicTokenCreateRequest
@@ -70,10 +70,10 @@ def createTestUFIToken():
 def delete_plaid_UFI_access_key(UFI_access_key):
     request = ItemRemoveRequest(access_token=UFI_access_key)
     response = client.item_remove(request)
-    print(response) #DELETE
+    print(response) 
 
-class UserFinancialInstitutionModelTestCase(TestCase):
-    """Test Model for UFIs."""
+class UserAccountModelTestCase(TestCase):
+    """Test views for UFIs."""
 
     def setUp(self):
         """Create test client, add sample data."""
@@ -84,6 +84,7 @@ class UserFinancialInstitutionModelTestCase(TestCase):
 
         self.client = app.test_client()
 
+        # Test User 0 
         test_user0 = User(  username='harrypotter', 
                             password='HASHED_PASSWORD',
                             phone_number='9999999999',
@@ -102,6 +103,9 @@ class UserFinancialInstitutionModelTestCase(TestCase):
         db.session.commit()
 
         self.test_UFI = test_UFI
+        
+        # Loads test accounts from Plaid API
+        populate_UFI_accounts(test_UFI.id)
 
     def tearDown(self):
         """Clean up any fouled transaction"""
@@ -112,66 +116,26 @@ class UserFinancialInstitutionModelTestCase(TestCase):
         UserFinancialInstitute.query.delete()
         Account.query.delete()
 
-    def test_UserFinancialInstitute_model(self):
+    def test_Account_model(self):
         """Does basic model work?"""
-        u = UserFinancialInstitute(   
-                name='Test_Bank', 
-                user_id=self.test_user0.id,
-                item_id='test_item_id',
-                plaid_access_token=createTestUFIToken(),
-                )
+        num_accts = len(Account.query.all())
+        u = Account(name='n1', 
+                    UFI_id=self.test_UFI.id, 
+                    available=10, current=10, 
+                    limit=None, type='depository', 
+                    subtype='checking', 
+                    account_id='X', 
+                    budget_trackable=True)
 
         db.session.add(u)
         db.session.commit()
         # Already one instance in from Test Setup
-        self.assertEqual(len(UserFinancialInstitute.query.all()), 2)
-   
-   
+        self.assertEqual(num_accts+1, len(Account.query.all()))
+
     def test_user__repr__(self):
         """Checks what User.__repr__ outputs"""
-    
-        self.assertEqual(repr(self.test_UFI), f"<UFI name=Test_name user_id={self.test_user0.id}>")
+        u = self.test_UFI.accounts[0]
 
-    def test_UFI_aggregate_account_balances(self):
-        """makes sure method adds and returns the balances of its accounts:
-            -if 'with_loans'=True, subtracts 'current' value of accounts with
-            'type' of 'loan'
-            -if 'with_loans'=False (Default), account ballances with 'type' of 'loan' are not included in the returned aggregated amount
-            -
-            """
-        depository = Account(name='n1', 
-                         UFI_id=self.test_UFI.id, 
-                         available=10, current=10, 
-                         limit=None, type='depository', 
-                         subtype='checking', 
-                         account_id='X', 
-                         budget_trackable=True)
-        db.session.add(depository)
-        db.session.commit()
-        credit = Account(name='n2', 
-                         UFI_id=self.test_UFI.id, 
-                         available=None, current=5, 
-                         limit=10, type='credit', 
-                         subtype='paypal credit', 
-                         account_id='Y', 
-                         budget_trackable=True)
-        db.session.add(credit)
-        db.session.commit()
-        loan = Account(name='n3', 
-                         UFI_id=self.test_UFI.id, 
-                         available=None, current=20, 
-                         limit=10, type='loan', 
-                         subtype='student loan', 
-                         account_id='Z', 
-                         budget_trackable=False)
-        db.session.add(loan)
-        db.session.commit()
-        
-        self.assertEqual(self.test_UFI.aggregate_account_balances(), 5)
-        self.assertEqual(self.test_UFI.aggregate_account_balances(with_loans=True), -15)
+        self.assertEqual(repr(self.test_UFI.accounts[0]), f"<Account name={u.name} id={u.id} UFI_id={u.UFI_id} available={u.available} current={u.current} limit={u.limit}>")
 
-# get_UFI_info()
-# def delete_plaid_UFI_access_key(UFI_access_key)
-# def populate_UFI_accounts(UFI_id)
-# def update_accounts_of_UFI(UFI_id)
-# def scheduled_daily_refresh_all_accounts()
+    # def get_amount_spent_for_account(account, start, end)

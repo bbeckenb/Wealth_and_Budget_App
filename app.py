@@ -66,7 +66,7 @@ configuration = plaid.Configuration(
 )
 
 api_client = plaid.ApiClient(configuration)
-client = plaid_api.PlaidApi(api_client)
+plaid_client = plaid_api.PlaidApi(api_client)
 
 products = []
 for product in PLAID_PRODUCTS:
@@ -89,7 +89,7 @@ def create_link_token():
         )
 
         # create link token
-        response = client.link_token_create(request)
+        response = plaid_client.link_token_create(request)
         return jsonify(response.to_dict())
     except plaid.ApiException as e:
         return json.loads(e.body)
@@ -101,7 +101,7 @@ def exchange_public_token(): #controller function
     req = ItemPublicTokenExchangeRequest(
       public_token=public_token
     )
-    response = client.item_public_token_exchange(req)
+    response = plaid_client.item_public_token_exchange(req)
     access_token = response['access_token']
     item_id = response['item_id']
     # new_UFI = UserFinancialInstitute()
@@ -124,20 +124,23 @@ def exchange_public_token(): #controller function
               )
     db.session.add(new_UFI)
     db.session.commit()
-    populate_UFI_accounts(new_UFI.id)
+    # new_UFI.populate_UFI_accounts()
+    populate_UFI_accounts(new_UFI.id) #EDIT UFI
     return redirect('/') #jsonify(response.to_dict())
 
 ##############################################################################
 # UFI CRUD and functions
+
+# UFI MODEL
 def get_UFI_info():
     """retrieves institution name to create UFI instance (website, logo, and color also a possibility for customization)"""
     item_request = ItemGetRequest(access_token=access_token)
-    item_response = client.item_get(item_request)
+    item_response = plaid_client.item_get(item_request)
     institution_request = InstitutionsGetByIdRequest(
         institution_id=item_response['item']['institution_id'],
         country_codes=list(map(lambda x: CountryCode(x), PLAID_COUNTRY_CODES))
     )
-    institution_response = client.institutions_get_by_id(institution_request)
+    institution_response = plaid_client.institutions_get_by_id(institution_request)
     print(item_response.to_dict()) #delete
     print(institution_response.to_dict()) #delete
     name = institution_response['institution']['name']
@@ -163,24 +166,27 @@ def UFI_delete(UFI_id):
     db.session.commit()
     return redirect('/')
 
+# UFI MODEL
 def delete_plaid_UFI_access_key(UFI_access_key):
     request = ItemRemoveRequest(access_token=UFI_access_key)
-    response = client.item_remove(request)
+    response = plaid_client.item_remove(request)
     print(response) #DELETE
     
 
 # @app.route('/financial-institutions/<int:UFI_id>/accounts/populate')
 ##############################################################################
 # Accounts CRUD and functions
+
+# UFI MODEL
 def populate_UFI_accounts(UFI_id):
     curr_UFI = UserFinancialInstitute.query.get_or_404(UFI_id)
     request = AccountsBalanceGetRequest(access_token=curr_UFI.plaid_access_token)
-    response = client.accounts_balance_get(request)
+    response = plaid_client.accounts_balance_get(request)
     accounts = response['accounts']
-    print(accounts)
+    # print(accounts)
     for account in accounts:
         budget_trackable = False
-        print(str(account['type']))
+        # print(str(account['type']))
         if str(account['type']) == 'depository':
             available=account['balances']['available']
             current=account['balances']['current']
@@ -212,20 +218,20 @@ def populate_UFI_accounts(UFI_id):
             db.session.add(new_Account)
             db.session.commit()
 
+# UFI MODEL
 def update_accounts_of_UFI(UFI_id):
     UFI=UserFinancialInstitute.query.get_or_404(UFI_id)
     account_ids=[]
     for account in UFI.accounts:
         account_ids.append(account.account_id)
-    options={}
     request = AccountsBalanceGetRequest(access_token=UFI.plaid_access_token,
                                         options=AccountsBalanceGetRequestOptions(
                                                 account_ids=account_ids
                                                 )
               )
-    response = client.accounts_balance_get(request)
+    response = plaid_client.accounts_balance_get(request)
     accounts = response['accounts']
-    print(accounts)
+    # print(accounts)
     for account in accounts:
         if str(account['type']) == 'depository':
             available=account['balances']['available']
@@ -249,6 +255,7 @@ def update_accounts_of_UFI(UFI_id):
         db.session.add(update_account)
         db.session.commit()
 
+# ACCOUNT MODEL
 def get_amount_spent_for_account(account, start, end):
     access_token=account.UFI.plaid_access_token
     request = TransactionsGetRequest(
@@ -257,7 +264,7 @@ def get_amount_spent_for_account(account, start, end):
             end_date=end.date(),
             options=TransactionsGetRequestOptions(account_ids=[account.account_id])
     )
-    response = client.transactions_get(request)
+    response = plaid_client.transactions_get(request)
     transactions = response['transactions']
     print(transactions)
     omit_categories = ["Transfer", "Credit Card", "Deposit", "Payment"]
@@ -574,11 +581,13 @@ def scheduled():
     #Notify users
     scheduled_daily_send_bt_notifications()
 
+# UFI MODEL
 def scheduled_daily_refresh_all_accounts():
     UFIs = UserFinancialInstitute.query.all()
     for UFI in UFIs:
         update_accounts_of_UFI(UFI.id)
 
+# BT MODEL
 def scheduled_daily_refresh_budgettrackers():
     budgettrackers = BudgetTracker.query.all()
     for bt in budgettrackers:
@@ -591,6 +600,7 @@ def scheduled_daily_refresh_budgettrackers():
         db.session.add(bt)
         db.session.commit()
 
+# BT MODEL
 def scheduled_daily_send_bt_notifications():
     """Grabs all budget trackers scheduled to send notifications to their users, sends mobile text"""
     bt_scheduled_for_notif = BudgetTracker.find_all_scheduled_today()
