@@ -2,7 +2,9 @@
 
 from flask import Flask, jsonify, redirect, render_template, flash, session, g
 from flask import request
+from flask_crontab import Crontab
 # from flask_debugtoolbar import DebugToolbarExtension
+
 import os
 from twilio.rest import Client as TwilioClient
 from plaid.model.country_code import CountryCode
@@ -22,6 +24,7 @@ from plaid.api import plaid_api
 import datetime
 from datetime import timedelta
 import time
+
 import json
 import base64
 from forms import SignUpUserForm, LoginForm, UpdateUserForm, CreateBudgetTrackerForm, UpdateBudgetTrackerForm
@@ -33,6 +36,7 @@ load_dotenv()
 CURR_USER_KEY = "curr_user"
 
 app = Flask(__name__)
+crontab = Crontab(app)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///wealth_and_budget_db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
@@ -558,8 +562,18 @@ def send_text(phone_number, msg):
 
 ##############################################################################
 # Scheduled Jobs
+# run 'flask crontab add' to initialize
+# This will run everyday at 12pm UTC
+@crontab.job(minute=0, hour=12)
+def scheduled():
+    """Run scheduled job"""
+    # Refresh accounts
+    scheduled_daily_refresh_all_accounts()
+    # Update budget tracker amount spent vals
+    scheduled_daily_refresh_budgettrackers()
+    #Notify users
+    scheduled_daily_send_bt_notifications()
 
-# Refresh accounts
 def scheduled_daily_refresh_all_accounts():
     UFIs = UserFinancialInstitute.query.all()
     for UFI in UFIs:

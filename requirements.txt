@@ -6,6 +6,7 @@ chardet==4.0.0
 click==8.0.1
 Flask==2.0.1
 Flask-Bcrypt==0.7.1
+flask-crontab==0.1.2
 Flask-DebugToolbar==0.11.0
 Flask-SQLAlchemy==2.5.1
 Flask-WTF==0.15.1
