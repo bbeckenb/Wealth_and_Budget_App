@@ -4,7 +4,6 @@ from flask import Flask, jsonify, redirect, render_template, flash, session, g
 from flask import request
 from flask_crontab import Crontab
 # from flask_debugtoolbar import DebugToolbarExtension
-
 import os
 from twilio.rest import Client as TwilioClient
 from plaid.model.country_code import CountryCode
@@ -96,7 +95,7 @@ def create_link_token():
         return json.loads(e.body)
 
 @app.route('/exchange_public_token', methods=['POST'])
-def exchange_public_token():
+def exchange_public_token(): #controller function
     global access_token
     public_token = request.form['public_token']
     req = ItemPublicTokenExchangeRequest(
@@ -563,6 +562,7 @@ def send_text(phone_number, msg):
 ##############################################################################
 # Scheduled Jobs
 # run 'flask crontab add' to initialize
+# run 'flask crontab remove' to remove
 # This will run everyday at 12pm UTC
 @crontab.job(minute=0, hour=12)
 def scheduled():

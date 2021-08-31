@@ -112,7 +112,7 @@ class UserFinancialInstitute(db.Model):
 
     def __repr__(self):
         u=self
-        return f"<UFI name={u.name} Uid={u.user_id} user_id={u.user_id}>"
+        return f"<UFI name={u.name} user_id={u.user_id}>"
     
     def aggregate_account_balances(self, with_loans=False):
         aggregated_balance = 0
