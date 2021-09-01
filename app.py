@@ -315,6 +315,9 @@ def create_budget_tracker(acct_id):
     if not g.user or UFI_of_acct not in g.user.UFIs:
         flash("Access unauthorized.", "danger")
         return redirect("/")
+    if not specified_acct.budget_trackable:
+        flash("Account is not eligible for budget tracking.", "danger")
+        return redirect("/")
     if specified_acct.budgettracker:
         flash("Budget Tracker already exists for this account.", "danger")
         return redirect("/")
