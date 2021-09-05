@@ -1,132 +1,195 @@
 {% extends 'base.html' %}
+{% block head %} 
+    {% if g.user.UFIs|length > 0 %}
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript">
+        google.charts.load("current", {packages:["corechart"]});
+        google.charts.setOnLoadCallback(drawChart);
+        function drawChart() {
+            let data_to_insert = "{{g.user.pie_chart_data()}}"
+            data_to_insert=data_to_insert.replaceAll('&#34;', '"')
+            data_to_insert=JSON.parse(data_to_insert)           
+            let data = google.visualization.arrayToDataTable(data_to_insert);
+            let options = {
+                title: 'Institution Breakdown',
+                is3D: true,
+                backgroundColor: {
+                    fill: 'f5f5f5',
+                    stroke: '#eef4f8',
+                    strokeWidth: 1,
+                    rx: 7.5,
+                    ry: 7.5
+                }
+            };
+            let chart = new google.visualization.PieChart(document.getElementById('piechart_3d'));
+            chart.draw(data, options);
+        }
+        </script>
+    {% endif %}
+{% endblock %}
 {% block title %} {{g.user.username}} Dashboard {% endblock %}
 {% block content %}
-    <div class="jumbotron">
-        <h1 class="display-4">{{g.user.username}} Dashboard</h1>
-        <p class="lead">Welcome {{g.user.first_name}} {{g.user.last_name}}
-            this is your phone number: {{g.user.phone_number}}</p>
-            <h3><ul>
-                <li>
-                    Total without loans: {{g.user.aggregate_UFI_balances()}}
-                </li>
-                <li>
-                    Total: {{g.user.aggregate_UFI_balances(with_loans=True)}}
-                </li>
-            </ul></h3>
+    <div class="jumbotron" style="background-color: #f5f5f5;">
+        <div class="text-center"><h1 class="display-4">{{g.user.username}} Dashboard</h1></div>
+            <hr class="my-3">  
+            <div class="container">
+                <div class="row">
+                    <div class="col-sm-12 col-md-6">
+                        <div class="card text-dark bg-light mb-3">
+                            <div class="card-body">
+                                <ul class="list-group">
+                                    {% if g.user.aggregate_UFI_balances() > 0 %}
+                                    <li class="list-group-item list-group-item-action list-group-item-success text-dark bg-opacity-50">
+                                    {% elif g.user.aggregate_UFI_balances() == 0 %}
+                                    <li class="list-group-item list-group-item-action list-group-item-dark">
+                                    {% else %}
+                                    <li class="list-group-item list-group-item-action list-group-item-danger">
+                                    {% endif %}
+                                        <b>Total Wealth <i>(no loans)</i>:</b>  $ {{g.user.aggregate_UFI_balances()}}
+                                    </li>
+                                    {% if g.user.aggregate_UFI_balances(with_loans=True) > 0 %}
+                                    <li class="list-group-item list-group-item-action list-group-item-success">
+                                    {% elif g.user.aggregate_UFI_balances(with_loans=True) == 0 %}
+                                    <li class="list-group-item list-group-item-action list-group-item-dark">
+                                    {% else %}
+                                    <li class="list-group-item list-group-item-action list-group-item-danger">
+                                    {% endif %}
+                                        <b>Total Wealth:</b> $ {{g.user.aggregate_UFI_balances(with_loans=True)}}
+                                    </li>
+                                </ul>
+                                <hr class="my-3">
+                                <div class="row justify-content-md-center">
+                                    <h6><b>User Options</b></h6>
+                                </div> 
+                                <hr class="my-2">
+                                <div class="row justify-content-md-center">
+                                        <a href="/logout" class="btn btn-outline-primary btn-sm">Log out</a>
+                                        <a href="/users/update-profile" class="btn btn-outline-primary btn-sm">Update Profile</a>
+                                        <form action="/users/delete" method="POST"><button class="btn btn-outline-danger btn-sm" >Delete Profile</button></form>
+                                        <button id="link-button" class="btn btn-outline-success btn-sm">Link Account</button>    
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        {% if g.user.UFIs|length == 0 %}
+                                <div>
+                                    <p>No Institutions linked yet, click 'Link Account' under 'User Options' to get started</p>
+                                </div>
+                        {% else %}
+                            <div id="piechart_3d" style="width: 450px; height: 275px;"></div>
+                        {% endif %}   
+                    </div>
+                </div>
+            </div>
         <hr class="my-4">
         <div class="container">
             <div class="row">
-                <div class="col-sm-12 col-md-6">
-                    <div class="card text-white bg-secondary mb-3" style="max-width: 18rem;">
-                        <div class="card-header">{{g.user.username}} Profile</div>
-                        <div class="card-body">
-                            <h5 class="card-title">User Options</h5>
-                            <a href="/users/update-profile" class="btn btn-sm btn-primary">Update Profile</a>
-                            <a href="/logout" class="btn btn-sm btn-primary">Log out</a>
-                            <form action="/users/delete" method="POST"><button class="btn btn-sm btn-danger">Delete Profile</button></form>
-                            <button id="link-button" class="btn btn-sm btn-success">Link Account</button>
-                            <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-                            <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
-                            <script type="text/javascript">
-                                (async function($) {
-                                    const handler = Plaid.create({
-                                        // Create a new link_token to initialize Link
-                                        token: (await $.post('/create_link_token')).link_token,
-                                        onLoad: function() {
-                                        // Optional, called when Link loads
-                                        },
-                                        onSuccess: function(public_token, metadata) {
-                                        // Send the public_token to your app server.
-                                        // The metadata object contains info about the institution the
-                                        // user selected and the account ID or IDs, if the
-                                        // Account Select view is enabled.
-                                        $.post('/exchange_public_token', {
-                                            public_token: public_token,
-                                        });
-                                        },
-                                        onExit: function(err, metadata) {
-                                        // The user exited the Link flow.
-                                        if (err != null) {
-                                            // The user encountered a Plaid API error prior to exiting.
-                                        }
-                                        // metadata contains information about the institution
-                                        // that the user selected and the most recent API request IDs.
-                                        // Storing this information can be helpful for support.
-                                        },
-                                        onEvent: function(eventName, metadata) {
-                                        // Optionally capture Link flow events, streamed through
-                                        // this callback as your users connect an Item to Plaid.
-                                        // For example:
-                                        // eventName = "TRANSITION_VIEW"
-                                        // metadata  = {
-                                        //   link_session_id: "123-abc",
-                                        //   mfa_type:        "questions",
-                                        //   timestamp:       "2017-09-14T14:42:19.350Z",
-                                        //   view_name:       "MFA",
-                                        // }
-                                        }
-                                    });
-                            
-                                    $('#link-button').on('click', function(e) {
-                                        handler.open();
-                                    });
-                                    })(jQuery);
-                                </script>
-                            </div>
-                        </div>
-                </div>
-                <div class="col-sm-12 col-md-6">
-                    {% for institution in g.user.UFIs %}
-                    <div class="card bg-light mb-3" style="max-width: 24rem;">
-                        <div class="card-header">ID: {{institution.id}} 
-                        </div>
-                            <div class="card-body">
-                        <h5 class="card-title">{{institution.name}}</h5>
-                        {% if institution.accounts|length == 0 %}
-                            <p>You have no accounts on record with this institution</p>
-                        {% else %}
-                            <ul>
-                                <div>
-                                    <ul>
-                                        <li>
-                                            Total without loans: {{institution.aggregate_account_balances()}}
-                                        </li>
-                                        <li>
-                                            Total: {{institution.aggregate_account_balances(with_loans=True)}}
-                                        </li>
-                                    </ul>
-                                    <hr class="my-4">
+                {% for institution in g.user.UFIs %}
+                    <div class="col-sm-12 col-md-6">
+                        <div class="card bg-light mb-3" >                   
+                            <div class="card-header" style="background-color: #166095; color: white;">
+                                <div class="d-flex flex-row">
+                                    <div class="mr-auto p-2">
+                                        <h5 class="card-title">{{institution.name}}</h5>
+                                    </div>
+                                    <div class="p-2">
+                                        <div class="btn-group">
+                                            <a href="/financial-institutions/{{institution.id}}/accounts/update" class="btn btn-sm btn-primary"><i class="fas fa-sync"></i></a>
+                                            <form action="/financial-institutions/{{institution.id}}/delete" method="POST"><button class="btn btn-sm btn-danger"><i class="far fa-trash-alt"></i></button></form>
+                                        </div>
+                                    </div>
                                 </div>
-                                {% for account in institution.accounts %}
-                                    <li>{{account.name}} - {{account.type}} - ${{account.current}}</li>
-                                    {% if account.budget_trackable %}
-                                        {% if account.budgettracker %}
-                                            <h6>Budget Tracker Status - Amount Spent: $ {{account.budgettracker[0].amount_spent}} - Monthly Budget: $ {{account.budgettracker[0].budget_threshold}}</h6>
-                                            <a href="/accounts/{{account.id}}/budget-tracker/update" class="btn btn-sm btn-info">Update BudgetTracker</a>
-                                            <form action="/accounts/{{account.id}}/budget-tracker/delete" method="POST"><button class="btn btn-sm btn-danger">Delete Budget Tracker</button></form>
-                                        {% else %}
-                                            <a href="/accounts/{{account.id}}/budget-tracker/create" class="btn btn-sm btn-success">Create BudgetTracker</a>
-                                        {% endif %}
-                                    {% endif %}
-                                    <form action="/accounts/{{account.id}}/delete" method="POST"><button class="btn btn-sm btn-danger">Delete Account</button></form>
-                                    <hr class="my-4">
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
-                        <form action="/financial-institutions/{{institution.id}}/delete" method="POST"><button class="btn btn-sm btn-danger">Delete Connection</button></form>
-                        <a href="/financial-institutions/{{institution.id}}/accounts/update" class="btn btn-sm btn-primary">Update Accounts</a>
+                            </div>
+                            <div class="card-body">
+                                {% if institution.accounts|length == 0 %}
+                                    <p>You have no accounts on record with this institution</p>
+                                {% else %}
+                                    <div>
+                                        <ul class="list-group">
+                                            {% if institution.aggregate_account_balances() > 0 %}
+                                                <li class="list-group-item list-group-item-action list-group-item-success">
+                                            {% elif institution.aggregate_account_balances() == 0 %}
+                                                <li class="list-group-item list-group-item-action list-group-item-dark">
+                                            {% else %}
+                                                <li class="list-group-item list-group-item-action list-group-item-danger">
+                                            {% endif %}
+                                                    <b>Total Amount <i>(no loans)</i>:</b>  $ {{institution.aggregate_account_balances()}}
+                                                </li>
+                                            {% if institution.aggregate_account_balances(with_loans=True) > 0 %}
+                                                <li class="list-group-item list-group-item-action list-group-item-success">
+                                            {% elif institution.aggregate_account_balances(with_loans=True) == 0 %}
+                                                <li class="list-group-item list-group-item-action list-group-item-dark">
+                                            {% else %}
+                                                <li class="list-group-item list-group-item-action list-group-item-danger">
+                                            {% endif %}
+                                                    <b>Total Amount:</b> $ {{institution.aggregate_account_balances(with_loans=True)}}
+                                                </li>
+                                        </ul>
+                                        <hr class="my-4">
+                                    </div>
+                                    <ul class="list-group">
+                                        {% for account in institution.accounts %}
+                                            <li class="list-group-item list-group-item-light">
+                                                <ul class="list-group">
+                                                    <li class="list-group-item list-group-item-primary d-flex justify-content-between align-items-center">
+                                                        <b>{{account.name}}</b><form action="/accounts/{{account.id}}/delete" method="POST"><button class="btn btn-sm btn-outline-danger"><i class="far fa-trash-alt"></i></button></form>
+                                                    </li>
+                                                    {% if account.type == 'credit' %}
+                                                        <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">Limit: $ {{account.limit}}</li>
+                                                        <li class="list-group-item list-group-item-light">Spent: $ {{account.current}}</li>
+                                                        <li class="list-group-item list-group-item-light">Available: $ {{account.limit - account.current}}</li>   
+                                                    {% elif account.type == 'depository'%}
+                                                        {% if account.subtype == 'checking' %}
+                                                                <li class="list-group-item list-group-item-light">Available: $ {{account.available}}</li>
+                                                                <li class="list-group-item list-group-item-light">Current: $ {{account.current}}</li> 
+                                                        {% else %}
+                                                                <li class="list-group-item list-group-item-light">Current: $ {{account.current}}</li>
+                                                        {% endif %}
+                                                    {% else %}
+                                                        <li class="list-group-item list-group-item-light">Outstanding Balance: $ {{account.current}}</li>
+                                                    {% endif %}
+                                                    {% if account.budget_trackable %}
+                                                        <li class="list-group-item list-group-item-light">
+                                                        {% if account.budgettracker %}
+                                                            <ul class="list-group">
+                                                                <li class="list-group-item list-group-item-primary"><b>BudgetTracker Status:</b></li>
+                                                                <li class="list-group-item list-group-item-warning">Monthly Budget: $ {{account.budgettracker[0].budget_threshold}}</li>
+                                                                <li class="list-group-item list-group-item-warning">Amount Spent: $ {{account.budgettracker[0].amount_spent}}</li>
+                                                                <li class="list-group-item list-group-item-warning">Notification Frequency (days): {{account.budgettracker[0].notification_frequency}}</li>
+                                                                <li class="list-group-item list-group-item-warning">Next Notification: {{account.budgettracker[0].pretty_print_next_notify_date()}}</li>
+                                                                <li class="list-group-item list-group-item-primary">
+                                                                    <div class="d-flex justify-content-center">
+                                                                        <a href="/accounts/{{account.id}}/budget-tracker/update" class="btn btn-sm btn-outline-info"><i class="fas fa-pencil-alt"></i></a>
+                                                                        <form action="/accounts/{{account.id}}/budget-tracker/delete" method="POST"><button class="btn btn-sm btn-outline-danger"><i class="far fa-trash-alt"></i></button></form>
+                                                                    </div>
+                                                                </li>
+                                                            </ul>
+                                                        {% else %}
+                                                                <div class="d-flex justify-content-center">
+                                                                    <a href="/accounts/{{account.id}}/budget-tracker/create" class="btn btn-sm btn-outline-success">Create BudgetTracker</a>
+                                                                </div>
+                                                        {% endif %}
+                                                                </li>
+                                                    {% endif %}
+                                                            </ul> 
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% endif %}
+                            </div>
                         </div>
                     </div>
                 {% endfor %}
-                </div>
             </div>
         </div>
-                
-        </div>
+        </div>       
+    </div>
     
    
     
 
-   
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+<script src="static/js/plaidLink.js"></script> 
 {% endblock %}

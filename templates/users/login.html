@@ -5,8 +5,8 @@
 {% block content %}
 
   <div class="row justify-content-md-center">
-    <div class="container">
-      <h2 class="join-message">Welcome back.</h2>
+    <div class="col-md-4">
+      <h2 class="join-message">Welcome back!</h2>
 
       <form method="POST" id="user_form">
         {{ form.hidden_tag() }}
@@ -15,12 +15,15 @@
           {% for error in field.errors %}
             <span class="text-danger">{{ error }}</span>
           {% endfor %}
+          {{ field.label }}
           {{ field(placeholder=field.label.text, class="form-control") }}
         {% endfor %}
 
-        <button class="btn btn-primary btn-lg">Log in</button>
+        <div class="edit-btn-area">
+          <button class="btn btn-outline-primary">Login</button>
+          <a href="/" class="btn btn-outline-danger">Cancel</a>
+        </div>
       </form>
-      <a href="/" class="btn btn-danger btn-lg">Cancel</a>
     </div>
     
   </div>

@@ -1,26 +1,36 @@
 {% extends 'base.html' %}
 {% block title %} Update Budget Tracker for {{account.name}} {% endblock %}
 {% block content %}
-  <div class="row justify-content-md-center">
-    <div class="col-md-4">
-      <h2 class="join-message">Update BudgetTracker for {{account.name}} </h2>
+<div class="row justify-content-md-center">
+  <div class="col-md-4">
+      <h4 class="join-message">Update budget tracker for: <h5><i>{{account.name}}</i></h5></h3>
+  
       <form method="POST" id="user_form">
-        {{ form.hidden_tag() }}
+          {{ form.hidden_tag() }}
 
-        {% for field in form if field.widget.input_type != 'hidden' %}
-          {% for error in field.errors %}
-            <span class="text-danger">{{ error }}</span>
+          {% for field in form if field.widget.input_type != 'hidden' and field.name != 'notification_frequency' %}
+              {% for error in field.errors %}
+                  <span class="text-danger">{{ error }}</span>
+              {% endfor %}
+              {{ field.label }}
+              {{ field(placeholder=field.label.text, class="form-control") }}
           {% endfor %}
-          {{ field.label }}
-          {{ field(placeholder=field.label.text, class="form-control") }}
-        {% endfor %}
 
-        <div class="edit-btn-area">
-          <button class="btn btn-success">Update</button>
-          <a href="/" class="btn btn-outline-secondary">Cancel</a>
-        </div>
+          {% if form.notification_frequency.errors %}
+              {% for error in form.notification_frequency.errors %}
+                  <span class="text-danger">
+                      {{ error }}
+                  </span>
+              {% endfor %}
+          {% endif %}
+          {{ form.notification_frequency.label }}
+          {{ form.notification_frequency(placeholder="Days between notification texts", class="form-control") }}
+          <div class="edit-btn-area">
+              <button class="btn btn-outline-success">Update</button>
+              <a href="/" class="btn btn-outline-danger">Cancel</a>
+          </div>
       </form>
-    </div>
   </div>
+</div>
 
 {% endblock %}

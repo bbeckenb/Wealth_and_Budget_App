@@ -2,8 +2,8 @@
 {% block title %} Sign up {% endblock %}
 {% block content %}
     <div class="row justify-content-md-center">
-        <h3>Sign up for wealth budget tracker</h3>
-        <div class="container">
+        <div class="col-md-4">
+            <h3>Sign up!</h3>
             <form method="POST">
                 {{ form.hidden_tag() }}
 
@@ -11,11 +11,14 @@
                     {% for error in field.errors %}
                         <span class="text-danger">{{ error }}</span>
                     {% endfor %}
+                    {{ field.label }}
                     {{ field(placeholder=field.label.text, class="form-control") }}
                 {% endfor %}
-                <button class="btn btn-primary btn-lg">Register</button>
+                <div class="edit-btn-area">
+                    <button class="btn btn-outline-primary">Sign up</button>
+                    <a href="/" class="btn btn-outline-danger">Cancel</a>
+                </div>
             </form>
-            <a href="/" class="btn btn-danger btn-lg">Cancel</a>
         </div>
     </div>
 {% endblock %}

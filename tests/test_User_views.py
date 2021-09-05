@@ -2,8 +2,8 @@
 
 from unittest import TestCase
 
-from flask import Flask, session, g
-from app import app, CURR_USER_KEY
+from app import app
+from views.User_views import CURR_USER_KEY
 from models import db, User, UserFinancialInstitute, Account
 
 # Use test database and don't clutter tests with SQL

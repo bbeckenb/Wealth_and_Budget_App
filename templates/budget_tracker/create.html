@@ -2,20 +2,34 @@
 {% block title %} Create Budget Tracker {% endblock %}
 {% block content %}
     <div class="row justify-content-md-center">
-        <h3>Create budget tracker for {{account.name}}</h3>
-        <div class="container">
-            <form method="POST">
+        <div class="col-md-4">
+            <h4 class="join-message">Create budget tracker for: <h5><i>{{account.name}}</i></h5></h3>
+        
+            <form method="POST" id="user_form">
                 {{ form.hidden_tag() }}
 
-                {% for field in form if field.widget.input_type != 'hidden' %}
+                {% for field in form if field.widget.input_type != 'hidden' and field.name != 'notification_frequency' %}
                     {% for error in field.errors %}
                         <span class="text-danger">{{ error }}</span>
                     {% endfor %}
+                    {{ field.label }}
                     {{ field(placeholder=field.label.text, class="form-control") }}
                 {% endfor %}
-                <button class="btn btn-primary btn-lg">Create</button>
+
+                {% if form.notification_frequency.errors %}
+                    {% for error in form.notification_frequency.errors %}
+                        <span class="text-danger">
+                            {{ error }}
+                        </span>
+                    {% endfor %}
+                {% endif %}
+                {{ form.notification_frequency.label }}
+                {{ form.notification_frequency(placeholder="Days between notification texts", class="form-control") }}
+                <div class="edit-btn-area">
+                    <button class="btn btn-outline-primary">Create</button>
+                    <a href="/" class="btn btn-outline-danger">Cancel</a>
+                </div>
             </form>
-            <a href="/" class="btn btn-danger btn-lg">Cancel</a>
         </div>
     </div>
 {% endblock %}

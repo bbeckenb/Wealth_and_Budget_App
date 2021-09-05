@@ -44,12 +44,13 @@ class UpdateUserForm(FlaskForm):
 class CreateBudgetTrackerForm(FlaskForm):
     """Form for user to create budget tracker for their account"""
     budget_threshold = FloatField("Monthly Budget Threshold", validators=[InputRequired(message="Threshold amount required"), NumberRange(min=0, message="Minimum threshold $0")])
-    notification_frequency = IntegerField("Notification Frequency (Days between notifications)", validators=[InputRequired(message="Notification Frequency required"), NumberRange(min=1, max=15, message="Notification Frequency must be between 1 and 15 days")])
+    notification_frequency = IntegerField("Notification Frequency", validators=[InputRequired(message="Notification Frequency required"), NumberRange(min=0, max=15, message="Notification Frequency must be between 1 and 15 days")])
 
 class UpdateBudgetTrackerForm(FlaskForm): 
     """Form for user to update budget tracker for their account"""
     budget_threshold = FloatField("Monthly Budget Threshold", validators=[InputRequired(message="Threshold amount required"), NumberRange(min=0, message="Minimum threshold $0")])
-    notification_frequency = IntegerField("Notification Frequency (Days between notifications)", validators=[InputRequired(message="Notification Frequency required"), NumberRange(min=1, max=15, message="Notification Frequency must be between 1 and 15 days")])  
+    notification_frequency = IntegerField("Notification Frequency", validators=[InputRequired(message="Notification Frequency required"), NumberRange(min=1, max=15, message="Notification Frequency must be between 1 and 15 days")])  
+
 # class AddSnackForm(FlaskForm):
 #     """Form for adding snacks."""
 
