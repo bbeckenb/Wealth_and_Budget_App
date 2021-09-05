@@ -274,7 +274,7 @@ class Account(db.Model):
             if category_allowed and transaction['amount'] > 0:
                 print(transaction['category'])
                 amount_spent+=transaction['amount']
-        return round(amount_spent, 2)
+        return round(amount_spent,2)
 
     def delete_Account(self):
         db.session.delete(self)
@@ -367,14 +367,14 @@ class MyPlaid:
     def create_plaid_client(self, environment='sandbox'):
         if environment == 'development':
             host = plaid.Environment.Development 
-            secret = os.environ.get('PLAID_SECRET', os.getenv('PLAID_SECRET'))
+            secret = os.getenv('PLAID_SECRET')
         else:
             host = plaid.Environment.Sandbox
             secret = '0aae90632ad426c5d97740c670814f' #sandbox key
         configuration = plaid.Configuration(
             host=host,
             api_key={
-                'clientId': os.environ.get('PLAID_CLIENT_ID', os.getenv('PLAID_CLIENT_ID')),
+                'clientId': os.getenv('PLAID_CLIENT_ID'),
                 'secret': secret,
                 'plaidVersion': '2020-09-14'
             }
@@ -389,14 +389,14 @@ class MyPlaid:
             item_response = self.plaid_client.item_get(item_request)
             institution_request = InstitutionsGetByIdRequest(
                 institution_id=item_response['item']['institution_id'],
-                country_codes=list(map(lambda x: CountryCode(x), os.environ.get('PLAID_COUNTRY_CODES', os.getenv('PLAID_COUNTRY_CODES', 'US').split(','))))
+                country_codes=list(map(lambda x: CountryCode(x), os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')))
             )
             institution_response = self.plaid_client.institutions_get_by_id(institution_request)
             return institution_response['institution']
     def create_plaid_link_token(self):
         try:
             products = []
-            for product in os.environ.get('PLAID_PRODUCTS', os.getenv('PLAID_PRODUCTS', 'transactions').split(',')):
+            for product in os.getenv('PLAID_PRODUCTS', 'transactions').split(','):
                 products.append(Products(product))
             request = LinkTokenCreateRequest(
                                             products=products,
@@ -460,11 +460,11 @@ class MyPlaid:
 class MyTwilio:
     """Class to represent my connection to Twilio and house methods to call their API for this application"""
     def __init__(self):
-        self.twilio_number = os.environ.get('TWILIO_NUM', os.getenv('TWILIO_NUM'))
+        self.twilio_number = os.getenv('TWILIO_NUM')
         self.twilio_client = self.create_Twilio_client()
 
     def create_Twilio_client(self):
-        return TwilioClient(os.environ.get('TWILIO_ACCOUNT_SID', os.getenv('TWILIO_ACCOUNT_SID')), os.environ.get('TWILIO_AUTH_TOKEN', os.getenv('TWILIO_AUTH_TOKEN')))
+        return TwilioClient(os.getenv('TWILIO_ACCOUNT_SID'), os.getenv('TWILIO_AUTH_TOKEN'))
 
     def send_text(self, phone_number, msg):
         phone_number='+1'+phone_number
