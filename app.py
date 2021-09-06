@@ -6,7 +6,7 @@ from views.UFI_views import get_plaid_access_key_create_UFI, delete_UFI_instance
 from views.Account_views import delete_specified_account
 from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts
 from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs
-from models import connect_db, MyPlaid, MyTwilio, User, UserFinancialInstitute, Account, BudgetTracker, db
+from models import connect_db, MyPlaid, MyTwilio
 from flask_crontab import Crontab
 from dotenv import load_dotenv
 from flask import Flask
