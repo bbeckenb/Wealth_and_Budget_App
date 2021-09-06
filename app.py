@@ -24,7 +24,7 @@ app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
 load_dotenv()
 connect_db(app)
 crontab = Crontab(app)
-plaid_inst = MyPlaid('development')
+plaid_inst = MyPlaid('sandbox')
 twilio_inst = MyTwilio()
 ##############################################################################
 # User
@@ -99,7 +99,7 @@ def delete_budget_tracker(acct_id):
 # 'crontab -l' to see list of jobs
 # 'crontab -e' to manually edit list of jobs, 'esc' :wq 'enter' to leave list
 # This will run everyday at 12pm UTC
-@crontab.job(minute=0, hour=12)
-def scheduled_jobs():
-    scheduled_daily_refresh_all_accounts(plaid_inst)
-    scheduled_budget_tracker_jobs(plaid_inst, twilio_inst)
+# @crontab.job(minute=0, hour=12)
+# def scheduled_jobs():
+#     scheduled_daily_refresh_all_accounts(plaid_inst)
+#     scheduled_budget_tracker_jobs(plaid_inst, twilio_inst)
