@@ -6,16 +6,16 @@ from sqlalchemy.exc import IntegrityError
 CURR_USER_KEY = "curr_user"
 
 def do_login(user):
-    """Log in user."""
+    """Log user into session"""
     session[CURR_USER_KEY] = user.id
 
 def do_logout():
-    """Logout user."""
+    """Log user out of session"""
     if CURR_USER_KEY in session:
         del session[CURR_USER_KEY]
 
 def add_global_user_to_session():
-    """If we're logged in, add curr user to Flask global."""
+    """If a user is logged in, add user instance to global object"""
     if CURR_USER_KEY in session:
         g.user = User.query.get(session[CURR_USER_KEY])
     else:
@@ -52,6 +52,7 @@ def signup_user():
             flash("Username already taken", 'danger')
             return render_template('users/signup.html', form=form) 
         do_login(new_user)
+        flash(f"Welcome to CashView {new_user.username}!", "primary")
         return redirect('/')
     else:
         return render_template('users/signup.html', form=form) 
@@ -66,11 +67,10 @@ def login_user():
         return redirect('/')
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.authenticate(form.username.data,
-                                 form.password.data)
+        user = User.authenticate(form.username.data, form.password.data)
         if user:
             do_login(user)
-            flash(f"Hello, {user.username}!", "success")
+            flash(f"Hello, {user.username}!", "primary")
             return redirect("/")
         flash("Invalid credentials.", 'danger')
     return render_template('users/login.html', form=form)
@@ -111,19 +111,20 @@ def update_user_profile():
                 db.session.rollback()
                 flash("Username already taken", 'danger')
                 return render_template('users/update.html', form=form)   
-            flash("Profile successfully updated!", "success")
+            flash("Profile successfully updated!", "info")
             return redirect('/')
         else:
             flash("Incorrect password", 'danger')
     return render_template('users/update.html', form=form)
 
 def delete_user_profile():
-    """Delete user."""
+    """Logout user, delete User instance from database"""
     if not g.user:
         flash("Access unauthorized.", "danger")
     else:
         user = User.query.get(g.user.id)
         do_logout()
+        flash(f"{user.username} profile and information successfully deleted!", "success")
         db.session.delete(user)
         db.session.commit()  
     return redirect("/")

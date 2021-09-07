@@ -1,4 +1,3 @@
-from models import MyPlaid, MyTwilio
 from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts
 from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs
 from dotenv import load_dotenv

@@ -1,10 +1,11 @@
 from flask import flash, g, redirect
+from plaid.api.plaid_api import PlaidApi
 from models import UserFinancialInstitute
 
-def get_plaid_access_key_create_UFI(plaid_inst):
+def get_plaid_access_key_create_UFI(plaid_inst: PlaidApi):
+    """Retrieves public_access_token and UFI information from Plaid server, creates UFI instance, adds it to database"""
     access_token, item_id = plaid_inst.exchange_public_token_generate_access_token()
     institution = plaid_inst.get_UFI_info_from_Plaid(access_token)
-    print(institution)
     new_UFI = UserFinancialInstitute.create_new_UFI(
                                                     name=institution['name'],
                                                     user_id=g.user.id,
@@ -15,6 +16,7 @@ def get_plaid_access_key_create_UFI(plaid_inst):
                                                     logo=institution.get('logo', None)
                                      )
     new_UFI.populate_UFI_accounts(plaid_inst)
+    flash(f"Connection to {new_UFI.name} successfully made, accounts populated!", "success")
     return redirect('/')
 
 def delete_UFI_instance(UFI_id, plaid_inst):
@@ -33,8 +35,10 @@ def delete_UFI_instance(UFI_id, plaid_inst):
     return redirect('/')
 
 def update_UFI_Accounts(UFI_id, plaid_inst):
+    """Queries database for specific UFI, pullas all accounts related to it, requests most up-to-date balance information, updates Account instance information in database"""
     this_UFI = UserFinancialInstitute.query.get_or_404(UFI_id)
     this_UFI.update_accounts_of_UFI(plaid_inst)
+    flash(f"Accounts of {this_UFI.name} updated!", "info")
     return redirect('/')
 
 

@@ -41,6 +41,7 @@ def create_new_budget_tracker(acct_id, plaid_inst):
                                                 )
             db.session.add(new_budget_tracker)
             db.session.commit()
+            flash(f"Budget Tracker for {specified_acct.name} created!", "success")
         except:
             flash("database error", 'danger') #DELETE
             return render_template('budget_tracker/create.html', form=form, account=specified_acct) 
@@ -73,7 +74,7 @@ def update_existing_budget_tracker(acct_id):
             specified_bt.next_notification_date=(today_date+timedelta(days=form.notification_frequency.data))
             db.session.add(specified_bt)
             db.session.commit()
-
+            flash(f"Budget Tracker for {specified_bt.account.name} updated!", "info")
         except:
             flash("database error", 'danger') #DELETE
             return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
@@ -82,6 +83,7 @@ def update_existing_budget_tracker(acct_id):
         return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
 
 def delete_specified_budget_tracker(acct_id):
+    """Deletes specified account instance from database"""
     if not g.user:
         flash("Access unauthorized.", 'danger')
         return redirect('/')
@@ -89,5 +91,6 @@ def delete_specified_budget_tracker(acct_id):
     if not specified_bt:
         flash("Budget Tracker not in database.", "danger")
         return redirect("/")
+    flash(f"Budget Tracker for {specified_bt.account.name} deleted!", "success")
     specified_bt.delete_budget_tracker()
     return redirect('/')

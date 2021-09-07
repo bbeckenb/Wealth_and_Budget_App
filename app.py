@@ -4,8 +4,6 @@ from views.User_views import render_homepage, add_global_user_to_session, signup
 from views.BudgetTracker_views import create_new_budget_tracker, update_existing_budget_tracker, delete_specified_budget_tracker
 from views.UFI_views import get_plaid_access_key_create_UFI, delete_UFI_instance, update_UFI_Accounts
 from views.Account_views import delete_specified_account
-from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts
-from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs
 from models import connect_db, MyPlaid, MyTwilio
 from flask_crontab import Crontab
 from dotenv import load_dotenv
@@ -17,8 +15,8 @@ app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get('DATABASE_URL', 'postgres:///wealth_and_budget_db').replace("://", "ql://", 1)
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ECHO'] = True
-app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.getenv('SECRET_KEY'))
 app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.getenv('SECRET_KEY'))
 ##############################################################################
 # Initializations
 load_dotenv()
@@ -73,7 +71,6 @@ def UFI_delete(UFI_id):
 @app.route('/financial-institutions/<int:UFI_id>/accounts/update')
 def update_UFI_accounts_on_page(UFI_id):
     return update_UFI_Accounts(UFI_id, plaid_inst)
-
 ##############################################################################
 # Accounts CRUD and functions
 @app.route('/accounts/<int:acct_id>/delete', methods=['POST'])
@@ -93,7 +90,7 @@ def update_budget_tracker(acct_id):
 def delete_budget_tracker(acct_id):
     return delete_specified_budget_tracker(acct_id)
 ##############################################################################
-# CRON Scheduled Jobs
+# CRON Scheduled Jobs For local server
 # run 'flask crontab add' to initialize
 # run 'flask crontab remove' to remove
 # 'crontab -l' to see list of jobs
