@@ -1,7 +1,10 @@
 from unittest import TestCase
-import os
+import app
 from app import app
-from models import db, User, UserFinancialInstitute, Account
+from database.database import db
+from models.User import User
+from models.UserFinancialInstitution import UserFinancialInstitute
+from models.Account import Account
 from flask_bcrypt import Bcrypt
 
 bcrypt = Bcrypt()
@@ -18,6 +21,7 @@ app.config['TESTING'] = True
 
 # This is a bit of hack, but don't use Flask DebugToolbar
 app.config['DEBUG_TB_HOSTS'] = ['dont-show-debug-toolbar']
+app.secret_key = 'test_key'
 
 db.drop_all()
 db.create_all()
@@ -27,23 +31,18 @@ class UserModelTestCase(TestCase):
 
     def setUp(self):
         """Create test client, add sample data."""
-
-        User.query.delete()
-        UserFinancialInstitute.query.delete()
-        Account.query.delete()
-
         self.client = app.test_client()
 
         # Test User 0 
-        test_user = User(  username='harrypotter', 
+        test_user0 = User(  username='harrypotter', 
                             password='HASHED_PASSWORD',
-                            phone_number='999-999-9999',
+                            phone_number='9999999999',
                             first_name='Harry',
-                            last_name='Potter')
-        db.session.add(test_user)
+                            last_name='Potter',
+                            account_type='sandbox')
+        db.session.add(test_user0)
         db.session.commit()
-
-        self.test_user = test_user
+        self.test_user0 = test_user0
 
     def tearDown(self):
         """Clean up any fouled transaction"""
@@ -57,9 +56,10 @@ class UserModelTestCase(TestCase):
         u = User(   
                 username='harrypotter1', 
                 password='HASHED_PASSWORD',
-                phone_number='999-999-3333',
+                phone_number='9999993333',
                 first_name='Harrison',
-                last_name='Potterson'
+                last_name='Potterson',
+                account_type='sandbox'
                 )
 
         db.session.add(u)
@@ -70,26 +70,24 @@ class UserModelTestCase(TestCase):
 
     def test_user__repr__(self):
         """Checks what User.__repr__ outputs"""
-        db.session.add(self.test_user)
-        db.session.commit()
-
-        self.assertEqual(repr(self.test_user), "<User username=harrypotter phone_number=999-999-9999 first_name=Harry last_name=Potter>")
+        self.assertEqual(repr(self.test_user0), "<User username=harrypotter phone_number=9999999999 first_name=Harry last_name=Potter>")
 
     def test_user_class_signup_method(self):
         """Takes in required User inputs adds a new User instance to SQLAlchemy's staging area"""
         test_user1 = User.signup(
                                 username='harrypotter1', 
                                 password='HASHED_PASSWORD',
-                                phone_number='999-999-3333',
+                                phone_number='9999993333',
                                 first_name='Harrison',
-                                last_name='Potterson'
+                                last_name='Potterson',
+                                account_type='sandbox'
                                 )
         # ID will not be assigned until the new User instance is committed (will be None)
         self.assertIsNone(test_user1.id)
 
         # but other attributes should be available to check
         self.assertEqual(test_user1.username, 'harrypotter1')
-        self.assertEqual(test_user1.phone_number, '999-999-3333')
+        self.assertEqual(test_user1.phone_number, '9999993333')
         self.assertEqual(test_user1.first_name, 'Harrison')
         self.assertEqual(test_user1.last_name, 'Potterson')
 
@@ -110,9 +108,10 @@ class UserModelTestCase(TestCase):
         test_user1 = User.signup(
                     username='harrypotter1', 
                     password='HASHED_PASSWORD',
-                    phone_number='999-999-3333',
+                    phone_number='9999993333',
                     first_name='Harrison',
-                    last_name='Potterson'
+                    last_name='Potterson',
+                    account_type='sandbox'
                 )
         db.session.commit()
 

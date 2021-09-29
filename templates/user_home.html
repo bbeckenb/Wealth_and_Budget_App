@@ -68,6 +68,19 @@
                                         <form action="/users/delete" method="POST"><button class="btn btn-outline-danger btn-sm" >Delete Profile</button></form>
                                         <button id="link-button" class="btn btn-outline-success btn-sm">Link Account</button>    
                                 </div>
+                                {% if g.user.account_type == 'sandbox' %}
+                                    <hr class="my-3">  
+                                        <div class="row justify-content-md-center">
+                                            <h6><b>Sandbox Credentials</b></h6>
+                                        </div>
+                                        <div class="row justify-content-md-center">   
+                                            <ul>
+                                                <li><b>Username:</b> 'user_good'</li>
+                                                <li><b>Password:</b> 'pass_good'</li>
+                                                <li><b>Pin (if asked):</b> '1234'</li>
+                                            </ul>
+                                        </div>
+                                {% endif %}
                             </div>
                         </div>
                     </div>
@@ -158,6 +171,9 @@
                                                                 <li class="list-group-item list-group-item-warning">Amount Spent: $ {{account.budgettracker[0].amount_spent}}</li>
                                                                 <li class="list-group-item list-group-item-warning">Notification Frequency (days): {{account.budgettracker[0].notification_frequency}}</li>
                                                                 <li class="list-group-item list-group-item-warning">Next Notification: {{account.budgettracker[0].pretty_print_next_notify_date()}}</li>
+                                                                {% if g.user.account_type == 'sandbox' %}
+                                                                    <li class="list-group-item list-group-item-info">Sandbox Account: Text Notification Ineligible</li>
+                                                                {% endif %}
                                                                 <li class="list-group-item list-group-item-primary">
                                                                     <div class="d-flex justify-content-center">
                                                                         <a href="/accounts/{{account.id}}/budget-tracker/update" class="btn btn-sm btn-outline-info"><i class="fas fa-pencil-alt"></i></a>
@@ -185,10 +201,6 @@
         </div>
         </div>       
     </div>
-    
-   
-    
-
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
 <script src="static/js/plaidLink.js"></script> 
