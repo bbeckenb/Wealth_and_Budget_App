@@ -34,6 +34,7 @@ class BudgetTrackerController:
         form = CreateBudgetTrackerForm()
         if form.validate_on_submit():
             today_date = datetime.datetime.today()
+            print("YOU ARE HERE", g.user, g.user.account_type)
             if today_date.day == 1:
                 amount_spent = 0
             else:

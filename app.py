@@ -77,6 +77,7 @@ def delete_account(acct_id):
 # BudgetTracker
 @app.route('/accounts/<int:acct_id>/budget-tracker/create', methods=['GET', 'POST'])
 def create_budget_tracker(acct_id):
+    print(acct_id)
     return BudgetTrackerController.create_new_budget_tracker(acct_id)
 
 @app.route('/accounts/<int:acct_id>/budget-tracker/update', methods=['GET', 'POST'])

@@ -1,7 +1,6 @@
 from database.database import db
 from models.Account import Account
 from models.PlaidClient import PlaidClient
-from plaid.api import plaid_api
 
 class UserFinancialInstitute(db.Model):
     """Model links Users to financial institutions as 'Items' (in Plaid API vocabulary) represents UserFinancialInstitute (UFI) instances in ORM (SQLAlchemy)

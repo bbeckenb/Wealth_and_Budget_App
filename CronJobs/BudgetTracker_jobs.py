@@ -1,4 +1,4 @@
-from models import BudgetTracker
+from models.BudgetTracker import BudgetTracker
 
 def scheduled_budget_tracker_jobs():
     """Gets amount spent information for all Accounts related to BudgetTrackers from Plaid, notifies users scheduled to be notified using twilio"""

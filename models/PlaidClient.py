@@ -114,6 +114,7 @@ class PlaidClient:
 
     def get_Account_transactions_from_Plaid(self, access_token:str, start:datetime, end:datetime, account_id:str) -> dict:
         """Passes UFI access token, start date, end date, and specified Account ID to Plaid, retrieves transactions for specified account in date range"""
+        print('plaid model', account_id, access_token)
         request = TransactionsGetRequest(
                                         access_token=access_token,
                                         start_date=start.date(),

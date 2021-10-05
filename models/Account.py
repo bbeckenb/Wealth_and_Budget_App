@@ -37,6 +37,7 @@ class Account(db.Model):
         """Takes in MyPlaid class instance to be able to request information from the Plaid API. 
         Grabs transaction information for specified account from Plaid API between requested 'start' and 'end' dates. 
         Adds costs of transactions and returns the sum"""
+        print('account model', plaid_user_type)
         access_token=self.UFI.plaid_access_token
         plaid_inst = PlaidClient(plaid_user_type)
         transactions = plaid_inst.get_Account_transactions_from_Plaid(access_token, start, end, self.account_id)
