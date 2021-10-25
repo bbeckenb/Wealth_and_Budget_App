@@ -12,8 +12,10 @@ ufiHolder.on("click", 'button', async function(e) {
         try {
           const res = await axios.get(`/financial-institutions/${id}/accounts/update`);
           addAccountsToUFI(res.data.accounts, id, update=true);
-          updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
-          updatePieChart(res.data);
+          if(res.data.accounts) {
+            updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
+            updatePieChart(res.data);
+          }
         } catch (err) {
           throw err;
         }
@@ -60,8 +62,8 @@ async function addUFItoPage(institution) {
               newUfiHTML += '<p>You have no accounts on record with this institution</p>';
           } else {
               newUfiHTML += `
-              <div>
-                  <ul id="Institution-${institution.id}-balances" class="list-group">`;
+              <div id="Institution-${institution.id}-balances">
+                  <ul class="list-group">`;
               if (institution.accountBalNoLoan > 0) {
                   newUfiHTML += '<li class="list-group-item list-group-item-action list-group-item-success">';
               } else if (institution.accountBalNoLoan === 0) {
@@ -138,25 +140,32 @@ async function addAccountsToUFI(accounts, ufiId, update=false) {
     ufiAccountHolder.html(currentHTML);
 }
 
-function updateUFIBalances(balNoLoan, balWLoan, ufiId) {
-  const ufiBal = $(`#Institution-${ufiId}-balances`)
+function updateUFIBalances({ufiBalanaceNoLoan, ufiBalanceWithLoan, id, numAccounts}) {
+  const ufiBal = $(`#Institution-${id}-balances`)
   let htmlStr = '';
-  if (balNoLoan > 0) {
-    htmlStr += '<li class="list-group-item list-group-item-action list-group-item-success">';
-  } else if (balNoLoan === 0) {
-    htmlStr += '<li class="list-group-item list-group-item-action list-group-item-dark">';
+  if (numAccounts === 0) {
+    htmlStr = '<p>You have no accounts on record with this institution</p>';
   } else {
-    htmlStr += '<li class="list-group-item list-group-item-action list-group-item-danger">';
+    htmlStr += '<ul class="list-group">'
+    if (ufiBalanaceNoLoan > 0) {
+        htmlStr += '<li class="list-group-item list-group-item-action list-group-item-success">';
+    } else if (ufiBalanaceNoLoan === 0) {
+        htmlStr += '<li class="list-group-item list-group-item-action list-group-item-dark">';
+    } else {
+        htmlStr += '<li class="list-group-item list-group-item-action list-group-item-danger">';
+    }
+    htmlStr += `<b>Total Amount <i>(no loans)</i>:</b>  $ ${ufiBalanaceNoLoan}</li>`;
+    if (ufiBalanceWithLoan > 0) {
+        htmlStr += '<li class="list-group-item list-group-item-action list-group-item-success">';
+    } else if (ufiBalanceWithLoan == 0) {
+        htmlStr += '<li class="list-group-item list-group-item-action list-group-item-dark">';
+    } else {
+        htmlStr += '<li class="list-group-item list-group-item-action list-group-item-danger">';
+    }
+    htmlStr += `<b>Total Amount:</b> $ ${ufiBalanceWithLoan}
+    </li>
+    </ul>
+    <hr class="my-4">` 
   }
-  htmlStr += `<b>Total Amount <i>(no loans)</i>:</b>  $ ${balNoLoan}</li>`;
-  if (balWLoan > 0) {
-    htmlStr += '<li class="list-group-item list-group-item-action list-group-item-success">';
-  } else if (balWLoan == 0) {
-    htmlStr += '<li class="list-group-item list-group-item-action list-group-item-dark">';
-  } else {
-    htmlStr += '<li class="list-group-item list-group-item-action list-group-item-danger">';
-  }
-  htmlStr += `<b>Total Amount:</b> $ ${balWLoan}
-        </li>` 
   ufiBal.html(htmlStr);
 }

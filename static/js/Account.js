@@ -7,7 +7,7 @@ async function deleteAcct(acctId) {
       const res = await axios.post(`/accounts/${acctId}/delete`);
       updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
       updatePieChart(res.data);
-      updateUFIBalances(res.data.ufiBalanaceNoLoan, res.data.ufiBalanceWithLoan, res.data.id) 
+      updateUFIBalances(res.data); 
     } catch (err) {
       throw err;
     }

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block head %} 
-    {% if g.user.UFIs|length > 0 %}
+    {% if g.user.pie_chart_data() != False %}
         <!-- <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script> -->
         <script type="text/javascript">
         google.charts.load("current", {packages:["corechart"]});
@@ -88,7 +88,7 @@
                     </div>
                     <div class="col-sm-12 col-md-6">
                         <div id="piechart_3d">
-                        {% if g.user.UFIs|length == 0 %}
+                        {% if g.user.pie_chart_data() == False %}
                                 <p>No Institutions or no Accounts linked yet, click 'Link Account' under 'User Options' to get started</p>
                         {% endif %} 
                         </div>
@@ -118,8 +118,8 @@
                                 {% if institution.accounts|length == 0 %}
                                     <p>You have no accounts on record with this institution</p>
                                 {% else %}
-                                    <div>
-                                        <ul id="Institution-{{institution.id}}-balances" class="list-group">
+                                    <div id="Institution-{{institution.id}}-balances">
+                                        <ul class="list-group">
                                             {% if institution.aggregate_account_balances() > 0 %}
                                                 <li class="list-group-item list-group-item-action list-group-item-success">
                                             {% elif institution.aggregate_account_balances() == 0 %}

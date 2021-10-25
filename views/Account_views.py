@@ -25,6 +25,7 @@ class AccountController:
                         'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
                         'pieChartData': g.user.pie_chart_data(),
                         'id':UFI.id,
+                        'numAccounts':len(UFI.accounts),
                         'ufiBalanaceNoLoan': UFI.aggregate_account_balances(),
                         'ufiBalanceWithLoan': UFI.aggregate_account_balances(with_loans=True)
                         })
