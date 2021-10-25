@@ -2,6 +2,7 @@
 from unittest import TestCase
 import app
 from app import app
+import datetime
 from database.database import db
 from models.User import User
 from models.UserFinancialInstitution import UserFinancialInstitute
@@ -82,4 +83,37 @@ class UserAccountModelTestCase(TestCase):
 
         self.assertEqual(repr(self.test_UFI.accounts[0]), f"<Account name={u.name} id={u.id} UFI_id={u.UFI_id} available={u.available} current={u.current} limit={u.limit}>")
 
-    # def get_amount_spent_for_account(account, start, end)
+    def test_get_amount_spent_for_account(self):
+        """Takes in MyPlaid class instance to be able to request information from the Plaid API. 
+        Grabs transaction information for specified account from Plaid API between requested 'start' and 'end' dates. 
+        Adds costs of transactions and returns the sum"""
+        # column data for UFI.accounts[0]
+        # |      name      |  available | current  | limit     |    type    |   subtype |
+        # | Plaid Checking |     100    |   110    |           |depository  | checking  |
+        test_account0 = self.test_UFI.accounts[0]
+        today_date = datetime.datetime.today()
+        # first of the month to first of month should return 0
+        self.assertEqual(test_account0.get_amount_spent_for_account(today_date.replace(day=1), today_date.replace(day=1), self.test_user0.account_type), 0)
+        # any other time of month should return a variable number back
+        self.assertIsInstance(type(test_account0.get_amount_spent_for_account(today_date.replace(day=1), today_date.replace(day=15), self.test_user0.account_type)), type(float))
+
+    def test_delete_Account(self):
+        """Deletes specified Account instance from the database"""
+        # only test_user0 in test db
+        num_accts = len(Account.query.all())
+        u = Account(name='n1', 
+                    UFI_id=self.test_UFI.id, 
+                    available=10, current=10, 
+                    limit=None, type='depository', 
+                    subtype='checking', 
+                    account_id='X', 
+                    budget_trackable=True)
+
+        db.session.add(u)
+        db.session.commit()
+
+        self.assertEqual(num_accts+1, len(Account.query.all()))
+
+        u.delete_Account()
+
+        self.assertEqual(num_accts, len(Account.query.all()))

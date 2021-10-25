@@ -4,6 +4,7 @@ from app import app
 from database.database import db
 from models.User import User
 from models.UserFinancialInstitution import UserFinancialInstitute
+from models.PlaidClient import PlaidClient
 from models.Account import Account
 from flask_bcrypt import Bcrypt
 
@@ -123,3 +124,105 @@ class UserModelTestCase(TestCase):
 
         # Does User.authenticate fail to return a user when the password is invalid?
         self.assertFalse(User.authenticate(test_user1.username, 'notpassword'))
+
+    def test_user_aggregate_UFI_balances(self):
+        """Roll up of total wealth of a specified user. For all UserFinancialInstitutions (UFI) 
+        instances owned by a specified user, the function aggregates all of the balances from 
+        the Account instances owned by the UFI, then returns a sum of all aggregations. Includes 
+        or ignores accounts with 'loan' type based on input boolean"""
+
+        # test_user0 currently has no UFIs attached and therefore should have UFI balances of 0
+        self.assertEqual(self.test_user0.aggregate_UFI_balances(), 0)
+
+        # adding a UFI with test accounts
+        test_UFI = UserFinancialInstitute(name='Test_name', 
+                                    user_id=self.test_user0.id,
+                                    item_id='test_item_id',
+                                    plaid_access_token='test_plaid_access_key')
+        db.session.add(test_UFI)
+        db.session.commit()
+
+        test_account_1 = Account(name = 'test_acct_1',
+                                 UFI_id = test_UFI.id,
+                                 available = 100,
+                                 current = 20,
+                                 limit = None,                  
+                                 type = 'depository',
+                                 subtype = 'checking',
+                                 account_id = 'test_acct_1'
+        )
+        db.session.add(test_account_1)
+        db.session.commit()
+
+        test_account_2 = Account(name = 'test_acct_2',
+                                 UFI_id = test_UFI.id,
+                                 available = 10,
+                                 current = 20,
+                                 limit = None,                  
+                                 type = 'loan',
+                                 subtype = 'student',
+                                 account_id = 'test_acct_2'
+        )
+        db.session.add(test_account_2)
+        db.session.commit()
+
+        # this tests with out loans, the second account is type loan, so it will be ignored
+        self.assertEqual(self.test_user0.aggregate_UFI_balances(), 100)
+
+        # this tests with loans, the second account is type loan, so it will subtract the current value from the sum
+        self.assertEqual(self.test_user0.aggregate_UFI_balances(True), 80)
+
+    def test_user_pie_chart_data(self):
+        """Creates a usable dataset for Google Charts pie chart embedded in HTML. Dataset is an 
+        array of arrays, each element of the main array contains [name of UFI (str), aggregated balance of its accounts (float)]
+        This array is stringified to be stored on the user's HTML page as a string to be reconverted to its original form by javascript."""
+
+        # test_user0 currently has no UFIs attached and therefore should have only the column titles element
+        self.assertEqual(self.test_user0.pie_chart_data(), '[["Institution Name", "Amount"]]')
+
+        # adding a UFI with test accounts
+        test_UFI = UserFinancialInstitute(name='Test_name', 
+                                    user_id=self.test_user0.id,
+                                    item_id='test_item_id',
+                                    plaid_access_token='test_plaid_access_key')
+        db.session.add(test_UFI)
+        db.session.commit()
+
+        test_account_1 = Account(name = 'test_acct_1',
+                                 UFI_id = test_UFI.id,
+                                 available = 100,
+                                 current = 20,
+                                 limit = None,                  
+                                 type = 'depository',
+                                 subtype = 'checking',
+                                 account_id = 'test_acct_1'
+        )
+        db.session.add(test_account_1)
+        db.session.commit()
+
+        test_account_2 = Account(name = 'test_acct_2',
+                                 UFI_id = test_UFI.id,
+                                 available = 10,
+                                 current = 20,
+                                 limit = None,                  
+                                 type = 'loan',
+                                 subtype = 'student',
+                                 account_id = 'test_acct_2'
+        )
+        db.session.add(test_account_2)
+        db.session.commit()
+
+        # this tests with out loans, as it is used in the application. The second account is type loan, so it will be ignored
+        self.assertEqual(self.test_user0.pie_chart_data(), '[["Institution Name", "Amount"], ["Test_name", 100.0]]')
+
+    def test_delete_User(self):
+        """Deletes specified User instance from the database"""
+        # only test_user0 in test db
+        self.assertEqual(len(User.query.all()), 1)
+
+        self.test_user0.delete_User()
+
+        self.assertEqual(len(User.query.all()), 0)
+
+        
+        

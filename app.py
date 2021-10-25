@@ -9,6 +9,7 @@ from database.database import connect_db
 from dotenv import load_dotenv
 from flask import Flask
 import os
+
 ##############################################################################
 # Configurations
 app = Flask(__name__)

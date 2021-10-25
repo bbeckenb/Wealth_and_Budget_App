@@ -1,4 +1,4 @@
-from flask import flash, g, redirect
+from flask import flash, g, redirect, jsonify
 from models.Account import Account
 
 class AccountController:
@@ -20,4 +20,11 @@ class AccountController:
             flash(f"Account {acct_to_delete.name} deleted!", "success")
         except:
             flash(f"Something went wrong when attempting to delete {acct_to_delete.name}.", "danger")
-        return redirect('/')
+        return jsonify({'msg': f"Account {acct_id} deleted",
+                        'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
+                        'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
+                        'pieChartData': g.user.pie_chart_data(),
+                        'id':UFI.id,
+                        'ufiBalanaceNoLoan': UFI.aggregate_account_balances(),
+                        'ufiBalanceWithLoan': UFI.aggregate_account_balances(with_loans=True)
+                        })

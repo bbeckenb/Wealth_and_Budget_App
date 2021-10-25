@@ -1,6 +1,7 @@
-from flask import flash, g, redirect
+from flask import flash, g, redirect, jsonify
 from models.PlaidClient import PlaidClient
 from models.UserFinancialInstitution import UserFinancialInstitute
+import asyncio
 
 class UFIController:
     """Controller for UFI views"""      
@@ -10,10 +11,10 @@ class UFIController:
     @classmethod
     def get_plaid_access_key_create_UFI(cls):
         """Retrieves public_access_token and UFI information from Plaid server, creates UFI instance, adds it to database"""
-        plaid_inst = PlaidClient(g.user.account_type)
-        access_token, item_id = plaid_inst.exchange_public_token_generate_access_token()
-        institution = plaid_inst.get_UFI_info_from_Plaid(access_token)
         try:
+            plaid_inst = PlaidClient(g.user.account_type)
+            access_token, item_id = plaid_inst.exchange_public_token_generate_access_token()
+            institution = plaid_inst.get_UFI_info_from_Plaid(access_token)
             new_UFI = UserFinancialInstitute.create_new_UFI(
                                                             name=institution['name'],
                                                             user_id=g.user.id,
@@ -23,11 +24,21 @@ class UFIController:
                                                             primary_color=institution.get('primary_color', None),
                                                             logo=institution.get('logo', None)
                                             )
-            new_UFI.populate_UFI_accounts(g.user.account_type)
+            accounts_out = new_UFI.populate_UFI_accounts(g.user.account_type) 
             flash(f"Connection to {new_UFI.name} successfully made, accounts populated!", "success")
         except:
             flash("Something went wrong when attempting to link this financial institution.", 'danger')
-        return redirect('/')
+        return jsonify({'accounts': accounts_out,
+                        'id':new_UFI.id,
+                        'accountBalNoLoan': new_UFI.aggregate_account_balances(),
+                        'accountBalWithLoan': new_UFI.aggregate_account_balances(with_loans=True),
+                        'name': new_UFI.name,
+                        'userId': new_UFI.user_id,
+                        'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
+                        'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
+                        'pieChartData': g.user.pie_chart_data()
+                        })
+        
 
     @classmethod
     def delete_UFI_instance(cls, UFI_id):
@@ -47,17 +58,36 @@ class UFIController:
             flash(f"Your connection to {holdName} was removed and the access_token is now invalid", 'success')
         except:
             flash("Something went wrong when delete was attempted.", 'danger')
-        return redirect('/')
+        return jsonify({'msg': f"UFI {UFI_id} deleted",
+                        'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
+                        'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
+                        'pieChartData': g.user.pie_chart_data()
+                        })
 
     @classmethod
     def update_UFI_Accounts(cls, UFI_id):
         """Queries database for specific UFI, pullas all accounts related to it, requests most up-to-date balance information, updates Account instance information in database"""
         this_UFI = UserFinancialInstitute.query.get_or_404(UFI_id)
         try:
-            this_UFI.update_accounts_of_UFI(g.user.account_type)
-            flash(f"Accounts of {this_UFI.name} updated!", "info")
+            if (len(this_UFI.accounts) > 0):
+                accounts_out = this_UFI.update_accounts_of_UFI(g.user.account_type)
+                flash(f"Accounts of {this_UFI.name} updated!", "info")
+                payload = {
+                            'accounts': accounts_out,
+                            'id':this_UFI.id,
+                            'accountBalNoLoan': this_UFI.aggregate_account_balances(),
+                            'accountBalWithLoan': this_UFI.aggregate_account_balances(with_loans=True),
+                            'name': this_UFI.name,
+                            'userId': this_UFI.user_id,
+                            'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
+                            'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
+                            'pieChartData': g.user.pie_chart_data()
+                        }
+            else:
+                flash(f"No accounts to update!", "info")
+                payload = {'msg': 'No accounts to update!'}
         except:
             flash("Something went wrong when account update was attempted.", 'danger')
-        return redirect('/')
+        return jsonify(payload)
 
 

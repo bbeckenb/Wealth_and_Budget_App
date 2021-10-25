@@ -5,6 +5,10 @@ green - rgb(82, 122, 82)
 
 */
 
+.letter {
+    transition: color 750ms;
+}
+
 
 
 

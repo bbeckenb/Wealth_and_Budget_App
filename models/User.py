@@ -79,10 +79,12 @@ class User(db.Model):
         array of arrays, each element of the main array contains [name of UFI (str), aggregated balance of its accounts (float)]
         This array is stringified to be stored on the user's HTML page as a string to be reconverted to its original form by javascript."""
         UFI_data_array = []
+        num_of_accounts = 0
         UFI_data_array.append(['Institution Name', 'Amount'])
         for UFI in self.UFIs:
+            num_of_accounts += len(UFI.accounts)
             UFI_data_array.append([UFI.name, UFI.aggregate_account_balances()])
-        return json.dumps(UFI_data_array)
+        return False if num_of_accounts==0 or len(UFI_data_array)==1 else json.dumps(UFI_data_array)
 
     def delete_User(self):
         """Deletes specified User instance from the database"""

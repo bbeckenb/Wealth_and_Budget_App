@@ -12,7 +12,7 @@ from plaid.model.item_get_request import ItemGetRequest
 from plaid.model.country_code import CountryCode
 from plaid.model.products import Products
 from plaid.api import plaid_api
-from datetime import timedelta, date
+import asyncio
 import datetime
 import time
 import plaid
@@ -33,7 +33,7 @@ class PlaidClient:
         else:
             host = plaid.Environment.Sandbox
             secret = '0aae90632ad426c5d97740c670814f' #sandbox key
-        configuration = plaid.Configuration(
+        configuration =  plaid.Configuration(
             host=host,
             api_key={
                 'clientId': os.getenv('PLAID_CLIENT_ID'),
@@ -47,13 +47,13 @@ class PlaidClient:
   
     def get_UFI_info_from_Plaid(self, access_token) -> dict:
             """retrieves institution name, website, logo, and color to create UFI instance"""
-            item_request = ItemGetRequest(access_token=access_token)
+            item_request =  ItemGetRequest(access_token=access_token)
             item_response = self.plaid_client.item_get(item_request)
-            institution_request = InstitutionsGetByIdRequest(
+            institution_request =  InstitutionsGetByIdRequest(
                 institution_id=item_response['item']['institution_id'],
                 country_codes=list(map(lambda x: CountryCode(x), os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')))
             )
-            institution_response = self.plaid_client.institutions_get_by_id(institution_request)
+            institution_response =  self.plaid_client.institutions_get_by_id(institution_request)
             return institution_response['institution']
 
     def create_plaid_link_token(self):
@@ -62,7 +62,7 @@ class PlaidClient:
             products = []
             for product in os.getenv('PLAID_PRODUCTS', 'transactions').split(','):
                 products.append(Products(product))
-            request = LinkTokenCreateRequest(
+            request =  LinkTokenCreateRequest(
                                             products=products,
                                             client_name="W_and_B_app",
                                             country_codes=list(map(lambda x: CountryCode(x), os.getenv('PLAID_COUNTRY_CODES', 'US').split(','))),
@@ -71,7 +71,7 @@ class PlaidClient:
                                                                             client_user_id=str(time.time())
                                                  )
                       )
-            response = self.plaid_client.link_token_create(request)
+            response =  self.plaid_client.link_token_create(request)
             return jsonify(response.to_dict())
         except plaid.ApiException as e:
             return json.loads(e.body)
@@ -79,30 +79,30 @@ class PlaidClient:
     def exchange_public_token_generate_access_token(self):
         """Stage 2 server side of token passing process for UFI access token security""" 
         public_token = request.form['public_token']
-        req = ItemPublicTokenExchangeRequest(
+        req =  ItemPublicTokenExchangeRequest(
             public_token=public_token
         )
-        response = self.plaid_client.item_public_token_exchange(req)
+        response =  self.plaid_client.item_public_token_exchange(req)
         access_token = response['access_token']
         item_id = response['item_id']
-        return access_token, item_id   
+        return access_token, item_id 
     
     def close_out_UFI_access_key_with_Plaid(self, access_token:str) -> dict:
         """Destroys an item's access token on Plaid's server"""
-        request = ItemRemoveRequest(access_token=access_token)
-        response = self.plaid_client.item_remove(request)
+        request =  ItemRemoveRequest(access_token=access_token)
+        response =  self.plaid_client.item_remove(request)
         return response
 
     def get_UFI_Account_balances_from_Plaid(self, access_token:str) -> dict:
         """Passes a UFI's access token to Plaid Server, retrieves account balances of all Accounts associated with UFI"""
-        request = AccountsBalanceGetRequest(access_token=access_token)
-        response = self.plaid_client.accounts_balance_get(request)
+        request =  AccountsBalanceGetRequest(access_token=access_token)
+        response =  self.plaid_client.accounts_balance_get(request)
         accounts = response['accounts']
         return accounts
 
     def get_UFI_specified_Account_balances_from_Plaid(self, account_ids:list, access_token:str) -> dict:
         """Passes a UFI's access token and specific account IDs to Plaid Server, retrieves account balances for specified Accounts associated with UFI"""
-        request = AccountsBalanceGetRequest(
+        request =  AccountsBalanceGetRequest(
                                             access_token=access_token,
                                             options=AccountsBalanceGetRequestOptions(
                                                                                      account_ids=account_ids
@@ -115,26 +115,26 @@ class PlaidClient:
     def get_Account_transactions_from_Plaid(self, access_token:str, start:datetime, end:datetime, account_id:str) -> dict:
         """Passes UFI access token, start date, end date, and specified Account ID to Plaid, retrieves transactions for specified account in date range"""
         print('plaid model', account_id, access_token)
-        request = TransactionsGetRequest(
+        request =  TransactionsGetRequest(
                                         access_token=access_token,
                                         start_date=start.date(),
                                         end_date=end.date(),
                                         options=TransactionsGetRequestOptions(account_ids=[account_id])
                     )
-        response = self.plaid_client.transactions_get(request)
+        response =  self.plaid_client.transactions_get(request)
         transactions = response['transactions']
         return transactions
 
     def createTestUFIToken(self):
-        pt_request = SandboxPublicTokenCreateRequest(
+        pt_request =  SandboxPublicTokenCreateRequest(
                                     institution_id='ins_109508',
                                     initial_products=[Products('transactions')]
                     )
-        pt_response = self.plaid_client.sandbox_public_token_create(pt_request)
+        pt_response =  self.plaid_client.sandbox_public_token_create(pt_request)
         # The generated public_token can now be
         # exchanged for an access_token
-        exchange_request = ItemPublicTokenExchangeRequest(
+        exchange_request =  ItemPublicTokenExchangeRequest(
                                     public_token=pt_response['public_token']
                             )
-        exchange_response = self.plaid_client.item_public_token_exchange(exchange_request)
+        exchange_response =  self.plaid_client.item_public_token_exchange(exchange_request)
         return exchange_response['access_token']

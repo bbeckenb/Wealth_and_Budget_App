@@ -58,6 +58,7 @@ class UserFinancialInstitute(db.Model):
         Properly harvests information from accounts based on type/subtype, creates Account class instances for all and enteres them into the database"""
         plaid_inst = PlaidClient(plaid_user_type)
         accounts = plaid_inst.get_UFI_Account_balances_from_Plaid(self.plaid_access_token)
+        accounts_out = []
         for account in accounts:
             budget_trackable = False
             if str(account['type']) == 'depository':
@@ -95,6 +96,18 @@ class UserFinancialInstitute(db.Model):
                 )
                 db.session.add(new_Account)
                 db.session.commit()
+                accounts_out.append({'name':account['name'],
+                                     'UFI_id':self.id,
+                                     'available':available,
+                                     'current':current,
+                                     'limit':limit,
+                                     'type':str(account['type']),
+                                     'subtype':str(account['subtype']),
+                                     'account_id':str(account['account_id']),
+                                     'budget_trackable':budget_trackable,
+                                     'id': new_Account.id
+                                    })
+        return accounts_out
 
     def update_accounts_of_UFI(self, plaid_user_type:str):
         """Takes in MyPlaid class instance to be able to request information from the Plaid API. Grabs most up-to-date account balances
@@ -104,6 +117,7 @@ class UserFinancialInstitute(db.Model):
             account_ids.append(account.account_id)
         plaid_inst = PlaidClient(plaid_user_type)
         accounts = plaid_inst.get_UFI_specified_Account_balances_from_Plaid(account_ids, self.plaid_access_token)
+        accounts_out = []
         for account in accounts:
             if str(account['type']) == 'depository':
                 available=account['balances']['available']
@@ -130,6 +144,18 @@ class UserFinancialInstitute(db.Model):
             update_account.limit = limit
             db.session.add(update_account)
             db.session.commit()
+            accounts_out.append({'name':account['name'],
+                                 'UFI_id':self.id,
+                                 'available':available,
+                                 'current':current,
+                                 'limit':limit,
+                                 'type':str(account['type']),
+                                 'subtype':str(account['subtype']),
+                                 'account_id':str(account['account_id']),
+                                 'budget_trackable':update_account.budget_trackable,
+                                 'id': update_account.id
+                                })
+            return accounts_out
 
     def aggregate_account_balances(self, with_loans:bool=False) -> float:
         """For specified UFI, sums all account balances, handles accounts of type 'depository', 'credit', 'investment', and 'loan'.
