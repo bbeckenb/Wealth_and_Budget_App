@@ -12,6 +12,7 @@
         addAccountsToUFI(newUfiAndAccounts.accounts, newUfiAndAccounts.id);
         updateDashboardBalances(newUfiAndAccounts.dashboardBalanceNoLoan, newUfiAndAccounts.dashboardBalanceWithLoan);
         endLoadScreen();
+        addAlert(newUfiAndAccounts.message);
         }),
         onExit: function(err, metadata) {
         if (err != null) {}

@@ -155,7 +155,7 @@ class UserFinancialInstitute(db.Model):
                                  'budget_trackable':update_account.budget_trackable,
                                  'id': update_account.id
                                 })
-            return accounts_out
+        return accounts_out
 
     def aggregate_account_balances(self, with_loans:bool=False) -> float:
         """For specified UFI, sums all account balances, handles accounts of type 'depository', 'credit', 'investment', and 'loan'.

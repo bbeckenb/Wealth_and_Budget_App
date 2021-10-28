@@ -58,8 +58,8 @@ class UserController:
                     account_type=form.account_type.data
                 )
                 db.session.commit()
-            except:
-                flash("Username already taken", 'danger')
+            except Exception as e:
+                flash(f"Username already taken: {e}", 'danger')
                 return render_template('users/signup.html', form=form) 
             cls.do_login(new_user)
             flash(f"Welcome to CashView {new_user.username}!", "primary")

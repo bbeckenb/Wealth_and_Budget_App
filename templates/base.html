@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/css/bootstrap.min.css" integrity="sha384-B0vP5xmATw1+K9KRQjQERJvTumQW0nPEzvF6L/Z6nronJ3oUOFUFpCjEUQouq2+l" crossorigin="anonymous">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css">
-    <link rel="stylesheet" href="static/stylesheets/main.css">
+    {% block stylesheet %} {% endblock %}
     <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
     {% block head %} {% endblock %}
     <title>{% block title %} {% endblock %}</title>
@@ -39,27 +39,16 @@
             </div>
         </div>
       </nav>
-    <div id="loading-container" class="text-center" style="display: none;">
-        <h1 class="display-4" style="margin-top: 75px;">
-            <span class="letter">L</span>
-            <span class="letter">o</span>
-            <span class="letter">a</span>
-            <span class="letter">d</span>
-            <span class="letter">i</span>
-            <span class="letter">n</span>
-            <span class="letter">g</span>
-            <span class="letter">.</span>
-            <span class="letter">.</span>
-            <span class="letter">.</span>
-        </h1>
-    </div>
+      {% block loader %}     {% endblock %}
+    
     <div id="all-content">
         <div id="alerts" class="container">
             {% for category, message in get_flashed_messages(with_categories=True) %}
-                <div class="alert alert-{{ category }}">{{ message }}</div>
+                <div class="alert alert-{{ category }} flash">{{ message }}</div>
             {% endfor %}
         </div>
             {% block content %}    {% endblock %}
     </div>
+            {% block script %}     {% endblock %}
 </body>
 </html>

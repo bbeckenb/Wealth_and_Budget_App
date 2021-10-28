@@ -24,10 +24,10 @@ class UFIController:
                                                             primary_color=institution.get('primary_color', None),
                                                             logo=institution.get('logo', None)
                                             )
-            accounts_out = new_UFI.populate_UFI_accounts(g.user.account_type) 
-            flash(f"Connection to {new_UFI.name} successfully made, accounts populated!", "success")
-        except:
-            flash("Something went wrong when attempting to link this financial institution.", 'danger')
+            accounts_out = new_UFI.populate_UFI_accounts(g.user.account_type)
+            message = {'message': f"Connection to {new_UFI.name} successfully made, accounts populated!", 'category': "success"}
+        except Exception as e:
+            message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
         return jsonify({'accounts': accounts_out,
                         'id':new_UFI.id,
                         'accountBalNoLoan': new_UFI.aggregate_account_balances(),
@@ -36,7 +36,8 @@ class UFIController:
                         'userId': new_UFI.user_id,
                         'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
                         'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
-                        'pieChartData': g.user.pie_chart_data()
+                        'pieChartData': g.user.pie_chart_data(),
+                        'message': message
                         })
         
 
@@ -55,13 +56,14 @@ class UFIController:
         holdName = UFI_to_del.name
         try:
             UFI_to_del.delete_UFI(g.user.account_type)
-            flash(f"Your connection to {holdName} was removed and the access_token is now invalid", 'success')
-        except:
-            flash("Something went wrong when delete was attempted.", 'danger')
+            message = {'message': f"Your connection to {holdName} was removed and the access_token is now invalid", 'category': "success"}
+        except Exception as e:
+            message = {'message': f"Something went wrong when delete was attempted: {e}", 'category': "danger"}
         return jsonify({'msg': f"UFI {UFI_id} deleted",
                         'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
                         'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
-                        'pieChartData': g.user.pie_chart_data()
+                        'pieChartData': g.user.pie_chart_data(),
+                        'message': message
                         })
 
     @classmethod
@@ -71,7 +73,7 @@ class UFIController:
         try:
             if (len(this_UFI.accounts) > 0):
                 accounts_out = this_UFI.update_accounts_of_UFI(g.user.account_type)
-                flash(f"Accounts of {this_UFI.name} updated!", "info")
+                message = {'message': f"Accounts of {this_UFI.name} updated!", 'category': "info"}
                 payload = {
                             'accounts': accounts_out,
                             'id':this_UFI.id,
@@ -81,13 +83,15 @@ class UFIController:
                             'userId': this_UFI.user_id,
                             'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
                             'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
-                            'pieChartData': g.user.pie_chart_data()
+                            'pieChartData': g.user.pie_chart_data(),
+                            'message': message
                         }
             else:
-                flash(f"No accounts to update!", "info")
-                payload = {'msg': 'No accounts to update!'}
-        except:
-            flash("Something went wrong when account update was attempted.", 'danger')
+                message = {'message': "No accounts to update!", 'category': "info"}
+                payload = {'message': message}
+        except Exception as e:
+            message = {'message': f"Something went wrong when account update was attempted: {e}", 'category': "danger"}
+            payload = {'message': message}
         return jsonify(payload)
 
 

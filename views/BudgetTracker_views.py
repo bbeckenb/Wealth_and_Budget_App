@@ -1,4 +1,4 @@
-from flask import render_template, flash, g, redirect
+from flask import render_template, flash, g, redirect, jsonify
 from models.Account import Account
 from models.BudgetTracker import BudgetTracker
 from database.database import db
@@ -51,8 +51,8 @@ class BudgetTrackerController:
                 db.session.add(new_budget_tracker)
                 db.session.commit()
                 flash(f"Budget Tracker for {specified_acct.name} created!", "success")
-            except:
-                flash("Database error.", 'danger') #DELETE
+            except Exception as e:
+                message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
                 return render_template('budget_tracker/create.html', form=form, account=specified_acct) 
             return redirect('/')
         else:
@@ -85,8 +85,8 @@ class BudgetTrackerController:
                 db.session.add(specified_bt)
                 db.session.commit()
                 flash(f"Budget Tracker for {specified_bt.account.name} updated!", "info")
-            except:
-                flash("Database error.", 'danger') 
+            except Exception as e:
+                message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
                 return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
             return redirect('/')
         else:
@@ -98,10 +98,14 @@ class BudgetTrackerController:
         if not g.user:
             flash("Access unauthorized.", 'danger')
             return redirect('/')
-        specified_bt = BudgetTracker.query.filter_by(user_id=g.user.id, account_id=acct_id).first()
-        if not specified_bt:
-            flash("Budget Tracker not in database.", "danger")
-            return redirect("/")
-        flash(f"Budget Tracker for {specified_bt.account.name} deleted!", "success")
-        specified_bt.delete_budget_tracker()
-        return redirect('/')
+        try:
+            specified_bt = BudgetTracker.query.filter_by(user_id=g.user.id, account_id=acct_id).first()
+            if not specified_bt:
+                flash("Budget Tracker not in database.", "danger")
+                message = {'message': "Budget Tracker not in database.", 'category': "danger"}
+            hold_acct_name = specified_bt.account.name
+            specified_bt.delete_budget_tracker()
+            message = {'message': f"Budget Tracker for {hold_acct_name} deleted!", 'category': "success"}
+        except Exception as e:
+            message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
+        return jsonify({'message': message})

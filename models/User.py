@@ -83,7 +83,8 @@ class User(db.Model):
         UFI_data_array.append(['Institution Name', 'Amount'])
         for UFI in self.UFIs:
             num_of_accounts += len(UFI.accounts)
-            UFI_data_array.append([UFI.name, UFI.aggregate_account_balances()])
+            if UFI.aggregate_account_balances() > 0:
+                UFI_data_array.append([UFI.name, UFI.aggregate_account_balances()])
         return False if num_of_accounts==0 or len(UFI_data_array)==1 else json.dumps(UFI_data_array)
 
     def delete_User(self):

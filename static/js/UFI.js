@@ -1,6 +1,8 @@
 const ufiHolder = $('#UFI-holder');
 
-ufiHolder.on("click", 'button', async function(e) {
+ufiHolder.on("click", 'button', resourceController);
+
+async function resourceController(e) {
     const resource = e.currentTarget.getAttribute('data-resource');
     const action = e.currentTarget.getAttribute('data-action');
     const id = e.currentTarget.getAttribute('data-id');
@@ -9,23 +11,15 @@ ufiHolder.on("click", 'button', async function(e) {
       if (action === 'delete') {
         await deleteUFI(id);
       } else if (action === 'update') {
-        try {
-          const res = await axios.get(`/financial-institutions/${id}/accounts/update`);
-          addAccountsToUFI(res.data.accounts, id, update=true);
-          if(res.data.accounts) {
-            updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
-            updatePieChart(res.data);
-          }
-        } catch (err) {
-          throw err;
-        }
+        updateUFI(id);
       }
     } else if (resource === 'Account') {
         await deleteAcct(id);
     } else if (resource === 'BudgetTracker') {
+        console.log(id, action, resource)
         await deleteBudgetTracker(id);
     }
-})
+}
 
 async function deleteUFI(ufiId) {
   try {
@@ -34,9 +28,24 @@ async function deleteUFI(ufiId) {
     ufiToDelete.remove();
     updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
     updatePieChart(res.data);
+    addAlert(res.data.message);
   } catch (err) {
     throw err;
   }
+}
+
+async function updateUFI(ufiId) {
+    try {
+        const res = await axios.get(`/financial-institutions/${ufiId}/accounts/update`);
+        addAccountsToUFI(res.data.accounts, ufiId, update=true);
+        if(res.data.accounts) {
+          updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
+          updatePieChart(res.data);
+        }
+        addAlert(res.data.message);
+      } catch (err) {
+        throw err;
+      }
 }
 
 async function addUFItoPage(institution) {
@@ -84,7 +93,7 @@ async function addUFItoPage(institution) {
                   </ul>
                   <hr class="my-4">
               </div>
-                  <ul id="account-holder-${institution.id}" class="list-group"></ul>
+                  <ul id="Account-holder-${institution.id}" class="list-group"></ul>
       </div>`
                       }
       currentUfiHTML += newUfiHTML;
@@ -93,7 +102,7 @@ async function addUFItoPage(institution) {
 }
 
 async function addAccountsToUFI(accounts, ufiId, update=false) {
-    let ufiAccountHolder = $(`#account-holder-${ufiId}`);
+    let ufiAccountHolder = $(`#Account-holder-${ufiId}`);
     let currentHTML = ufiAccountHolder.html();
     let newAccountsHTML = '';
    
@@ -109,21 +118,21 @@ async function addAccountsToUFI(accounts, ufiId, update=false) {
                     </li>`;
             if (accounts[idx].type == 'credit') {
                 newAccountsHTML +=
-                    `<li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">Limit: $ ${accounts[idx].limit}</li>
-                    <li class="list-group-item list-group-item-light">Spent: $ ${accounts[idx].current}</li>
-                    <li class="list-group-item list-group-item-light">Available: $ ${accounts[idx].limit - accounts[idx].current}</li>`; 
+                    `<li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">Limit: $ ${accounts[idx].limit.toFixed(2)}</li>
+                    <li class="list-group-item list-group-item-light">Spent: $ ${accounts[idx].current.toFixed(2)}</li>
+                    <li class="list-group-item list-group-item-light">Available: $ ${(accounts[idx].limit - accounts[idx].current).toFixed(2)}</li>`; 
             } else if (accounts[idx].type == 'depository') {
                 if (accounts[idx].subtype == 'checking') {
                     newAccountsHTML +=
-                        `<li class="list-group-item list-group-item-light">Available: $ ${accounts[idx].available}</li>
-                        <li class="list-group-item list-group-item-light">Current: $ ${accounts[idx].current}</li>`;
+                        `<li class="list-group-item list-group-item-light">Available: $ ${accounts[idx].available.toFixed(2)}</li>
+                        <li class="list-group-item list-group-item-light">Current: $ ${accounts[idx].current.toFixed(2)}</li>`;
                 } else {
                     newAccountsHTML +=
-                        `<li class="list-group-item list-group-item-light">Current: $ ${accounts[idx].current}</li>`;
+                        `<li class="list-group-item list-group-item-light">Current: $ ${accounts[idx].current.toFixed(2)}</li>`;
                 }
             } else {
                 newAccountsHTML +=
-                    `<li class="list-group-item list-group-item-light">Outstanding Balance: $ ${accounts[idx].current}</li>`;
+                    `<li class="list-group-item list-group-item-light">Outstanding Balance: $ ${accounts[idx].current.toFixed(2)}</li>`;
             }
                 if (accounts[idx].budget_trackable) {
                     newAccountsHTML +=
@@ -154,7 +163,7 @@ function updateUFIBalances({ufiBalanaceNoLoan, ufiBalanceWithLoan, id, numAccoun
     } else {
         htmlStr += '<li class="list-group-item list-group-item-action list-group-item-danger">';
     }
-    htmlStr += `<b>Total Amount <i>(no loans)</i>:</b>  $ ${ufiBalanaceNoLoan}</li>`;
+    htmlStr += `<b>Total Amount <i>(no loans)</i>:</b>  $ ${ufiBalanaceNoLoan.toFixed(2)}</li>`;
     if (ufiBalanceWithLoan > 0) {
         htmlStr += '<li class="list-group-item list-group-item-action list-group-item-success">';
     } else if (ufiBalanceWithLoan == 0) {
@@ -162,7 +171,7 @@ function updateUFIBalances({ufiBalanaceNoLoan, ufiBalanceWithLoan, id, numAccoun
     } else {
         htmlStr += '<li class="list-group-item list-group-item-action list-group-item-danger">';
     }
-    htmlStr += `<b>Total Amount:</b> $ ${ufiBalanceWithLoan}
+    htmlStr += `<b>Total Amount:</b> $ ${ufiBalanceWithLoan.toFixed(2)}
     </li>
     </ul>
     <hr class="my-4">` 

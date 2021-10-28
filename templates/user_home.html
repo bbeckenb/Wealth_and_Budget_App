@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% block stylesheet %} 
+    <link rel="stylesheet" href="static/stylesheets/main.css">
+{% endblock %}
 {% block head %} 
     {% if g.user.pie_chart_data() != False %}
         <!-- <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script> -->
@@ -30,6 +33,22 @@
     {% endif %}
 {% endblock %}
 {% block title %} {{g.user.username}} Dashboard {% endblock %}
+{% block loader %}     
+    <div id="loading-container" class="text-center" style="display: none;">
+        <h1 class="display-4" style="margin-top: 75px;">
+            <span class="letter">L</span>
+            <span class="letter">o</span>
+            <span class="letter">a</span>
+            <span class="letter">d</span>
+            <span class="letter">i</span>
+            <span class="letter">n</span>
+            <span class="letter">g</span>
+            <span class="letter">.</span>
+            <span class="letter">.</span>
+            <span class="letter">.</span>
+        </h1>
+    </div>
+{% endblock %}
 {% block content %}
     <div class="jumbotron" style="background-color: #f5f5f5;">
         <div class="text-center"><h1 class="display-4">{{g.user.username}} Dashboard</h1></div>
@@ -47,7 +66,7 @@
                                     {% else %}
                                     <li class="list-group-item list-group-item-action list-group-item-danger">
                                     {% endif %}
-                                        <b>Total Wealth <i>(no loans)</i>:</b>  $ {{g.user.aggregate_UFI_balances()}}
+                                        <b>Total Wealth <i>(no loans)</i>:</b>  $ {{"%.2f" % (g.user.aggregate_UFI_balances())}}
                                     </li>
                                     {% if g.user.aggregate_UFI_balances(with_loans=True) > 0 %}
                                     <li class="list-group-item list-group-item-action list-group-item-success">
@@ -56,7 +75,7 @@
                                     {% else %}
                                     <li class="list-group-item list-group-item-action list-group-item-danger">
                                     {% endif %}
-                                        <b>Total Wealth:</b> $ {{g.user.aggregate_UFI_balances(with_loans=True)}}
+                                        <b>Total Wealth:</b> $ {{"%.2f" % (g.user.aggregate_UFI_balances(with_loans=True))}}
                                     </li>
                                 </ul>
                                 <hr class="my-3">
@@ -89,7 +108,7 @@
                     <div class="col-sm-12 col-md-6">
                         <div id="piechart_3d">
                         {% if g.user.pie_chart_data() == False %}
-                                <p>No Institutions or no Accounts linked yet, click 'Link Account' under 'User Options' to get started</p>
+                            <p>No Institutions, no Accounts linked yet, or no non-loan Accounts with non-zero balance. Click 'Link Account' under 'User Options' to get started</p>
                         {% endif %} 
                         </div>
                     </div>
@@ -127,7 +146,7 @@
                                             {% else %}
                                                 <li class="list-group-item list-group-item-action list-group-item-danger">
                                             {% endif %}
-                                                    <b>Total Amount <i>(no loans)</i>:</b>  $ {{institution.aggregate_account_balances()}}
+                                                    <b>Total Amount <i>(no loans)</i>:</b>  $ {{"%.2f" % (institution.aggregate_account_balances())}}
                                                 </li>
                                             {% if institution.aggregate_account_balances(with_loans=True) > 0 %}
                                                 <li class="list-group-item list-group-item-action list-group-item-success">
@@ -136,12 +155,12 @@
                                             {% else %}
                                                 <li class="list-group-item list-group-item-action list-group-item-danger">
                                             {% endif %}
-                                                    <b>Total Amount:</b> $ {{institution.aggregate_account_balances(with_loans=True)}}
+                                                    <b>Total Amount:</b> $ {{"%.2f" % (institution.aggregate_account_balances(with_loans=True))}}
                                                 </li>
                                         </ul>
                                         <hr class="my-4">
                                     </div>
-                                    <ul class="list-group">
+                                    <ul id="Account-holder-{{institution.id}}" class="list-group">
                                         {% for account in institution.accounts %}
                                             <li id="Account-{{account.id}}" class="list-group-item list-group-item-light">
                                                 <ul class="list-group">
@@ -149,26 +168,26 @@
                                                         <b>{{account.name}}</b><button data-action="delete" data-resource="Account" data-id={{account.id}} class="btn btn-sm btn-outline-danger"><i class="far fa-trash-alt"></i></button>
                                                     </li>
                                                     {% if account.type == 'credit' %}
-                                                        <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">Limit: $ {{account.limit}}</li>
-                                                        <li class="list-group-item list-group-item-light">Spent: $ {{account.current}}</li>
-                                                        <li class="list-group-item list-group-item-light">Available: $ {{account.limit - account.current}}</li>   
+                                                        <li class="list-group-item list-group-item-light d-flex justify-content-between align-items-center">Limit: $ {{"%.2f" % (account.limit)}}</li>
+                                                        <li class="list-group-item list-group-item-light">Spent: $ {{"%.2f" % (account.current)}}</li>
+                                                        <li class="list-group-item list-group-item-light">Available: $ {{"%.2f" % (account.limit - account.current)}}</li>   
                                                     {% elif account.type == 'depository'%}
                                                         {% if account.subtype == 'checking' %}
-                                                                <li class="list-group-item list-group-item-light">Available: $ {{account.available}}</li>
-                                                                <li class="list-group-item list-group-item-light">Current: $ {{account.current}}</li> 
+                                                                <li class="list-group-item list-group-item-light">Available: $ {{"%.2f" % (account.available)}}</li>
+                                                                <li class="list-group-item list-group-item-light">Current: $ {{ "%.2f" % (account.current)}}</li> 
                                                         {% else %}
-                                                                <li class="list-group-item list-group-item-light">Current: $ {{account.current}}</li>
+                                                                <li class="list-group-item list-group-item-light">Current: $ {{"%.2f" % (account.current)}}</li>
                                                         {% endif %}
                                                     {% else %}
-                                                        <li class="list-group-item list-group-item-light">Outstanding Balance: $ {{account.current}}</li>
+                                                        <li class="list-group-item list-group-item-light">Outstanding Balance: $ {{"%.2f" % (account.current)}}</li>
                                                     {% endif %}
                                                     {% if account.budget_trackable %}
                                                         <li id="Account-{{account.id}}-BudgetTracker" class="list-group-item list-group-item-light">
                                                         {% if account.budgettracker %}
                                                             <ul class="list-group">
                                                                 <li class="list-group-item list-group-item-primary"><b>BudgetTracker Status:</b></li>
-                                                                <li class="list-group-item list-group-item-warning">Monthly Budget: $ {{account.budgettracker[0].budget_threshold}}</li>
-                                                                <li class="list-group-item list-group-item-warning">Amount Spent: $ {{account.budgettracker[0].amount_spent}}</li>
+                                                                <li class="list-group-item list-group-item-warning">Monthly Budget: $ {{"%.2f" % (account.budgettracker[0].budget_threshold)}}</li>
+                                                                <li class="list-group-item list-group-item-warning">Amount Spent: $ {{"%.2f" % (account.budgettracker[0].amount_spent)}}</li>
                                                                 <li class="list-group-item list-group-item-warning">Notification Frequency (days): {{account.budgettracker[0].notification_frequency}}</li>
                                                                 <li class="list-group-item list-group-item-warning">Next Notification: {{account.budgettracker[0].pretty_print_next_notify_date()}}</li>
                                                                 {% if g.user.account_type == 'sandbox' %}
@@ -201,13 +220,16 @@
         </div>
         </div>       
     </div>
-<script src="https://unpkg.com/axios/dist/axios.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
-<script src="static/js/plaidLink.js"></script> 
-<script src="static/js/UFI.js"></script>
-<script src="static/js/Account.js"></script>
-<script src="static/js/BudgetTracker.js"></script>
-<script src="static/js/dashBoard.js"></script>
-<script src="static/js/loadingHeader.js"></script>
+{% endblock %}
+{% block script %}
+    <script src="https://unpkg.com/axios/dist/axios.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdn.plaid.com/link/v2/stable/link-initialize.js"></script>
+    <script src="static/js/plaidLink.js"></script> 
+    <script src="static/js/UFI.js"></script>
+    <script src="static/js/Account.js"></script>
+    <script src="static/js/BudgetTracker.js"></script>
+    <script src="static/js/dashBoard.js"></script>
+    <script src="static/js/loadingHeader.js"></script>
+    <script src="static/js/alerts.js"></script>
 {% endblock %}

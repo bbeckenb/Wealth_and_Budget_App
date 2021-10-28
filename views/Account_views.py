@@ -17,15 +17,16 @@ class AccountController:
             return redirect('/')
         try:
             acct_to_delete.delete_Account()
-            flash(f"Account {acct_to_delete.name} deleted!", "success")
-        except:
-            flash(f"Something went wrong when attempting to delete {acct_to_delete.name}.", "danger")
-        return jsonify({'msg': f"Account {acct_id} deleted",
+            message = {'message': f"Account {acct_to_delete.name} deleted!", 'category': "success"}
+        except Exception as e:
+            message = {'message': f"Something went wrong when attempting to delete {acct_to_delete.name}: {e}", 'category': "danger"}
+        return jsonify({
                         'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
                         'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
                         'pieChartData': g.user.pie_chart_data(),
                         'id':UFI.id,
                         'numAccounts':len(UFI.accounts),
                         'ufiBalanaceNoLoan': UFI.aggregate_account_balances(),
-                        'ufiBalanceWithLoan': UFI.aggregate_account_balances(with_loans=True)
+                        'ufiBalanceWithLoan': UFI.aggregate_account_balances(with_loans=True),
+                        'message': message
                         })
