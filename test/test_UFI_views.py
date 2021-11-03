@@ -98,7 +98,7 @@ class UserFinancialInstitutionViewTestCase(TestCase):
             res = c.post(f'/financial-institutions/{UFI_id}/delete', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Access unauthorized.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
 
         with self.client as c:
             with c.session_transaction() as sess:
@@ -107,7 +107,7 @@ class UserFinancialInstitutionViewTestCase(TestCase):
             res = c.post(f'/financial-institutions/{UFI_id}/delete', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Access unauthorized.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
 
     def test_UFI_id_DNE_delete(self):
         """makes sure if UFI id is not in database, 404 occurs"""

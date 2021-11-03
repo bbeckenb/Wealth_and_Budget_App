@@ -39,8 +39,9 @@ async function updateUFI(ufiId) {
         const res = await axios.get(`/financial-institutions/${ufiId}/accounts/update`);
         addAccountsToUFI(res.data.accounts, ufiId, update=true);
         if(res.data.accounts) {
-          updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
-          updatePieChart(res.data);
+            updateUFIBalances(res.data)
+            updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
+            updatePieChart(res.data);
         }
         addAlert(res.data.message);
       } catch (err) {

@@ -132,7 +132,7 @@ class BudgetTrackerViewsTestCase(TestCase):
             res = c.post(f'/accounts/{account_id}/budget-tracker/create', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Access unauthorized.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
     
     def test_create_budget_tracker_bad_user(self):
         """checks to see if the account the budgettracker is being created for is owned by the user in the session"""
@@ -156,7 +156,7 @@ class BudgetTrackerViewsTestCase(TestCase):
             res = c.post(f'/accounts/{acct_id}/budget-tracker/create', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Access unauthorized.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
     
     def test_create_budget_tracker_bt_already_exists(self):
         """checks to see if a budget tracker already exists for the requested account
@@ -170,7 +170,7 @@ class BudgetTrackerViewsTestCase(TestCase):
             res = c.post(f'/accounts/{account_id}/budget-tracker/create', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Budget Tracker already exists for this account.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Budget Tracker already exists for this account.</div>', html)
 
     def test_create_budget_tracker_ineligible_acct(self):
         """if all criteria are met, a new budgettracker instance is created, entered into the database and user is redirected home"""
@@ -184,7 +184,7 @@ class BudgetTrackerViewsTestCase(TestCase):
             html = res.get_data(as_text=True)
 
             
-            self.assertIn('<div class="alert alert-danger">Account is not eligible for budget tracking.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Account is not eligible for budget tracking.</div>', html)
 
     def test_create_budget_tracker_success(self):
         """if all criteria are met, a new budgettracker instance is created, entered into the database and user is redirected home"""
@@ -200,7 +200,7 @@ class BudgetTrackerViewsTestCase(TestCase):
             html = res.get_data(as_text=True)
             
             account = Account.query.get(account_id)
-            self.assertIn(f'<li class="list-group-item list-group-item-warning">Amount Spent: $ {account.budgettracker[0].amount_spent}</li>', html)
+            self.assertIn(f'<li class="list-group-item list-group-item-warning">Amount Spent: $ {"%.2f" % account.budgettracker[0].amount_spent}</li>', html)
 
     def test_update_budget_tracker_no_user(self):
         """If no user in session redirect home, flash access unauthorized"""
@@ -213,7 +213,7 @@ class BudgetTrackerViewsTestCase(TestCase):
             res = c.post(f'/accounts/{account_id}/budget-tracker/update', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Access unauthorized.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
 
     def test_update_budget_tracker_bt_DNE(self):
         """If the budget tracker DNE in the database, redirect home, flash warning"""
@@ -228,7 +228,7 @@ class BudgetTrackerViewsTestCase(TestCase):
             res = c.post(f'/accounts/{wrong_account_id}/budget-tracker/update', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Budget Tracker not in database.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Budget Tracker not in database.</div>', html)
 
     def test_update_budget_tracker_success(self):
         """if all criteria are met, the existing budgettracker instance is updated, and user is redirected home"""
@@ -263,7 +263,7 @@ class BudgetTrackerViewsTestCase(TestCase):
             res = c.post(f'/accounts/{account_id}/budget-tracker/delete', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Access unauthorized.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
 
     def test_delete_budget_tracker_bt_DNE(self):
         """If the budget tracker DNE in the database, redirect home, flash warning"""
@@ -278,7 +278,7 @@ class BudgetTrackerViewsTestCase(TestCase):
             res = c.post(f'/accounts/{wrong_account_id}/budget-tracker/delete', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Budget Tracker not in database.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Budget Tracker not in database.</div>', html)
 
     def test_delete_budget_tracker_success(self):
         """If all criteria are met, remove specified budget tracker from database, redirect home"""

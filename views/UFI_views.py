@@ -77,8 +77,9 @@ class UFIController:
                 payload = {
                             'accounts': accounts_out,
                             'id':this_UFI.id,
-                            'accountBalNoLoan': this_UFI.aggregate_account_balances(),
-                            'accountBalWithLoan': this_UFI.aggregate_account_balances(with_loans=True),
+                            'numAccounts':len(this_UFI.accounts),
+                            'ufiBalanaceNoLoan': this_UFI.aggregate_account_balances(),
+                            'ufiBalanceWithLoan': this_UFI.aggregate_account_balances(with_loans=True),
                             'name': this_UFI.name,
                             'userId': this_UFI.user_id,
                             'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),

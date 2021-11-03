@@ -80,17 +80,33 @@ class UserAccountViewsTestCase(TestCase):
     def test_manual_account_refresh(self):
        """allows user to click a button to auto-refresh all accounts
        refreshes homepage"""
-       id = self.test_UFI.id
+       test_UFI = self.test_UFI
+       id = test_UFI.id
+       test_user0 = self.test_user0
+       expected_output = {
+                            'accounts': test_UFI.update_accounts_of_UFI(test_user0.account_type),
+                            'id':id,
+                            'accountBalNoLoan': test_UFI.aggregate_account_balances(),
+                            'accountBalWithLoan': test_UFI.aggregate_account_balances(with_loans=True),
+                            'name': test_UFI.name,
+                            'userId': test_UFI.user_id,
+                            'dashboardBalanceNoLoan': test_user0.aggregate_UFI_balances(),
+                            'dashboardBalanceWithLoan': test_user0.aggregate_UFI_balances(with_loans=True),
+                            'pieChartData': test_user0.pie_chart_data(),
+                            'message': {'message': f"Accounts of {test_UFI.name} updated!", 'category': "info"}
+                        }
        with self.client as c:
             with c.session_transaction() as sess:
                 sess["curr_user"] = self.test_user0.id
             
-            res = c.get(f'/financial-institutions/{id}/accounts/update', follow_redirects=True)
-            html = res.get_data(as_text=True)
-            
+            res = c.get(f'/financial-institutions/{id}/accounts/update')
             self.assertEqual(res.status_code, 200)
-            self.assertIn('<h5 class="card-title">Test_name</h5>', html)
-            self.assertNotIn('<p>You have no accounts on record with this institution</p>', html)
+
+            data = res.json
+            self.assertEqual(data, expected_output)
+
+            
+
 
     def test_Account_id_DNE_delete(self):
         """makes sure if Account id is not in database, 404 occurs"""
@@ -102,8 +118,6 @@ class UserAccountViewsTestCase(TestCase):
                 sess["curr_user"] = self.test_user0.id
 
             res = c.post('/accounts/1/delete', follow_redirects=True)      
-            html = res.get_data(as_text=True)
-
             self.assertEqual(res.status_code, 404) 
 
     def test_Account_no_user(self):
@@ -117,7 +131,7 @@ class UserAccountViewsTestCase(TestCase):
             res = c.post(f'/accounts/{account_id}/delete', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Access unauthorized.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
 
     def test_Account_id_wrong_user(self):
         """if wrong user in session, redirects home, flashes access unauthorized warning"""
@@ -131,25 +145,32 @@ class UserAccountViewsTestCase(TestCase):
             res = c.post(f'/accounts/{account_id}/delete', follow_redirects=True)      
             html = res.get_data(as_text=True)
 
-            self.assertIn('<div class="alert alert-danger">Access unauthorized.</div>', html)
+            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
 
     def test_Account_delete_success(self):
         """makes sure if proper owner is deleting an existing Account, the instance is taken out of the database access key is deleted"""     
         account_id = self.test_UFI.accounts[0].id
         account_name = self.test_UFI.accounts[0].name
         account_list_length = len(Account.query.all())
+        expected_output = {
+                            'dashboardBalanceNoLoan': 67942.74,
+                            'dashboardBalanceWithLoan': -53621.32,
+                            'id': self.test_UFI.id,
+                            'message': {'category': 'success', 'message': 'Account Plaid Checking deleted!'},
+                            'numAccounts': 8,
+                            'pieChartData': "[[\"Institution Name\", \"Amount\"], [\"Test_name\", 67942.74]]",
+                            'ufiBalanaceNoLoan': 67942.74,
+                            'ufiBalanceWithLoan': -53621.32,
+                        }
 
         with self.client as c:
             with c.session_transaction() as sess:
                 sess["curr_user"] = self.test_user0.id
 
-            res = c.get('/')
-            html = res.get_data(as_text=True)
-            self.assertIn(account_name, html)
             
             res = c.post(f'/accounts/{account_id}/delete')      
-            html = res.get_data(as_text=True)
-            self.assertNotIn(account_name, html)
+            data = res.json
+            self.assertEqual(data, expected_output)
             self.assertEqual(account_list_length-1, len(Account.query.all()))
     
 

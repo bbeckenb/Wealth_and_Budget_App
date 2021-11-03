@@ -175,10 +175,11 @@ class UserModelTestCase(TestCase):
     def test_user_pie_chart_data(self):
         """Creates a usable dataset for Google Charts pie chart embedded in HTML. Dataset is an 
         array of arrays, each element of the main array contains [name of UFI (str), aggregated balance of its accounts (float)]
-        This array is stringified to be stored on the user's HTML page as a string to be reconverted to its original form by javascript."""
+        This array is stringified to be stored on the user's HTML page as a string to be reconverted to its original form by javascript. 
+        If there are no institutions it returns False so the google chart on the front end will not fire"""
 
         # test_user0 currently has no UFIs attached and therefore should have only the column titles element
-        self.assertEqual(self.test_user0.pie_chart_data(), '[["Institution Name", "Amount"]]')
+        self.assertEqual(self.test_user0.pie_chart_data(), False)
 
         # adding a UFI with test accounts
         test_UFI = UserFinancialInstitute(name='Test_name', 

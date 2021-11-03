@@ -301,7 +301,7 @@ class UserViewTestCase(TestCase):
             res = c.post(f"/users/delete", follow_redirects=True)
             html = res.get_data(as_text=True)
 
-            self.assertIn(f'<div class="alert alert-danger">Access unauthorized.</div>', html)
+            self.assertIn(f'<div class="alert alert-danger flash">Access unauthorized.</div>', html)
 
     def test_delete_user_success(self):
         
