@@ -3,7 +3,7 @@
         token: (await $.post('/create_link_token')).link_token,
         onLoad: function() {
         },
-        onSuccess: (async function(public_token, metadata) {
+        onSuccess: (async function(public_token) {
             async function createUFIandAccounts() {
                 try {
                     startLoadScreen();
