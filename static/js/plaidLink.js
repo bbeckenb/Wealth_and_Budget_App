@@ -20,7 +20,7 @@
                     console.error('Server problem connecting with Plaid:', err)
                 }
             }
-        createUFIandAccounts();
+        await createUFIandAccounts();
        
         }),
         onExit: function(err, metadata) {
