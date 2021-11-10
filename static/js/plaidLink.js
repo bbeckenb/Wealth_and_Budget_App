@@ -4,15 +4,20 @@
         onLoad: function() {
         },
         onSuccess: (async function(public_token, metadata) {
-        startLoadScreen();
-        const newUfiAndAccounts = await $.post('/exchange_public_token', {
-            public_token: public_token,
-        })
-        addUFItoPage(newUfiAndAccounts);
-        addAccountsToUFI(newUfiAndAccounts.accounts, newUfiAndAccounts.id);
-        updateDashboardBalances(newUfiAndAccounts.dashboardBalanceNoLoan, newUfiAndAccounts.dashboardBalanceWithLoan);
-        endLoadScreen();
-        addAlert(newUfiAndAccounts.message);
+            try {
+                startLoadScreen();
+                const newUfiAndAccounts = await $.post('/exchange_public_token', {
+                    public_token: public_token,
+                })
+                addUFItoPage(newUfiAndAccounts);
+                addAccountsToUFI(newUfiAndAccounts.accounts, newUfiAndAccounts.id);
+                updateDashboardBalances(newUfiAndAccounts.dashboardBalanceNoLoan, newUfiAndAccounts.dashboardBalanceWithLoan);
+                endLoadScreen();
+                addAlert(newUfiAndAccounts.message);
+            } catch (err) {
+                console.error('Server problem connecting with Plaid:', err)
+            }
+       
         }),
         onExit: function(err, metadata) {
         if (err != null) {}
