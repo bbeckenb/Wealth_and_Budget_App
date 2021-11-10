@@ -6,14 +6,15 @@
         onSuccess: (async function(public_token, metadata) {
             try {
                 startLoadScreen();
-                const newUfiAndAccounts = await $.post('/exchange_public_token', {
+                const newUfi = await $.post('/exchange_public_token', {
                     public_token: public_token,
                 })
-                addUFItoPage(newUfiAndAccounts);
-                addAccountsToUFI(newUfiAndAccounts.accounts, newUfiAndAccounts.id);
-                updateDashboardBalances(newUfiAndAccounts.dashboardBalanceNoLoan, newUfiAndAccounts.dashboardBalanceWithLoan);
+                const newUFIwithAccounts = await $.post(`/financial-institutions/${newUfi.id}/accounts/add`);
+                addUFItoPage(newUFIwithAccounts);
+                addAccountsToUFI(newUFIwithAccounts.accounts, newUFIwithAccounts.id);
+                updateDashboardBalances(newUFIwithAccounts.dashboardBalanceNoLoan, newUFIwithAccounts.dashboardBalanceWithLoan);
                 endLoadScreen();
-                addAlert(newUfiAndAccounts.message);
+                addAlert(newUFIwithAccounts.message);
             } catch (err) {
                 console.error('Server problem connecting with Plaid:', err)
             }

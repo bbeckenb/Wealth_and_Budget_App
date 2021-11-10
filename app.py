@@ -71,6 +71,10 @@ def update_UFI_accounts_on_page(UFI_id):
     return UFIController.update_UFI_Accounts(UFI_id)
 ##############################################################################
 # Accounts
+@app.route('/financial-institutions/<int:UFI_id>/accounts/add', methods=['POST'])
+def populate_accounts_of_UFI(UFI_id):
+    return AccountController.populate_accounts_of_UFI(UFI_id)
+
 @app.route('/accounts/<int:acct_id>/delete', methods=['POST'])
 def delete_account(acct_id):
     return AccountController.delete_specified_account(acct_id)

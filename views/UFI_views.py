@@ -24,19 +24,20 @@ class UFIController:
                                                             primary_color=institution.get('primary_color', None),
                                                             logo=institution.get('logo', None)
                                             )
-            accounts_out = new_UFI.populate_UFI_accounts(g.user.account_type)
-            message = {'message': f"Connection to {new_UFI.name} successfully made, accounts populated!", 'category': "success"}
+            # accounts_out = new_UFI.populate_UFI_accounts(g.user.account_type)
+            message = {'message': f"Connection to {new_UFI.name} successfully made!", 'category': "success"}
         except Exception as e:
             message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
-        return jsonify({'accounts': accounts_out,
+        return jsonify({
+                        # 'accounts': accounts_out,
                         'id':new_UFI.id,
-                        'accountBalNoLoan': new_UFI.aggregate_account_balances(),
-                        'accountBalWithLoan': new_UFI.aggregate_account_balances(with_loans=True),
+                        # 'accountBalNoLoan': new_UFI.aggregate_account_balances(),
+                        # 'accountBalWithLoan': new_UFI.aggregate_account_balances(with_loans=True),
                         'name': new_UFI.name,
                         'userId': new_UFI.user_id,
-                        'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
-                        'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
-                        'pieChartData': g.user.pie_chart_data(),
+                        # 'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
+                        # 'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
+                        # 'pieChartData': g.user.pie_chart_data(),
                         'message': message
                         })
         
