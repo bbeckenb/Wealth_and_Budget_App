@@ -12,7 +12,7 @@ class UserFinancialInstitute(db.Model):
                         primary_key=True,
                         autoincrement=True) #serial in sql
     name = db.Column(db.String,
-                        nullable=False) #SHOULD NAME AND USER ID BOTH BE PK's?
+                        nullable=False) 
     user_id = db.Column(db.Integer, 
                         db.ForeignKey('users.id', ondelete='CASCADE'), 
                         nullable=False)

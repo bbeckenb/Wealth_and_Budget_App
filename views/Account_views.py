@@ -1,6 +1,7 @@
 from flask import flash, g, redirect, jsonify
 from models.Account import Account
 from models.UserFinancialInstitution import UserFinancialInstitute
+from datetime import datetime
 
 class AccountController:
     """Controller for Account views"""      
@@ -16,7 +17,12 @@ class AccountController:
             flash("Access unauthorized.", 'danger')
             return redirect('/')
         try:
+            then = datetime.now()
+            print(f'+++++++++++++++++++{datetime.now()}')
             accounts_out = UFI.populate_UFI_accounts(g.user.account_type)
+            now = datetime.now()
+            print(f'+++++++++++++++++++{datetime.now()}')
+            print(f'+++++++++++++++++++{now-then} seconds')
             message = {'message': f"Successfully populated accounts of {UFI.name}!", 'category': "success"}
         except Exception as e:
             message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}

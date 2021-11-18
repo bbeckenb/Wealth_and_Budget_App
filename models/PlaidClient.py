@@ -63,13 +63,13 @@ class PlaidClient:
             for product in os.getenv('PLAID_PRODUCTS', 'transactions').split(','):
                 products.append(Products(product))
             request =  LinkTokenCreateRequest(
-                                            products=products,
-                                            client_name="W_and_B_app",
-                                            country_codes=list(map(lambda x: CountryCode(x), os.getenv('PLAID_COUNTRY_CODES', 'US').split(','))),
-                                            language='en',
-                                            user=LinkTokenCreateRequestUser(
-                                                                            client_user_id=str(time.time())
-                                                 )
+                                                products=products,
+                                                client_name="W_and_B_app",
+                                                country_codes=list(map(lambda x: CountryCode(x), os.getenv('PLAID_COUNTRY_CODES', 'US').split(','))),
+                                                language='en',
+                                                user=LinkTokenCreateRequestUser(
+                                                                                client_user_id=str(time.time())
+                                              )
                       )
             response =  self.plaid_client.link_token_create(request)
             return jsonify(response.to_dict())
@@ -116,10 +116,10 @@ class PlaidClient:
         """Passes UFI access token, start date, end date, and specified Account ID to Plaid, retrieves transactions for specified account in date range"""
         print('plaid model', account_id, access_token)
         request =  TransactionsGetRequest(
-                                        access_token=access_token,
-                                        start_date=start.date(),
-                                        end_date=end.date(),
-                                        options=TransactionsGetRequestOptions(account_ids=[account_id])
+                                            access_token=access_token,
+                                            start_date=start.date(),
+                                            end_date=end.date(),
+                                            options=TransactionsGetRequestOptions(account_ids=[account_id])
                     )
         response =  self.plaid_client.transactions_get(request)
         transactions = response['transactions']
@@ -127,14 +127,14 @@ class PlaidClient:
 
     def createTestUFIToken(self):
         pt_request =  SandboxPublicTokenCreateRequest(
-                                    institution_id='ins_109508',
-                                    initial_products=[Products('transactions')]
+                                                    institution_id='ins_109508',
+                                                    initial_products=[Products('transactions')]
                     )
         pt_response =  self.plaid_client.sandbox_public_token_create(pt_request)
         # The generated public_token can now be
         # exchanged for an access_token
         exchange_request =  ItemPublicTokenExchangeRequest(
-                                    public_token=pt_response['public_token']
+                                                            public_token=pt_response['public_token']
                             )
         exchange_response =  self.plaid_client.item_public_token_exchange(exchange_request)
         return exchange_response['access_token']

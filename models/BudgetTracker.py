@@ -24,8 +24,8 @@ class BudgetTracker(db.Model):
     next_notification_date = db.Column(db.DateTime, 
                                         nullable=False)
     amount_spent = db.Column(db.Float,
-                                    nullable=False,
-                                    default=0)
+                             nullable=False,
+                             default=0)
     
     def __repr__(self):
         u=self

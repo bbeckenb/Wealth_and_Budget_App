@@ -95,7 +95,7 @@ async function addUFItoPage(institution) {
                   <hr class="my-4">
               </div>
                   <ul id="Account-holder-${institution.id}" class="list-group"></ul>
-      </div>`
+        </div>`
                       }
       currentUfiHTML += newUfiHTML;
       ufiHolder.html(currentUfiHTML);
