@@ -8,7 +8,7 @@
     <div class="col-md-4">
       <h2 class="join-message">Welcome back!</h2>
 
-      <form method="POST" id="user_form">
+      <form method="POST" id="login-form">
         {{ form.hidden_tag() }}
 
         {% for field in form if field.widget.input_type != 'hidden' %}
@@ -17,10 +17,12 @@
           {% endfor %}
           {{ field.label }}
           {{ field(placeholder=field.label.text, class="form-control") }}
+          
         {% endfor %}
 
         <div class="edit-btn-area">
           <button class="btn btn-outline-primary">Login</button>
+          <btn id="test-user" class="btn btn-large btn-outline-success">Demo as Test User</btn>
           <a href="/" class="btn btn-outline-danger">Cancel</a>
         </div>
       </form>
@@ -28,4 +30,11 @@
     
   </div>
 
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="static/js/testUser.js"></script>
+   
+    
 {% endblock %}

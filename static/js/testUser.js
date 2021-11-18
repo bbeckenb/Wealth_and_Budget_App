@@ -1,6 +1,10 @@
-const demoButton = $('test-user');
+const demoButton = $('#test-user');
+const loginForm = $('#login-form');
+const username = $('#username');
+const password = $('#password');
 
-async function addTestUser() {
-    const res = await axios.post(`/login`, {});
-
-}
+$('body').on('click', demoButton, () => {
+    username.val('Test_User');
+    password.val('pass_good');
+    loginForm.submit();
+});
