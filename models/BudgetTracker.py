@@ -57,9 +57,9 @@ class BudgetTracker(db.Model):
     @classmethod
     def scheduled_daily_send_bt_notifications(cls):
         """Searches database for BudgetTracker instances due to notify their users.
-            Pulls phone number from associated User instances, utilizes Twilio client represented by twilio_inst
-            to send text to the users. Based on notification frequency requested by each individual User, associated 
-            'next_notification_dates' are updated on each budget tracker"""
+        Pulls phone number from associated User instances, utilizes Twilio client represented by twilio_inst
+        to send text to the users. Based on notification frequency requested by each individual User, associated 
+        'next_notification_dates' are updated on each budget tracker"""
         bt_scheduled_for_notif = cls.find_all_scheduled_today()
         twilio_inst = TwilioClient()
         for bt in bt_scheduled_for_notif:

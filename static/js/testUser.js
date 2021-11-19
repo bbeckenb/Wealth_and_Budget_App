@@ -3,7 +3,7 @@ const loginForm = $('#login-form');
 const username = $('#username');
 const password = $('#password');
 
-$('body').on('click', demoButton, () => {
+demoButton.on('click', () => {
     username.val('Test_User');
     password.val('pass_good');
     loginForm.submit();

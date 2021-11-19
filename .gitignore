@@ -1,4 +1,17 @@
 venv
 .env
 __pycache__
+app.pyc
+test/test_User_models.pyc
+test/__init__.pyc
+CronJobs/__init__.pyc
+CronJobs/UFI_jobs.pyc
+database/__pycache__
+models/__pycache__
+models/__init__.pyc
+test/__init__.pyc
+test/test_User_models.pyc
+views/__pycache__
+
+
 

@@ -34,7 +34,6 @@ class BudgetTrackerController:
         form = CreateBudgetTrackerForm()
         if form.validate_on_submit():
             today_date = datetime.datetime.today()
-            print("YOU ARE HERE", g.user, g.user.account_type)
             if today_date.day == 1:
                 amount_spent = 0
             else:
@@ -52,7 +51,7 @@ class BudgetTrackerController:
                 db.session.commit()
                 flash(f"Budget Tracker for {specified_acct.name} created!", "success")
             except Exception as e:
-                message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
+                flash(f"Something went wrong with the server: {e}", "danger")
                 return render_template('budget_tracker/create.html', form=form, account=specified_acct) 
             return redirect('/')
         else:
@@ -86,7 +85,7 @@ class BudgetTrackerController:
                 db.session.commit()
                 flash(f"Budget Tracker for {specified_bt.account.name} updated!", "info")
             except Exception as e:
-                message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
+                flash(f"Something went wrong with the server: {e}", "danger")
                 return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
             return redirect('/')
         else:

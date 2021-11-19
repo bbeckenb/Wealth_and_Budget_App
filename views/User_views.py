@@ -113,6 +113,9 @@ class UserController:
             return redirect("/")
         form = UpdateUserForm(obj=g.user)
         if form.validate_on_submit():
+            if g.user.username == 'Test_User':
+                flash("Test_User cannot be modified or deleted!", "danger")
+                return redirect('/')
             if User.authenticate(g.user.username, form.password.data):
                 try:
                     g.user.username = form.username.data or g.user.username
@@ -135,6 +138,8 @@ class UserController:
         """Logout user, delete User instance from database"""
         if not g.user:
             flash("Access unauthorized.", "danger")
+        elif g.user.username == 'Test_User':
+            flash("Test_User cannot be modified or deleted!", "danger")
         else:
             user = User.query.get(g.user.id)
             cls.do_logout()

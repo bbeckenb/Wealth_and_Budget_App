@@ -12,22 +12,22 @@ class User(db.Model):
     __tablename__ = 'users' #specifies table name
 
     id = db.Column(db.Integer,
-                        primary_key=True,
-                        autoincrement=True) #serial in sql
+                            primary_key=True,
+                            autoincrement=True) #serial in sql
     username = db.Column(db.Text, 
-                        nullable=False, 
-                        unique=True)
+                            nullable=False, 
+                            unique=True)
     password = db.Column(db.Text,
-                        nullable=False)
+                            nullable=False)
     phone_number = db.Column(db.String,
                             nullable=False) 
     first_name = db.Column(db.Text,
-                        nullable=False)
+                            nullable=False)
     last_name = db.Column(db.Text,
-                        nullable=False)
+                            nullable=False)
     account_type = db.Column(db.String,
-                        nullable=False,
-                        default='sandbox')
+                            nullable=False,
+                            default='sandbox')
     UFIs = db.relationship('UserFinancialInstitute', cascade='all, delete, delete-orphan', backref='user')
     budgettrackers = db.relationship('BudgetTracker', cascade='all, delete, delete-orphan', backref='user')
 
