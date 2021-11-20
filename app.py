@@ -1,10 +1,10 @@
 ##############################################################################
 # Imports
-from views.User_views import UserController
-from views.BudgetTracker_views import BudgetTrackerController
-from views.UFI_views import UFIController
-from views.Account_views import AccountController
-from views.Plaid_views import PlaidController
+from controllers.User_controller import UserController
+from controllers.BudgetTracker_controller import BudgetTrackerController
+from controllers.UFI_controller import UFIController
+from controllers.Account_controller import AccountController
+from controllers.Plaid_controller import PlaidController
 from database.database import connect_db
 from dotenv import load_dotenv
 from flask import Flask

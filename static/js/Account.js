@@ -1,5 +1,3 @@
-
-
 async function deleteAcct(acctId) {
     try {
       const acctToDelete = $(`#Account-${acctId}`);
