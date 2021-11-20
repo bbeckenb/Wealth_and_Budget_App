@@ -25,16 +25,20 @@ class UFIControllerAPI:
                                             )
             message = {'message': f"Connection to {new_UFI.name} successfully made!", 'category': "success"}
             status_code = 201
-        except Exception as e:
-            message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
-            status_code = 500
-        return jsonify({
+            return jsonify({
                         'id':new_UFI.id,
                         'name': new_UFI.name,
                         'userId': new_UFI.user_id,
                         'message': message,
                         'status_code': status_code
                     })
+        except Exception as e:
+            message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
+            return jsonify({
+                'message': message,
+                'status_code': 500
+            })
+        
     
     @classmethod
     def delete_UFI_instance(cls, UFI_id):

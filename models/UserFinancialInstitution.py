@@ -52,7 +52,30 @@ class UserFinancialInstitute(db.Model):
         db.session.delete(self)
         db.session.commit()
         return plaid_deletion_response
-        
+    
+    @classmethod
+    def _parse_account(cls, added_account:dict) -> dict:
+            budget_trackable = False
+            name = name=added_account['name']
+            current=added_account['balances']['current']
+            limit=added_account['balances']['limit']
+            type = str(added_account['type'])
+            subtype=str(added_account['subtype'])
+            account_id=str(added_account['account_id'])
+            if str(added_account['type']) == 'depository':
+                available=added_account['balances']['available']
+                if str(added_account['subtype']) in ['checking', 'paypal']:
+                    budget_trackable = True
+            elif str(added_account['type']) == 'credit':
+                available=limit - current
+                budget_trackable = True
+            elif str(added_account['type']) in ['loan', 'investment']:
+                available=added_account['balances']['available']
+            available = round(available, 2) if available else None
+            current = round(current, 2) if current else None
+            limit = round(limit, 2) if limit else None
+            return {'name':name, 'available':available, 'current':current, 'limit':limit, 'budget_trackable':budget_trackable, 'type':type, 'subtype':subtype, 'account_id':account_id}
+
     def populate_UFI_accounts(self, plaid_user_type:str):
         """Takes in MyPlaid class instance to be able to request information from the Plaid API. Makes call to plaid server to retrieve account information related to specified UFI.
         Properly harvests information from accounts based on type/subtype, creates Account class instances for all and enteres them into the database"""
@@ -60,54 +83,22 @@ class UserFinancialInstitute(db.Model):
         accounts = plaid_inst.get_UFI_Account_balances_from_Plaid(self.plaid_access_token)
         accounts_out = []
         for account in accounts:
-            budget_trackable = False
-            if str(account['type']) == 'depository':
-                available=account['balances']['available']
-                current=account['balances']['current']
-                limit=account['balances']['limit']
-                if str(account['subtype']) in ['checking', 'paypal']:
-                    budget_trackable = True
-            elif str(account['type']) == 'credit':
-                current=account['balances']['current']
-                limit=account['balances']['limit']
-                available=limit - current
-                budget_trackable = True
-            elif str(account['type']) in ['loan', 'investment']:
-                available=account['balances']['available']
-                current=account['balances']['current']
-                limit=account['balances']['limit']
-            # if available:
-            #     available = round(available, 2)
-            # if current:
-            #     current = round(current, 2)
-            # if limit:
-            #     limit = round(limit, 2)
-            if current:             
+            parsed_account = UserFinancialInstitute._parse_account(account)
+            if parsed_account['current']:             
                 new_Account = Account(
-                    name=account['name'],
+                    name=parsed_account['name'],
                     UFI_id=self.id,
-                    available=round(available, 2) if available else None,
-                    current=round(current, 2) if current else None,
-                    limit=round(limit, 2) if limit else None,
-                    type=str(account['type']),
-                    subtype=str(account['subtype']),
-                    account_id=str(account['account_id']),
-                    budget_trackable=budget_trackable
+                    available=parsed_account['available'],
+                    current=parsed_account['current'],
+                    limit=parsed_account['limit'],
+                    type=parsed_account['type'],
+                    subtype=parsed_account['subtype'],
+                    account_id=parsed_account['account_id'],
+                    budget_trackable=parsed_account['budget_trackable']
                 )
                 db.session.add(new_Account)
                 db.session.commit()
-                # accounts_out.append(new_Account)
-                accounts_out.append({'name':account['name'],
-                                     'UFI_id':self.id,
-                                     'available':available,
-                                     'current':current,
-                                     'limit':limit,
-                                     'type':str(account['type']),
-                                     'subtype':str(account['subtype']),
-                                     'account_id':str(account['account_id']),
-                                     'budget_trackable':budget_trackable,
-                                     'id': new_Account.id
-                                    })
+                accounts_out.append({**parsed_account, 'UFI_id':self.id, 'id': new_Account.id})
         return accounts_out
 
     def update_accounts_of_UFI(self, plaid_user_type:str):
@@ -120,42 +111,15 @@ class UserFinancialInstitute(db.Model):
         accounts = plaid_inst.get_UFI_specified_Account_balances_from_Plaid(account_ids, self.plaid_access_token)
         accounts_out = []
         for account in accounts:
-            if str(account['type']) == 'depository':
-                available=account['balances']['available']
-                current=account['balances']['current']
-                limit=account['balances']['limit']
-            elif str(account['type']) == 'credit':
-                available=limit - current
-                current=account['balances']['current']
-                limit=account['balances']['limit']
-            elif str(account['type']) in ['loan', 'investment']:
-                available=account['balances']['available']
-                current=account['balances']['current']
-                limit=account['balances']['limit']    
-            if available:
-                available = round(available, 2)
-            if current:
-                current = round(current, 2)
-            if limit:
-                limit = round(limit, 2)
+            parsed_account = UserFinancialInstitute._parse_account(account)  
             update_account = Account.query.filter_by(account_id=account['account_id']).first()
-            update_account.name = account['name']
-            update_account.available = available
-            update_account.current = current
-            update_account.limit = limit
+            update_account.name = parsed_account['name']
+            update_account.available = parsed_account['available']
+            update_account.current = parsed_account['current']
+            update_account.limit = parsed_account['limit']
             db.session.add(update_account)
             db.session.commit()
-            accounts_out.append({'name':account['name'],
-                                 'UFI_id':self.id,
-                                 'available':available,
-                                 'current':current,
-                                 'limit':limit,
-                                 'type':str(account['type']),
-                                 'subtype':str(account['subtype']),
-                                 'account_id':str(account['account_id']),
-                                 'budget_trackable':update_account.budget_trackable,
-                                 'id': update_account.id
-                                })
+            accounts_out.append({**parsed_account, 'UFI_id':self.id, 'id': update_account.id})
         return accounts_out
 
     def aggregate_account_balances(self, with_loans:bool=False) -> float:
