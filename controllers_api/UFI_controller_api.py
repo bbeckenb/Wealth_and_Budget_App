@@ -1,10 +1,9 @@
 from flask import flash, g, redirect, jsonify
 from models.PlaidClient import PlaidClient
 from models.UserFinancialInstitution import UserFinancialInstitute
-import asyncio
 
-class UFIController:
-    """Controller for UFI views"""      
+class UFIControllerAPI:
+    """Controller for UFI API"""      
     def __init__(self):
         pass
 
@@ -24,24 +23,19 @@ class UFIController:
                                                             primary_color=institution.get('primary_color', None),
                                                             logo=institution.get('logo', None)
                                             )
-            # accounts_out = new_UFI.populate_UFI_accounts(g.user.account_type)
             message = {'message': f"Connection to {new_UFI.name} successfully made!", 'category': "success"}
+            status_code = 201
         except Exception as e:
             message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
+            status_code = 500
         return jsonify({
-                        # 'accounts': accounts_out,
                         'id':new_UFI.id,
-                        # 'accountBalNoLoan': new_UFI.aggregate_account_balances(),
-                        # 'accountBalWithLoan': new_UFI.aggregate_account_balances(with_loans=True),
                         'name': new_UFI.name,
                         'userId': new_UFI.user_id,
-                        # 'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
-                        # 'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
-                        # 'pieChartData': g.user.pie_chart_data(),
-                        'message': message
-                        })
-        
-
+                        'message': message,
+                        'status_code': status_code
+                    })
+    
     @classmethod
     def delete_UFI_instance(cls, UFI_id):
         """Deletes specified instance of UFI from database
@@ -58,15 +52,18 @@ class UFIController:
         try:
             UFI_to_del.delete_UFI(g.user.account_type)
             message = {'message': f"Your connection to {holdName} was removed and the access_token is now invalid", 'category': "success"}
+            status_code = 200
         except Exception as e:
             message = {'message': f"Something went wrong when delete was attempted: {e}", 'category': "danger"}
+            status_code = 500
         return jsonify({'msg': f"UFI {UFI_id} deleted",
                         'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
                         'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
                         'pieChartData': g.user.pie_chart_data(),
-                        'message': message
+                        'message': message,
+                        'status_code': status_code
                         })
-
+    
     @classmethod
     def update_UFI_Accounts(cls, UFI_id):
         """Queries database for specific UFI, pullas all accounts related to it, requests most up-to-date balance information, updates Account instance information in database"""
@@ -86,14 +83,15 @@ class UFIController:
                             'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
                             'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
                             'pieChartData': g.user.pie_chart_data(),
-                            'message': message
+                            'message': message,
+                            'status_code': 200
                         }
             else:
                 message = {'message': "No accounts to update!", 'category': "info"}
-                payload = {'message': message}
+                payload = {'message': message,
+                            'status_code': 204}
         except Exception as e:
             message = {'message': f"Something went wrong when account update was attempted: {e}", 'category': "danger"}
-            payload = {'message': message}
+            payload = {'message': message,
+                        'status_code': 500}
         return jsonify(payload)
-
-

@@ -1,4 +1,4 @@
-from flask import render_template, flash, g, redirect, jsonify
+from flask import render_template, flash, g, redirect
 from models.Account import Account
 from models.BudgetTracker import BudgetTracker
 from database.database import db
@@ -90,21 +90,3 @@ class BudgetTrackerController:
             return redirect('/')
         else:
             return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
-
-    @classmethod
-    def delete_specified_budget_tracker(cls, acct_id):
-        """Deletes specified account instance from database"""
-        if not g.user:
-            flash("Access unauthorized.", 'danger')
-            return redirect('/')
-        try:
-            specified_bt = BudgetTracker.query.filter_by(user_id=g.user.id, account_id=acct_id).first()
-            if not specified_bt:
-                flash("Budget Tracker not in database.", "danger")
-                return redirect('/')
-            hold_acct_name = specified_bt.account.name
-            specified_bt.delete_budget_tracker()
-            message = {'message': f"Budget Tracker for {hold_acct_name} deleted!", 'category': "success"}
-        except Exception as e:
-            message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
-        return jsonify({'message': message})

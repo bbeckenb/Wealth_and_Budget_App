@@ -76,19 +76,19 @@ class UserFinancialInstitute(db.Model):
                 available=account['balances']['available']
                 current=account['balances']['current']
                 limit=account['balances']['limit']
-            if available:
-                available = round(available, 2)
-            if current:
-                current = round(current, 2)
-            if limit:
-                limit = round(limit, 2)
+            # if available:
+            #     available = round(available, 2)
+            # if current:
+            #     current = round(current, 2)
+            # if limit:
+            #     limit = round(limit, 2)
             if current:             
                 new_Account = Account(
                     name=account['name'],
                     UFI_id=self.id,
-                    available=available,
-                    current=current,
-                    limit=limit,
+                    available=round(available, 2) if available else None,
+                    current=round(current, 2) if current else None,
+                    limit=round(limit, 2) if limit else None,
                     type=str(account['type']),
                     subtype=str(account['subtype']),
                     account_id=str(account['account_id']),
@@ -96,6 +96,7 @@ class UserFinancialInstitute(db.Model):
                 )
                 db.session.add(new_Account)
                 db.session.commit()
+                # accounts_out.append(new_Account)
                 accounts_out.append({'name':account['name'],
                                      'UFI_id':self.id,
                                      'available':available,
@@ -124,9 +125,9 @@ class UserFinancialInstitute(db.Model):
                 current=account['balances']['current']
                 limit=account['balances']['limit']
             elif str(account['type']) == 'credit':
+                available=limit - current
                 current=account['balances']['current']
                 limit=account['balances']['limit']
-                available=limit - current
             elif str(account['type']) in ['loan', 'investment']:
                 available=account['balances']['available']
                 current=account['balances']['current']

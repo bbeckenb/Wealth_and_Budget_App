@@ -23,7 +23,7 @@ async function resourceController(e) {
 
 async function deleteUFI(ufiId) {
   try {
-    const res = await axios.post(`/financial-institutions/${ufiId}/delete`);
+    const res = await axios.delete(`/financial-institutions/${ufiId}`);
     const ufiToDelete = $(`#UFI-${ufiId}`);
     ufiToDelete.remove();
     updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
@@ -36,7 +36,7 @@ async function deleteUFI(ufiId) {
 
 async function updateUFI(ufiId) {
     try {
-        const res = await axios.get(`/financial-institutions/${ufiId}/accounts/update`);
+        const res = await axios.patch(`/financial-institutions/${ufiId}`);
         addAccountsToUFI(res.data.accounts, ufiId, update=true);
         if(res.data.accounts) {
             updateUFIBalances(res.data)

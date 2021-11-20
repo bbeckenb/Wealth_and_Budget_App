@@ -7,7 +7,7 @@ async function deleteBudgetTracker(acctId) {
         </div>`;
         budgetTrackerContainer.html(budgetTrackerCreateBtn);
         console.log(acctId);
-        const res = await axios.post(`/accounts/${acctId}/budget-tracker/delete`);
+        const res = await axios.delete(`/accounts/${acctId}/budget-tracker`);
         addAlert(res.data.message);
       } catch (err) {
           throw err;

@@ -2,7 +2,7 @@ async function deleteAcct(acctId) {
     try {
       const acctToDelete = $(`#Account-${acctId}`);
       acctToDelete.remove();
-      const res = await axios.post(`/accounts/${acctId}/delete`);
+      const res = await axios.delete(`/accounts/${acctId}`);
       addAlert(res.data.message)
       updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
       updatePieChart(res.data);

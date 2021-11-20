@@ -2,7 +2,7 @@ from flask import flash, g, redirect, jsonify
 from models.Account import Account
 from models.UserFinancialInstitution import UserFinancialInstitute
 
-class AccountController:
+class AccountControllerAPI:
     """Controller for Account views"""      
     def __init__(self):
         pass
@@ -13,14 +13,15 @@ class AccountController:
         UFI = UserFinancialInstitute.query.get_or_404(UFI_id)
         UFI_owner_id = UFI.user_id
         if not g.user or UFI_owner_id != g.user.id:
-            flash("Access unauthorized.", 'danger')
-            return redirect('/')
+            message = {'message': "Access unauthorized.", 'category': "danger"}
+            return jsonify({
+                'message': message,
+                'status_code': 401
+            })
         try:
             accounts_out = UFI.populate_UFI_accounts(g.user.account_type)
             message = {'message': f"Successfully populated accounts of {UFI.name}!", 'category': "success"}
-        except Exception as e:
-            message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
-        return jsonify({'accounts': accounts_out,
+            return jsonify({'accounts': accounts_out,
                         'id':UFI.id,
                         'accountBalNoLoan': UFI.aggregate_account_balances(),
                         'accountBalWithLoan': UFI.aggregate_account_balances(with_loans=True),
@@ -29,10 +30,16 @@ class AccountController:
                         'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
                         'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
                         'pieChartData': g.user.pie_chart_data(),
-                        'message': message
+                        'message': message,
+                        'status_code': 200
                         })
-
-
+        except Exception as e:
+            message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
+            return jsonify({
+                'message': message,
+                'status_code': 500
+            })
+        
     @classmethod
     def delete_specified_account(cls, acct_id):
         """Deletes specified account instance from database"""
@@ -40,14 +47,15 @@ class AccountController:
         UFI = acct_to_delete.UFI
         acct_owner_id = UFI.user_id
         if not g.user or acct_owner_id != g.user.id:
-            flash("Access unauthorized.", 'danger')
-            return redirect('/')
+            message = {'message': "Access unauthorized.", 'category': "danger"}
+            return jsonify({
+                'message': message,
+                'status_code': 401
+            })
         try:
             acct_to_delete.delete_Account()
             message = {'message': f"Account {acct_to_delete.name} deleted!", 'category': "success"}
-        except Exception as e:
-            message = {'message': f"Something went wrong when attempting to delete {acct_to_delete.name}: {e}", 'category': "danger"}
-        return jsonify({
+            return jsonify({
                         'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
                         'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
                         'pieChartData': g.user.pie_chart_data(),
@@ -57,3 +65,10 @@ class AccountController:
                         'ufiBalanceWithLoan': UFI.aggregate_account_balances(with_loans=True),
                         'message': message
                         })
+        except Exception as e:
+            message = {'message': f"Something went wrong when attempting to delete {acct_to_delete.name}: {e}", 'category': "danger"}
+            return jsonify({
+                'message': message,
+                'status_code': 500
+            })
+        

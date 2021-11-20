@@ -2,9 +2,10 @@
 # Imports
 from controllers.User_controller import UserController
 from controllers.BudgetTracker_controller import BudgetTrackerController
-from controllers.UFI_controller import UFIController
-from controllers.Account_controller import AccountController
 from controllers.Plaid_controller import PlaidController
+from controllers_api.UFI_controller_api import UFIControllerAPI
+from controllers_api.Account_controller_api import AccountControllerAPI
+from controllers_api.BudgetTracker_controller_api import BudgetTrackerControllerAPI
 from database.database import connect_db
 from dotenv import load_dotenv
 from flask import Flask
@@ -58,26 +59,26 @@ def create_link_token():
     return PlaidController.token_gen()
 ##############################################################################
 # UFI
-@app.route('/exchange_public_token', methods=['POST'])
+@app.route('/financial-institutions', methods=['POST'])
 def exchange_public_token(): 
-    return UFIController.get_plaid_access_key_create_UFI()
+    return UFIControllerAPI.get_plaid_access_key_create_UFI()
 
-@app.route('/financial-institutions/<int:UFI_id>/delete', methods=['POST'])
+@app.route('/financial-institutions/<int:UFI_id>', methods=['DELETE'])
 def UFI_delete(UFI_id):
-    return UFIController.delete_UFI_instance(UFI_id)
+    return UFIControllerAPI.delete_UFI_instance(UFI_id)
 
-@app.route('/financial-institutions/<int:UFI_id>/accounts/update')
+@app.route('/financial-institutions/<int:UFI_id>', methods=['PATCH'])
 def update_UFI_accounts_on_page(UFI_id):
-    return UFIController.update_UFI_Accounts(UFI_id)
+    return UFIControllerAPI.update_UFI_Accounts(UFI_id)
 ##############################################################################
 # Accounts
-@app.route('/financial-institutions/<int:UFI_id>/accounts/add', methods=['POST'])
+@app.route('/financial-institutions/<int:UFI_id>/accounts', methods=['POST'])
 def populate_accounts_of_UFI(UFI_id):
-    return AccountController.populate_accounts_of_UFI(UFI_id)
+    return AccountControllerAPI.populate_accounts_of_UFI(UFI_id)
 
-@app.route('/accounts/<int:acct_id>/delete', methods=['POST'])
+@app.route('/accounts/<int:acct_id>', methods=['DELETE'])
 def delete_account(acct_id):
-    return AccountController.delete_specified_account(acct_id)
+    return AccountControllerAPI.delete_specified_account(acct_id)
 ##############################################################################
 # BudgetTracker
 @app.route('/accounts/<int:acct_id>/budget-tracker/create', methods=['GET', 'POST'])
@@ -89,6 +90,6 @@ def create_budget_tracker(acct_id):
 def update_budget_tracker(acct_id):
     return BudgetTrackerController.update_existing_budget_tracker(acct_id)
 
-@app.route('/accounts/<int:acct_id>/budget-tracker/delete', methods=['POST'])
+@app.route('/accounts/<int:acct_id>/budget-tracker', methods=['DELETE'])
 def delete_budget_tracker(acct_id):
-    return BudgetTrackerController.delete_specified_budget_tracker(acct_id)
+    return BudgetTrackerControllerAPI.delete_specified_budget_tracker(acct_id)

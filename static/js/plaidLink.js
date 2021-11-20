@@ -7,10 +7,10 @@
             async function createUFIandAccounts() {
                 try {
                     startLoadScreen();
-                    const newUfi = await $.post('/exchange_public_token', {
+                    const newUfi = await $.post('/financial-institutions', {
                         public_token: public_token,
                     })
-                    const newUFIwithAccounts = await $.post(`/financial-institutions/${newUfi.id}/accounts/add`);
+                    const newUFIwithAccounts = await $.post(`/financial-institutions/${newUfi.id}/accounts`);
                     addUFItoPage(newUFIwithAccounts);
                     addAccountsToUFI(newUFIwithAccounts.accounts, newUFIwithAccounts.id);
                     updateDashboardBalances(newUFIwithAccounts.dashboardBalanceNoLoan, newUFIwithAccounts.dashboardBalanceWithLoan);
