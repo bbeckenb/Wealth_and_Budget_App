@@ -92,9 +92,16 @@ async function addUFItoPage(institution) {
               newUfiHTML += `<b>Total Amount:</b> $ ${institution.accountBalWithLoan}
                       </li>
                   </ul>
+                  <div class="d-flex justify-content-center">
+                    <button class="btn btn-sm btn-outline-success" style="margin-top: 20px;" type="button" data-toggle="collapse" data-target="#collapse-${institution.id}" aria-expanded="false" aria-controls="collapse-${institution.id}">
+                        View Accounts
+                    </button>
+                </div>
                   <hr class="my-4">
               </div>
+              <div class="collapse" id="collapse-${institution.id}">
                   <ul id="Account-holder-${institution.id}" class="list-group"></ul>
+              </div>
         </div>`
                       }
       currentUfiHTML += newUfiHTML;
@@ -175,6 +182,11 @@ function updateUFIBalances({ufiBalanaceNoLoan, ufiBalanceWithLoan, id, numAccoun
     htmlStr += `<b>Total Amount:</b> $ ${ufiBalanceWithLoan.toFixed(2)}
     </li>
     </ul>
+    <div class="d-flex justify-content-center">
+        <button class="btn btn-sm btn-outline-success" style="margin-top: 20px;" type="button" data-toggle="collapse" data-target="#collapse-${id}" aria-expanded="false" aria-controls="collapse-${id}">
+            View Accounts
+        </button>
+    </div>
     <hr class="my-4">` 
   }
   ufiBal.html(htmlStr);
