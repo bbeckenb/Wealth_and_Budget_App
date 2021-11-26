@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %} About {% endblock %}
+{% block stylesheet %} 
+    
+{% endblock %}
+{% block content %}
+<div class="container text-center">
+    <h1 class="display-3" style="margin-top: 40px;">About CashView</h1>
+    <!-- <p><i>Pull in and view your financial data in one place!</i></p>
+    <a href="/signup" class="btn btn-large btn-outline-primary">Sign up here!</a>
+    <p>
+        <i>Already a member or want to <b>demo</b>?</i> <a href="/login">Log in</a>
+    </p> -->
+    <div class="card">
+        <div class="card-header" style="font-size: 30px;">About the App</div>
+        <div class="card-body">
+            <h5 class="card-title" style="font-size: 20px;"><i>What is CashView?</i></h5>
+            <p class="card-text">CashView is a financial dashboard that allows you to securely connect and view all of your financial accounts in one location! Have several banks that you have holdings with? CashView is a convenient solution to tracking them all in one place!</p>
+            <hr class="my-3">  
+            <h5 class="card-title" style="font-size: 20px;"><i>What else can I do with CashView?</i></h5>
+            <p class="card-text">CashView also enables users to set up BudgetTracker text notifications for eligible account types (checking and savings)!</p>
+            <hr class="my-3">  
+            <h5 class="card-title" style="font-size: 20px;"><i>What technologies were used to build CashView?</i></h5>
+            <div class="row justify-content-md-center">
+                <ul class="list-group" style="width: 75%;">
+                    <li class="list-group-item list-group-item-primary" style="text-align: left;"><b>Front-end:</b> JavaScript, Axios, HTML5, CSS, Bootstrap, jQuery, GoogleChart.js</li>
+                    <li class="list-group-item list-group-item-primary" style="text-align: left;"><b>Back-end:</b> Python, Flask, ORM: SQLAlchemy, Jinja2, WTForms, Bcrypt, Cron</li>
+                    <li class="list-group-item list-group-item-primary" style="text-align: left;"><b>Database:</b> Postgres</li>
+                    <li class="list-group-item list-group-item-primary" style="text-align: left;"><b>APIs Integrated:</b> <a href="https://plaid.com/docs/api/versioning/">Plaid</a>, <a href="https://www.twilio.com/docs">Twilio</a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="card" style="margin-top: 20px;">
+        <div class="card-header" style="font-size: 30px;">About the Developer</div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-sm-12 col-md-6">
+                    <h5 class="card-title" style="margin-top: 30px;">Let's Connect!</h5>
+                    <p class="card-text">Hello! Thank you very much for taking the time to check out CashView! I am a Software Engineer in the Jacksonville, Florida area, passionate about building tools to help people! If you are looking for a motivated 
+                        Engineer, please feel free to <a href="mailto:brycebeckenbach@gmail.com">reach out</a> to see how I can help your organization!</p>
+                        <div className="social-links-container">
+                            <a target="_blank" rel="noopener noreferrer" href="https://www.linkedin.com/in/bryce-beckenbach-52a5276a/" class="social-link"><i class="fab fa-linkedin fa-2x"></i></a>
+                            <a target="_blank" rel="noopener noreferrer" href="https://github.com/bbeckenb" class="social-link"><i class="fab fa-github-square fa-2x"></i></a>
+                            <a target="_blank" rel="noopener noreferrer" href="mailto:brycebeckenbach@gmail.com" class="social-link"><i class="fas fa-envelope-square fa-2x"></i></a>
+                        </div>
+                </div>
+                <div class="col-sm-12 col-md-6">
+                    <h3>Bryce Beckenbach</h3>
+                    <img src="static/images/professional_shot.jpeg" class="card-img-top" alt="Bryce Beckenbach" style="height: 300px; width: 200px;">
+                    <h5 class="card-title" style="margin-top: 10px;">Software Engineer</h5>
+                </div>
+        </div>
+      </div>
+</div>
+{% endblock %}

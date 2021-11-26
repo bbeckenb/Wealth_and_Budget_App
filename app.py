@@ -3,6 +3,7 @@
 from controllers.User_controller import UserController
 from controllers.BudgetTracker_controller import BudgetTrackerController
 from controllers.Plaid_controller import PlaidController
+from controllers.WebAppInfo import WebAppInfoController
 from controllers_api.UFI_controller_api import UFIControllerAPI
 from controllers_api.Account_controller_api import AccountControllerAPI
 from controllers_api.BudgetTracker_controller_api import BudgetTrackerControllerAPI
@@ -93,3 +94,9 @@ def update_budget_tracker(acct_id):
 @app.route('/accounts/<int:acct_id>/budget-tracker', methods=['DELETE'])
 def delete_budget_tracker(acct_id):
     return BudgetTrackerControllerAPI.delete_specified_budget_tracker(acct_id)
+
+##############################################################################
+# WebApp Information
+@app.route('/about')
+def render_about_page():
+    return WebAppInfoController.render_about_page()

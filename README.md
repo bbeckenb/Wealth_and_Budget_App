@@ -26,7 +26,7 @@ Plaid - https://plaid.com/docs/api/versioning/
 Twilio - https://www.twilio.com/docs
 
 Stack:
-    Front-end: HTML, CSS, JavaScript, Bootstrap, jQuery,GoogleChart.js
+    Front-end: HTML, CSS, JavaScript, Bootstrap, jQuery, GoogleChart.js
     Back-end: Python, Flask, ORM: SQLAlchemy
     Database: Postgres
 
