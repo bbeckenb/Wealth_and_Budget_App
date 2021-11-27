@@ -77,8 +77,8 @@ class UserAccountModelTestCase(TestCase):
         # Already one instance in from Test Setup
         self.assertEqual(num_accts+1, len(Account.query.all()))
 
-    def test_user__repr__(self):
-        """Checks what User.__repr__ outputs"""
+    def test_Account__repr__(self):
+        """Checks what Account.__repr__ outputs"""
         u = self.test_UFI.accounts[0]
 
         self.assertEqual(repr(self.test_UFI.accounts[0]), f"<Account name={u.name} id={u.id} UFI_id={u.UFI_id} available={u.available} current={u.current} limit={u.limit}>")

@@ -71,8 +71,8 @@ class UserFinancialInstitutionModelTestCase(TestCase):
         # Already one instance in from Test Setup
         self.assertEqual(len(UserFinancialInstitute.query.all()), 2)
    
-    def test_user__repr__(self):
-        """Checks what User.__repr__ outputs"""
+    def test_UFI__repr__(self):
+        """Checks what UFI.__repr__ outputs"""
     
         self.assertEqual(repr(self.test_UFI), f"<UFI name=Test_name user_id={self.test_user0.id}>")
 
