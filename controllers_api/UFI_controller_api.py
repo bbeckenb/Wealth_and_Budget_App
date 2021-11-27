@@ -102,4 +102,4 @@ class UFIControllerAPI:
             message = {'message': f"Something went wrong when account update was attempted: {e}", 'category': "danger"}
             payload = {'message': message,
                         'status_code': 500}
-        return jsonify(payload), payload.status_code
+        return jsonify(payload), payload['status_code']

@@ -7,7 +7,6 @@ from models.User import User
 from models.UserFinancialInstitution import UserFinancialInstitute
 from models.PlaidClient import PlaidClient
 from models.Account import Account
-from flask import request
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///test_wealth_and_budget_db'
 app.config['SQLALCHEMY_ECHO'] = False
@@ -139,3 +138,5 @@ class UserFinancialInstitutionViewTestCase(TestCase):
             html = res.get_data(as_text=True)   
             self.assertNotIn('<h5 class="card-title">Test_name</h5>', html)
             self.assertEqual(len(UserFinancialInstitute.query.all()), 0)
+
+   

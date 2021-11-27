@@ -86,8 +86,8 @@ class BudgetTrackerViewsTestCase(TestCase):
             it will have an option to update the budget tracker
             
         """
-        amount_spent = self.test_budgettracker.amount_spent
-        budget_threshold = self.test_budgettracker.budget_threshold
+        # amount_spent = self.test_budgettracker.amount_spent
+        # budget_threshold = self.test_budgettracker.budget_threshold
         with self.client as c:
             with c.session_transaction() as sess:
                 sess["curr_user"] = self.test_user0.id
@@ -253,17 +253,16 @@ class BudgetTrackerViewsTestCase(TestCase):
             self.assertIn(f'Notification Frequency (days): 3', html)
 
     def test_delete_budget_tracker_no_user(self):
-        """If no user in session redirect home, flash access unauthorized"""
+        """If no user in session return 401, flash access unauthorized"""
         account_id = self.test_UFI.accounts[0].id
         with self.client as c:
             with c.session_transaction() as sess:
                 if "curr_user" in sess:
                     del sess["curr_user"]
 
-            res = c.post(f'/accounts/{account_id}/budget-tracker/delete', follow_redirects=True)      
-            html = res.get_data(as_text=True)
+            res = c.delete(f'/accounts/{account_id}/budget-tracker')   
 
-            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
+            self.assertEqual(res.status_code, 401)
 
     def test_delete_budget_tracker_bt_DNE(self):
         """If the budget tracker DNE in the database, redirect home, flash warning"""
@@ -275,10 +274,10 @@ class BudgetTrackerViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess["curr_user"] = self.test_user0.id
 
-            res = c.post(f'/accounts/{wrong_account_id}/budget-tracker/delete', follow_redirects=True)      
-            html = res.get_data(as_text=True)
+            res = c.delete(f'/accounts/{wrong_account_id}/budget-tracker')      
 
-            self.assertIn('<div class="alert alert-danger flash">Budget Tracker not in database.</div>', html)
+            self.assertEqual(res.status_code, 400)
+
 
     def test_delete_budget_tracker_success(self):
         """If all criteria are met, remove specified budget tracker from database, redirect home"""
@@ -288,7 +287,9 @@ class BudgetTrackerViewsTestCase(TestCase):
             with c.session_transaction() as sess:
                 sess["curr_user"] = self.test_user0.id
         
-            res = c.post(f'/accounts/{account_id}/budget-tracker/delete', follow_redirects=True)      
+            res = c.delete(f'/accounts/{account_id}/budget-tracker')      
+
+            res = c.get('/')
             html = res.get_data(as_text=True)
 
             self.assertNotIn('<h6>Budget Tracker Status', html)
