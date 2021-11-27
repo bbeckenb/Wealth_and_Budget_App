@@ -5,8 +5,8 @@
 {% block content %}
 
   <div class="row justify-content-md-center">
-    <div class="col-md-4">
-      <h2 class="join-message">Welcome back!</h2>
+    <div class="col-md-4 row justify-content-md-center">
+      <h2 class="join-message" style="margin-top: 20px;">Welcome back!</h2>
       <form method="POST" id="login-form">
         {{ form.hidden_tag() }}
 
@@ -19,7 +19,7 @@
           
         {% endfor %}
 
-        <div class="edit-btn-area" style="margin-top: 10px;">
+        <div class="edit-btn-area row justify-content-md-center" style="margin-top: 10px;">
           <button class="btn btn-outline-primary">Login</button>
           <btn id="test-user" class="btn btn-large btn-outline-success">Demo as Test User</btn>
           <a href="/" class="btn btn-outline-danger">Cancel</a>

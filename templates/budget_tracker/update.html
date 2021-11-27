@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
 {% block title %} Update Budget Tracker for {{account.name}} {% endblock %}
 {% block content %}
-<div class="row justify-content-md-center">
-  <div class="col-md-4">
-      <h4 class="join-message">Update budget tracker for: <h5><i>{{account.name}}</i></h5></h3>
+<div class="row justify-content-md-center" style="margin-top: 20px;">
+    <div class="col-md-4">
+        <h4 class="join-message row justify-content-md-center">Update budget tracker for: </h4>
+        <h5 class="row justify-content-md-center"><i>{{account.name}}</i></h5>
   
       <form method="POST" id="user_form">
           {{ form.hidden_tag() }}
@@ -25,7 +26,7 @@
           {% endif %}
           {{ form.notification_frequency.label }}
           {{ form.notification_frequency(placeholder="Days between notification texts", class="form-control") }}
-          <div class="edit-btn-area" style="margin-top: 10px;">
+          <div class="edit-btn-area row justify-content-md-center" style="margin-top: 10px;">
               <button class="btn btn-outline-success">Update</button>
               <a href="/" class="btn btn-outline-danger">Cancel</a>
           </div>

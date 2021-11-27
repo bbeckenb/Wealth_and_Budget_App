@@ -1,4 +1,7 @@
 {% extends 'base.html' %}
+{% block stylesheet %} 
+  <link rel="stylesheet" href=".">
+{% endblock %}
 {% block title %} Update Profile {% endblock %}
 {% block content %}
   <div class="row justify-content-md-center">
@@ -25,7 +28,7 @@
         {% endif %}
         {{ form.password(placeholder="Enter your password to confirm", class="form-control") }}
 
-        <div class="edit-btn-area">
+        <div class="edit-btn-area row justify-content-md-center" style="margin-top: 10px;">
           <button class="btn btn-outline-success">Update</button>
           <a href="/" class="btn btn-outline-danger">Cancel</a>
         </div>
