@@ -14,7 +14,7 @@ class BudgetTrackerControllerAPI:
             return jsonify({
                 'message': message,
                 'status_code': 401
-            })
+            }), 401
         try:
             specified_bt = BudgetTracker.query.filter_by(user_id=g.user.id, account_id=acct_id).first()
             if not specified_bt:
@@ -22,7 +22,7 @@ class BudgetTrackerControllerAPI:
                 return jsonify({
                     'message': message,
                     'status_code': 400
-                })
+                }), 400
             hold_acct_name = specified_bt.account.name
             specified_bt.delete_budget_tracker()
             message = {'message': f"Budget Tracker for {hold_acct_name} deleted!", 'category': "success"}
@@ -33,4 +33,4 @@ class BudgetTrackerControllerAPI:
         return jsonify({
                         'message': message,
                         'status_code': status_code
-                        })
+                        }), status_code

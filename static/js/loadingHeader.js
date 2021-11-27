@@ -21,7 +21,6 @@ function startLoadScreen() {
 }
 
 function endLoadScreen() {
-    // window.location.reload(true);
     loadingContainer.css("display", "none");
     allContent.show()
 }

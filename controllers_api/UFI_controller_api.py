@@ -50,8 +50,12 @@ class UFIControllerAPI:
         UFI_to_del = UserFinancialInstitute.query.get_or_404(UFI_id)
         UFI_owner_id = UFI_to_del.user_id
         if not g.user or UFI_owner_id != g.user.id:
-            flash("Access unauthorized.", 'danger')
-            return redirect('/')
+            message = {'message': "Access unauthorized.", 'category': "danger"}
+            status_code = 401
+            return jsonify({
+                            'message': message,
+                            'status_code': status_code
+                            }), 401
         holdName = UFI_to_del.name
         try:
             UFI_to_del.delete_UFI(g.user.account_type)
@@ -60,13 +64,13 @@ class UFIControllerAPI:
         except Exception as e:
             message = {'message': f"Something went wrong when delete was attempted: {e}", 'category': "danger"}
             status_code = 500
-        return jsonify({'msg': f"UFI {UFI_id} deleted",
+        return jsonify({
                         'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
                         'dashboardBalanceWithLoan': g.user.aggregate_UFI_balances(with_loans=True),
                         'pieChartData': g.user.pie_chart_data(),
                         'message': message,
                         'status_code': status_code
-                        })
+                        }), status_code
     
     @classmethod
     def update_UFI_Accounts(cls, UFI_id):
@@ -98,4 +102,4 @@ class UFIControllerAPI:
             message = {'message': f"Something went wrong when account update was attempted: {e}", 'category': "danger"}
             payload = {'message': message,
                         'status_code': 500}
-        return jsonify(payload)
+        return jsonify(payload), payload.status_code

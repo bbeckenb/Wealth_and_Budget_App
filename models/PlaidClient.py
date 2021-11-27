@@ -69,7 +69,7 @@ class PlaidClient:
                                                 language='en',
                                                 user=LinkTokenCreateRequestUser(
                                                                                 client_user_id=str(time.time())
-                                              )
+                                                    )
                       )
             response =  self.plaid_client.link_token_create(request)
             return jsonify(response.to_dict())

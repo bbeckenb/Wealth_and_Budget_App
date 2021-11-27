@@ -17,7 +17,7 @@ class AccountControllerAPI:
             return jsonify({
                 'message': message,
                 'status_code': 401
-            })
+            }), 401
         try:
             accounts_out = UFI.populate_UFI_accounts(g.user.account_type)
             message = {'message': f"Successfully populated accounts of {UFI.name}!", 'category': "success"}
@@ -32,13 +32,13 @@ class AccountControllerAPI:
                         'pieChartData': g.user.pie_chart_data(),
                         'message': message,
                         'status_code': 200
-                        })
+                        }), 200
         except Exception as e:
             message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
             return jsonify({
                 'message': message,
                 'status_code': 500
-            })
+            }), 500
         
     @classmethod
     def delete_specified_account(cls, acct_id):
@@ -51,7 +51,7 @@ class AccountControllerAPI:
             return jsonify({
                 'message': message,
                 'status_code': 401
-            })
+            }), 401
         try:
             acct_to_delete.delete_Account()
             message = {'message': f"Account {acct_to_delete.name} deleted!", 'category': "success"}
@@ -63,12 +63,13 @@ class AccountControllerAPI:
                         'numAccounts':len(UFI.accounts),
                         'ufiBalanaceNoLoan': UFI.aggregate_account_balances(),
                         'ufiBalanceWithLoan': UFI.aggregate_account_balances(with_loans=True),
-                        'message': message
-                        })
+                        'message': message,
+                        'status_code': 200
+                        }), 200
         except Exception as e:
             message = {'message': f"Something went wrong when attempting to delete {acct_to_delete.name}: {e}", 'category': "danger"}
             return jsonify({
                 'message': message,
                 'status_code': 500
-            })
+            }), 500
         

@@ -24,11 +24,15 @@ async function resourceController(e) {
 async function deleteUFI(ufiId) {
   try {
     const res = await axios.delete(`/financial-institutions/${ufiId}`);
-    const ufiToDelete = $(`#UFI-${ufiId}`);
-    ufiToDelete.remove();
-    updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
-    updatePieChart(res.data);
-    addAlert(res.data.message);
+    if (res.data.status === 401) {
+        addAlert(res.data.message);
+    } else {
+        const ufiToDelete = $(`#UFI-${ufiId}`);
+        ufiToDelete.remove();
+        updateDashboardBalances(res.data.dashboardBalanceNoLoan, res.data.dashboardBalanceWithLoan);
+        updatePieChart(res.data);
+        addAlert(res.data.message);
+    }
   } catch (err) {
     throw err;
   }

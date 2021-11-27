@@ -7,6 +7,7 @@ from models.User import User
 from models.UserFinancialInstitution import UserFinancialInstitute
 from models.PlaidClient import PlaidClient
 from models.Account import Account
+from flask import request
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql:///test_wealth_and_budget_db'
 app.config['SQLALCHEMY_ECHO'] = False
@@ -95,19 +96,17 @@ class UserFinancialInstitutionViewTestCase(TestCase):
                 if "curr_user" in sess:
                     del sess["curr_user"]
 
-            res = c.post(f'/financial-institutions/{UFI_id}/delete', follow_redirects=True)      
-            html = res.get_data(as_text=True)
-
-            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
+            res = c.delete(f'/financial-institutions/{UFI_id}')      
+            
+            self.assertEqual(res.status_code, 401)
 
         with self.client as c:
             with c.session_transaction() as sess:
                 sess["curr_user"] = not_owner_id
             
-            res = c.post(f'/financial-institutions/{UFI_id}/delete', follow_redirects=True)      
-            html = res.get_data(as_text=True)
+            res = c.delete(f'/financial-institutions/{UFI_id}')      
 
-            self.assertIn('<div class="alert alert-danger flash">Access unauthorized.</div>', html)
+            self.assertEqual(res.status_code, 401)
 
     def test_UFI_id_DNE_delete(self):
         """makes sure if UFI id is not in database, 404 occurs"""
@@ -135,7 +134,8 @@ class UserFinancialInstitutionViewTestCase(TestCase):
             html = res.get_data(as_text=True)
             self.assertIn('<h5 class="card-title">Test_name</h5>', html)
             
-            res = c.post(f'/financial-institutions/{id}/delete')      
-            html = res.get_data(as_text=True)
+            res = c.delete(f'/financial-institutions/{id}')   
+            res = c.get('/')
+            html = res.get_data(as_text=True)   
             self.assertNotIn('<h5 class="card-title">Test_name</h5>', html)
             self.assertEqual(len(UserFinancialInstitute.query.all()), 0)
