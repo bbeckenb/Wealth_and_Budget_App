@@ -29,6 +29,7 @@ This website acts as a personal finance dashboard. It allows users to make a pro
     - [ BudgetTracker Features ](#BTFeatures)
         - [ Adding a BudgetTracker](#AddBT)
         - [ Editing a BudgetTracker ](#EditBT)
+        - [ Deleting a BudgetTracker ](#DeleteBT)
 
 <a name="Tech-Stack"></a>
 
@@ -187,7 +188,7 @@ The BudgetTracker will then appear on the Dashboard under the associated Account
 <a name="EditBT"></a>
 
 #### Editing a BudgetTracker
-Once a BudgetTracker is created, it will appear on the Dashboard where it can be edited or deleted. To edit, click the 'edit' icon at the bottom of the BudgetTracker. This will direct the User to the Update BudgetTracker form where the user can modify their Budget Threshold and/or their Notification Frequency.
+Once a BudgetTracker is created, it will appear on the Dashboard where it can be edited or deleted. To edit, click the 'edit' icon at the bottom of the BudgetTracker. This will direct the User to the Update BudgetTracker form where the user can modify their Budget Threshold and/or their Notification Frequency. These values will be updated in the database and the new values will be reflected on the Dashboard.
 
 *(BudgetTracker Update: Bottom of BudgetTracker blue 'edit' icon)*
 ![BT Edit](static/images/readme/BTEditorDelete.png)
@@ -195,6 +196,16 @@ Once a BudgetTracker is created, it will appear on the Dashboard where it can be
 *(BudgetTracker Update Form)*
 ![BT Edit Page](static/images/readme/BTUpdatePage.png)
 
+<a name="DeleteBT"></a>
+
+#### Deleting a BudgetTracker
+To delete a BudgetTracker, navigate to the associated Account on the Dashboard where it lives. At the bottom of the BudgetTracker Card, click on the 'delete' icon. The BudgetTracker will be removed from the database and the HTML will return the 'Create BudgetTracker' button under the Account.
+
+*(BudgetTracker Delete: Bottom of BudgetTracker red 'delete' icon)*
+![BT Delete](static/images/readme/BTEditorDelete.png)
+
+*(BudgetTracker Create Button returned)*
+![BT Create Button returned](static/images/readme/CreateBTButton.png)
 
 1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
 3. Capability to securely pull financial institutions into application through Plaid 
