@@ -49,7 +49,7 @@ Postgres
 <a name="Deployment"></a>
 
 ### Depoloyment
-CashView is deployed on heroku at (https://wealth-and-budget.herokuapp.com/)
+CashView is deployed on heroku at [https://wealth-and-budget.herokuapp.com/](https://wealth-and-budget.herokuapp.com/)
 
 <a name="Features"></a>
 
