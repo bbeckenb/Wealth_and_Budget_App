@@ -17,9 +17,11 @@ This website acts as a personal finance dashboard. It allows users to make a pro
 3. [ Deployment ](#Deployment)
 4. [ Developer ](#Developer)
 5. [ Features ](#Features)
-    - [ Registration ](#Registration)
-    - [ Login and Demo User ](#LoginAndDemo)
-    - [ Adding a Financial Institution ](#AddUFI)
+    - [ User Features ](#UserFeatures)
+        - [ Registration ](#Registration)
+        - [ Login and Demo User ](#LoginAndDemo)
+    - [ Financial Institution and Account Features ](#FandAFeatures)
+        - [ Adding a Financial Institution and Accounts ](#AddUFI)
 
 <a name="Tech-Stack"></a>
 
@@ -70,14 +72,18 @@ Please feel free to reach out!
 ### Features:
 <a name="Registration"></a>
 
-#### Registration
+<a name="UserFeatures"></a>
+
+### User Features
+
+##### Registration
 User Registration goes through the User model on the backend, user enters desired username, password, phone number, first name, last name, and desired account type (sandbox or development (more on that later)). All information is required and username must be unique for the model to generate a User instance. Password is run through Bcrypt hashing function where the output is stored in the database.
 
 ![Signup](static/images/readme/signup.png)
 
 <a name="LoginAndDemo"></a>
 
-#### Login and Demo User
+##### Login and Demo User
 Login authentication occurs on the User model as well. If a User logs in with correct username/password pair, User authenticate method returns the User instance, if not it returns False.
 
 To reduce barrier of entry of someone trying to experience the App, I integrated a 'Demo User' button on the Login page. This uses JavaScript and jQuery behind the scenes to enter credentials:
@@ -86,9 +92,13 @@ To reduce barrier of entry of someone trying to experience the App, I integrated
 
 ![Login](static/images/readme/login.png)
 
+<a name="FadnAFeatures"></a>
+
+### Financial Institution and Account Features
+
 <a name="AddUFI"></a>
 
-#### Adding a Financial Institution 
+##### Adding a Financial Institution and Accounts
 Using the Plaid API, a user can securely add their credentials to Plaid's Link interface that is embedded in the dashboard. **These credentials are not stored in the any area of CashView at any point**. To avoid this being an issue, I made sure users that sign up have the option of having a **development** account, which deals with real bank data, or a **sandbox** account, which deals with dummy bank accounts from Plaid. The Demo user experience is a **sandbox** account as well. 
 
 Once on the dashboard page, a user clicks on 'Link Institution' under 'User Options'.
