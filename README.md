@@ -20,6 +20,8 @@ This website acts as a personal finance dashboard. It allows users to make a pro
     - [ User Features ](#UserFeatures)
         - [ Registration ](#Registration)
         - [ Login and Demo User ](#LoginAndDemo)
+        - [ User Editing ](#EditUser)
+        - [ User Deletion ](#DeleteUser)
     - [ Financial Institution and Account Features ](#FandAFeatures)
         - [ Adding a Financial Institution and Accounts ](#AddUFI)
 
@@ -70,11 +72,12 @@ Please feel free to reach out!
 <a name="Features"></a>
 
 ## Features:
-<a name="Registration"></a>
 
 <a name="UserFeatures"></a>
 
 ### User Features
+
+<a name="Registration"></a>
 
 #### Registration
 User Registration goes through the User model on the backend, user enters desired username, password, phone number, first name, last name, and desired account type (sandbox or development (more on that later)). All information is required and username must be unique for the model to generate a User instance. Password is run through Bcrypt hashing function where the output is stored in the database.
@@ -90,9 +93,23 @@ To reduce barrier of entry of someone trying to experience the App, I integrated
 - Username: Test_User
 - Password: pass_good
 
+**NOTE:** There is backend logic to protect Test-User from modification or deletion
+
 ![Login](static/images/readme/login.png)
 
-<a name="FadnAFeatures"></a>
+<a name="EditUser"></a>
+
+#### User Editing
+Once a user is logged in, they will see 'Update Profile' as an option on their navbar and under 'User Options' on the dashboard, there is an 'Update Profile' button a user can click which will lead them to a portal to edit their profile. All of their current information is populated into the input fields of the form. Once they have updated their information to the desired values and enter their password at the bottom to confirm the changes, they can click 'Update' to have their changes made in the database.
+
+![UpdateProfile](static/images/readme/UpdateProfile.png)
+
+<a name="DeleteUser"></a>
+
+#### User Deletion
+Once a user is logged in, they will see an option to 'Delete Profile' under 'User Options'. Once they click this, their User instance will be removed from the database on the back-end and they will be redirected to the welcome page of CashView on the frontend. There is a cascading deletion set up in the database schema so all FinancialInstitutions, Accounts, and BudgetTrackers will be deleted as well.
+
+<a name="FandAFeatures"></a>
 
 ### Financial Institution and Account Features
 
