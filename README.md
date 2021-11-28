@@ -1,9 +1,14 @@
-Title - CashView: Pull in and view your financial data in one place! - https://wealth-and-budget.herokuapp.com/
+# CashView
+### Pull in and view your financial data in one place!(https://wealth-and-budget.herokuapp.com/)
 
-Description:
+### Description:
 This website acts as a personal finance dashboard. It allows users to make a profile and pull financial data from all of their financial institutions into one place. The app itself aggregates balances from all of the user's accounts, displaying their overall worth (with and without loans). It also uses graphics to illustrate the breakdown of the user's financial institutions and what percentage of their overall wealth is in each. Below the dashboard there is an account-level breakdown of each financial institution listed that displays the individual balances based on account type. 
 
-Features:
+### Table of Contents
+1. [ Features ](#Features)
+
+<a name="Features"></a>
+### Features:
 1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
 2. User password encryption through Bcrypt for authentication
 3. Capability to securely pull financial institutions into application through Plaid 
@@ -35,24 +40,24 @@ Notes:
     - Script is scheduled to run on Heroku
     - If you choose to run this locally, include following code in main app and follow directions below:
         - code:
-            *** Dependencies to import ***
+            **Dependencies to import**
             from flask_crontab import Crontab
             from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts
             from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs
-            *** Initializations ***
+            ** Initializations ***
             crontab = Crontab(app)
-            *** CRON schedule function definition ***
+            **CRON schedule function definition**
             @crontab.job(minute=0, hour=12)
             def scheduled_jobs():
                scheduled_daily_refresh_all_accounts(plaid_inst)
                scheduled_budget_tracker_jobs(plaid_inst, twilio_inst)
         - directions:
             CRON Scheduled Jobs For local server
-            *** This will run everyday at 12pm UTC ***
+            **This will run everyday at 12pm UTC**
             run 'flask crontab add' in command line to initialize
-            *** This will delete the CRON job ***
+            **This will delete the CRON job**
             run 'flask crontab remove' in command line to remove
-            *** These are additional command line commands to navigate jobs ***
+            **These are additional command line commands to navigate jobs**
             'crontab -l' to see list of jobs
             'crontab -e' to manually edit list of jobs, 'esc' :wq 'enter' to leave list
             
