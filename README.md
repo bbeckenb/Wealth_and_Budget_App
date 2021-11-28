@@ -28,6 +28,7 @@ This website acts as a personal finance dashboard. It allows users to make a pro
         - [ Deleting Financial Institution and Accounts ](#DeleteUFI)
     - [ BudgetTracker Features ](#BTFeatures)
         - [ Adding a BudgetTracker](#AddBT)
+        - [ Editing a BudgetTracker ](#EditBT)
 
 <a name="Tech-Stack"></a>
 
@@ -169,11 +170,23 @@ For each Financial Institution and account (uncollapsed) on the dashboard, there
 <a name="AddBT"></a>
 
 #### Adding a BudgetTracker
-If an Account is elegible (is of type 'credit' or sub-type 'checking'), it will have a 'Create BudgetTracker' button displayed at the bottom. Clicking this will bring the user to a BudgetTracker creation form for that particular Account where they can enter their desired 'Monthly Budget Threshold' amount (must be greater than $0) and their desired Notification Frequency that they would like to receive text notifications at. These texts updates will occur at frequency multiples of the day frequency they enter (e.g. if they enter 2, they would receive a text notification every other day). This is enabled by a script that runs once each day to:
+If an Account is elegible (is of type 'credit' or sub-type 'checking'), it will have a 'Create BudgetTracker' button displayed at the bottom. Clicking this will bring the user to a BudgetTracker creation form for that particular Account where they can enter their desired 'Monthly Budget Threshold' amount (must be greater than $0) and their desired Notification Frequency that they would like to receive text notifications at (must be between 1 and 15 days). These texts updates will occur at frequency multiples of the day frequency they enter (e.g. if they enter 2, they would receive a text notification every other day). This is enabled by a script that runs once each day to:
 - Update the most recent amount spent on the BudgetTracker
 - See if the notification date on the budget tracker is equal to the date that day
     -If it is not, it does nothing
     -If it **is**, it fires off a text notification with the amount spent compared to the budget threshold and updates the next notification date using the desired notification frequency
+
+![Add BT](static/images/readme/AddBT.png)
+
+The BudgetTracker will then appear on the Dashboard under the associated Account displaying all information (Budget Threshold, Amount Spent, Notification Frequency, Next Notification Date) which is updated by the script that runs daily.
+
+**NOTE:** If the User's account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so unless your cellphone number is verified under my account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
+
+![BT On Dashboard](static/images/readme/BTDashboard.png)
+
+<a name="EditBT"></a>
+
+#### Editing a BudgetTracker
 
 1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
 3. Capability to securely pull financial institutions into application through Plaid 
