@@ -26,8 +26,8 @@ This website acts as a personal finance dashboard. It allows users to make a pro
         - [ Adding a Financial Institution and Accounts ](#AddUFI)
         - [ Updating Financial Institution and Accounts ](#UpdateUFI)
         - [ Deleting Financial Institution and Accounts ](#DeleteUFI)
-
-
+    - [ BudgetTracker Features ](#BTFeatures)
+        - [ Adding a BudgetTracker](#AddBT)
 
 <a name="Tech-Stack"></a>
 
@@ -138,10 +138,10 @@ If the correct information is entered, CashView will go through the [ Plaid Toke
 
 Financial Institution and Account/s instances are created in the CashView database then json data is sent to the dashboard to create the required HTML to represent the instances. If a user already has Financial Institutions and Accounts associated with their User instance, Jinja2 templates create the required HTML upon page load.
 
-Financial Institution in CashView Dashboard
+*(Financial Institution in CashView Dashboard)*
 ![New UFI](static/images/readme/newUFI.png)
 
-Same Financial Institution in CashView Dashboard with some Accounts deleted and view uncollapsed
+*(Same Financial Institution in CashView Dashboard with some Accounts deleted and view uncollapsed)*
 ![New Accounts](static/images/readme/newAccounts.png)
 
 <a name="UpdateUFI"></a>
@@ -162,6 +162,18 @@ For each Financial Institution and account (uncollapsed) on the dashboard, there
 
 *(Account deletion: Top right of 'Plaid Checking' red deletion button icon)*
 ![Delete Account](static/images/readme/DeleteAccount.png)
+
+<a name="BTFeatures"></a>
+
+### BudgetTracker Features
+<a name="AddBT"></a>
+
+#### Adding a BudgetTracker
+If an Account is elegible (is of type 'credit' or sub-type 'checking'), it will have a 'Create BudgetTracker' button displayed at the bottom. Clicking this will bring the user to a BudgetTracker creation form for that particular Account where they can enter their desired 'Monthly Budget Threshold' amount (must be greater than $0) and their desired Notification Frequency that they would like to receive text notifications at. These texts updates will occur at frequency multiples of the day frequency they enter (e.g. if they enter 2, they would receive a text notification every other day). This is enabled by a script that runs once each day to:
+- Update the most recent amount spent on the BudgetTracker
+- See if the notification date on the budget tracker is equal to the date that day
+    -If it is not, it does nothing
+    -If it **is**, it fires off a text notification with the amount spent compared to the budget threshold and updates the next notification date using the desired notification frequency
 
 1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
 3. Capability to securely pull financial institutions into application through Plaid 
