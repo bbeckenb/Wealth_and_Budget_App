@@ -1,8 +1,7 @@
 # CashView
 ### Pull in and view your financial data in one place!
-[  ](https://wealth-and-budget.herokuapp.com/)
 
-![CashView App](static/images/readme/DisplayView.png)
+[![CashView App](static/images/readme/DisplayView.png)](https://wealth-and-budget.herokuapp.com/)
 
 
 ### Description:
