@@ -5,13 +5,20 @@
 
 
 ### Description:
-This website acts as a personal finance dashboard. It allows users to make a profile and pull financial data from all of their financial institutions into one place. The app itself aggregates balances from all of the user's accounts, displaying their overall worth (with and without loans). It also uses graphics to illustrate the breakdown of the user's financial institutions and what percentage of their overall wealth is in each. Below the dashboard there is an account-level breakdown of each financial institution listed that displays the individual balances based on account type. 
+This website acts as a personal finance dashboard. It allows users to make a profile and pull financial data from all of their financial institutions into one place. The app itself aggregates balances from all of the user's accounts, displaying their overall worth (with and without loans). It also uses graphics to illustrate the breakdown of the user's financial institutions and what percentage of their overall wealth is in each. Below the dashboard there is an account-level breakdown of each financial institution listed that displays the individual balances based on account type. This was completed in approximately 60 hours as part of Springboard Software Engineering Program.
 
 ### Table of Contents
 1. [ Features ](#Features)
 2. [ Tech Stack ](#Tech-Stack)
+    - [ Front-end ](#Front-end)
+    - [ Back-end ](#Back-end)
+    - [ Database ](#Database)
+    - [ APIs Integrated ](#APIs)
+3. [ Database Schema ](#Schema)
+
 
 <a name="Features"></a>
+
 ### Features:
 1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
 2. User password encryption through Bcrypt for authentication
@@ -31,15 +38,33 @@ Standard User Flow:
     - logout or delete profile
 
 <a name="Tech-Stack"></a>
-### Tech Stack:
-APIs integrated:
-Plaid - https://plaid.com/docs/api/versioning/
-Twilio - https://www.twilio.com/docs
 
-Stack:
-    Front-end: HTML, CSS, JavaScript, Bootstrap, jQuery, GoogleChart.js
-    Back-end: Python, Flask, ORM: SQLAlchemy
-    Database: Postgres
+### Tech Stack
+<a name="Front-end"></a>
+
+#### Front-end
+JavaScript, Axios, HTML5, CSS, Bootstrap, jQuery, GoogleChart.js
+
+<a name="Back-end"></a>
+
+#### Back-end
+Python, Flask, ORM: SQLAlchemy, Jinja2, WTForms, Bcrypt, Cron
+
+<a name="Database"></a>
+
+#### Database
+Postgres
+
+<a name="APIs"></a>
+
+#### APIs integrated
+[ Plaid ](https://plaid.com/docs/api)
+[ Twilio ](https://www.twilio.com/docs)
+
+<a name="Schema"></a>
+
+### Schema
+![Schema](static/images/readme/Schema.png)
 
 Notes:
 1. Job Scheduling:
