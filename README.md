@@ -1,11 +1,14 @@
 # CashView
-### Pull in and view your financial data in one place!(https://wealth-and-budget.herokuapp.com/)
+### Pull in and view your financial data in one place!
+[ CashView App ](https://wealth-and-budget.herokuapp.com/)
+
 
 ### Description:
 This website acts as a personal finance dashboard. It allows users to make a profile and pull financial data from all of their financial institutions into one place. The app itself aggregates balances from all of the user's accounts, displaying their overall worth (with and without loans). It also uses graphics to illustrate the breakdown of the user's financial institutions and what percentage of their overall wealth is in each. Below the dashboard there is an account-level breakdown of each financial institution listed that displays the individual balances based on account type. 
 
 ### Table of Contents
 1. [ Features ](#Features)
+2. [ Tech Stack ](#Tech-Stack)
 
 <a name="Features"></a>
 ### Features:
@@ -26,6 +29,7 @@ Standard User Flow:
     - update their user profile information 
     - logout or delete profile
 
+<a name="Tech-Stack"></a>
 APIs integrated:
 Plaid - https://plaid.com/docs/api/versioning/
 Twilio - https://www.twilio.com/docs
