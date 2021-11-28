@@ -24,6 +24,10 @@ This website acts as a personal finance dashboard. It allows users to make a pro
         - [ User Deletion ](#DeleteUser)
     - [ Financial Institution and Account Features ](#FandAFeatures)
         - [ Adding a Financial Institution and Accounts ](#AddUFI)
+        - [ Updating Financial Institution and Accounts ](#UpdateUFI)
+        - [ Deleting Financial Institution and Accounts ](#DeleteUFI)
+
+
 
 <a name="Tech-Stack"></a>
 
@@ -140,6 +144,24 @@ Financial Institution in CashView Dashboard
 Same Financial Institution in CashView Dashboard with some Accounts deleted and view uncollapsed
 ![New Accounts](static/images/readme/newAccounts.png)
 
+<a name="UpdateUFI"></a>
+
+#### Updating Financial Institution and Accounts
+For each Financial Institution on the dashboard, there is an 'Update' icon. This is for manual refreshing of account balances. This will make a call to the back-end to grab all the Plaid account IDs associated with that Financial Institution in the CashView database and get the most up-to-date balance information for these accounts from Plaid. This data will be sent back to the front-end and the HTML will be updated to reflect the most recent balances.
+
+*(Top right blue refresh icon)*
+![Update UFI](static/images/readme/UpdateUFI.png)
+
+<a name="DeleteUFI"></a>
+
+#### Deleting Financial Institution and Accounts
+For each Financial Institution and account (uncollapsed) on the dashboard, there is a 'Delete' icon. This is for deletion of desired Accounts you do not want to track and Financial Institutions, respectively. This will make a call to the back-end to delete the desired account or Financial Institution in the CashView database. Upon deletion, your overall wealth and balance information at the Financial Institution level will change (if you delete accounts from a Financial Institution). Updated roll-up balance data will be sent back to the front-end and the HTML will be updated to reflect the most recent balances.
+
+*(Financial Institution deletion: Top right of 'Chase', red deletion button icon)*
+![Delete UFI](static/images/readme/UpdateUFI.png)
+
+*(Account deletion: Top right of 'Plaid Checking' red deletion button icon)*
+![Delete Account](static/images/readme/DeleteAccount.png)
 
 1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
 3. Capability to securely pull financial institutions into application through Plaid 
