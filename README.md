@@ -58,8 +58,8 @@ Postgres
 <a name="APIs"></a>
 
 #### APIs integrated
-[ Plaid ](https://plaid.com/docs/api)
-[ Twilio ](https://www.twilio.com/docs)
+- [ Plaid ](https://plaid.com/docs/api)
+- [ Twilio ](https://www.twilio.com/docs)
 
 <a name="Schema"></a>
 
