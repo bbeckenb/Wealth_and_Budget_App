@@ -182,7 +182,7 @@ The BudgetTracker will then appear on the Dashboard under the associated Account
 
 **NOTE:** If the User's account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so unless your cellphone number is verified under my account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
 
-![BT On Dashboard](static/imagesreadme/BTonDashboard.png)
+![BT On Dashboard](static/images/readme/BTonDashboard.png)
 
 <a name="EditBT"></a>
 
@@ -190,9 +190,9 @@ The BudgetTracker will then appear on the Dashboard under the associated Account
 Once a BudgetTracker is created, it will appear on the Dashboard where it can be edited or deleted. To edit, click the 'edit' icon at the bottom of the BudgetTracker. This will direct the User to the Update BudgetTracker form where the user can modify their Budget Threshold and/or their Notification Frequency.
 
 *(BudgetTracker Update: Bottom of BudgetTracker blue 'edit' icon)*
-![BT Edit](static/imagesreadme/BTEditorDelete.png)
+![BT Edit](static/images/readme/BTEditorDelete.png)
 
-![BT Edit Page](static/imagesreadme/BTUpdatePage.png)
+![BT Edit Page](static/images/readme/BTUpdatePage.png)
 
 
 1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
