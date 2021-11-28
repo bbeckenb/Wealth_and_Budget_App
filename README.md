@@ -182,7 +182,7 @@ The BudgetTracker will then appear on the Dashboard under the associated Account
 
 **NOTE:** If the User's account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so unless your cellphone number is verified under my account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
 
-![BT On Dashboard](static/imagesreadme/BTDashboard.png)
+![BT On Dashboard](static/imagesreadme/BTonDashboard.png)
 
 <a name="EditBT"></a>
 
