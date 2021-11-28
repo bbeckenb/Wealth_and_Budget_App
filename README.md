@@ -1,6 +1,8 @@
 # CashView
 ### Pull in and view your financial data in one place!
-[ CashView App ](https://wealth-and-budget.herokuapp.com/)
+[  ](https://wealth-and-budget.herokuapp.com/)
+
+![CashView App](static/images/readme/DisplayView.png)
 
 
 ### Description:
@@ -30,6 +32,7 @@ Standard User Flow:
     - logout or delete profile
 
 <a name="Tech-Stack"></a>
+### Tech Stack:
 APIs integrated:
 Plaid - https://plaid.com/docs/api/versioning/
 Twilio - https://www.twilio.com/docs
