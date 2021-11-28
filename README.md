@@ -58,8 +58,9 @@ CashView is deployed on heroku at [https://wealth-and-budget.herokuapp.com/](htt
 #### Bryce Beckenbach
 ![Me](static/images/professional_shot.jpeg)
 
-Email: [brycebeckenbach@gmail.com](mailto:brycebeckenbach@gmail.com)
-[ Linkedin ](https://www.linkedin.com/in/bryce-beckenbach-52a5276a/)
+Please feel free to reach out!
+- Email: [brycebeckenbach@gmail.com](mailto:brycebeckenbach@gmail.com)
+- [ Linkedin ](https://www.linkedin.com/in/bryce-beckenbach-52a5276a/)
 
 <a name="Features"></a>
 
