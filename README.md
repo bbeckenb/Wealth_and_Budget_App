@@ -192,6 +192,7 @@ Once a BudgetTracker is created, it will appear on the Dashboard where it can be
 *(BudgetTracker Update: Bottom of BudgetTracker blue 'edit' icon)*
 ![BT Edit](static/images/readme/BTEditorDelete.png)
 
+*(BudgetTracker Update Form)*
 ![BT Edit Page](static/images/readme/BTUpdatePage.png)
 
 
