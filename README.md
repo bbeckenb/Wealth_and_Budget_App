@@ -110,8 +110,8 @@ Financial Institution and Account/s instances are created in the CashView databa
 Financial Institution in CashView Dashboard
 ![New UFI](static/images/readme/newUFI.png)
 
-Same Financial Institution in CshView Dashboard with some Accounts deleted and view uncollapsed
-![New Accounts](static/images/readme/newUFI.png)
+Same Financial Institution in CashView Dashboard with some Accounts deleted and view uncollapsed
+![New Accounts](static/images/readme/newAccounts.png)
 
 
 1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
