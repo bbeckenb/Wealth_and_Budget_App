@@ -99,7 +99,7 @@ After the user does this, Plaid's Link interface experience will appear. You wil
 - Username: user_good 
 - Password: pass_good
 
-![Link Portal](static/images/readme/LinkPortal.png)
+![Link Portal](static/images/readme/PlaidLinkPortal.png)
 
 If the correct information is entered, CashView will go through the [ Plaid Token exchange process ](https://plaid.com/docs/link/) and receive an **access_token** associated with the specified financial institution. Using this access_token, the app makes two further API calls to Plaid:
 1. To retrieve data on the financial institution (called an 'item' in Plaid's vernacular)
