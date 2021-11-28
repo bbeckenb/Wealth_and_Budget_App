@@ -30,6 +30,7 @@ This website acts as a personal finance dashboard. It allows users to make a pro
         - [ Adding a BudgetTracker](#AddBT)
         - [ Editing a BudgetTracker ](#EditBT)
         - [ Deleting a BudgetTracker ](#DeleteBT)
+    - [ Dashboard Features ](#DashboardFeatures)
 
 <a name="Tech-Stack"></a>
 
@@ -181,7 +182,7 @@ If an Account is elegible (is of type 'credit' or sub-type 'checking'), it will 
 
 The BudgetTracker will then appear on the Dashboard under the associated Account displaying all information (Budget Threshold, Amount Spent, Notification Frequency, Next Notification Date) which is updated by the script that runs daily.
 
-**NOTE:** If the User's account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so unless your cellphone number is verified under my account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
+**NOTE:** If the User's account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so unless your cellphone number is verified under my Twilio account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
 
 ![BT On Dashboard](static/images/readme/BTonDashboard.png)
 
@@ -207,8 +208,17 @@ To delete a BudgetTracker, navigate to the associated Account on the Dashboard w
 *(BudgetTracker Create Button returned)*
 ![BT Create Button returned](static/images/readme/CreateBTButton.png)
 
-1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
-3. Capability to securely pull financial institutions into application through Plaid 
+<a name="DashboardFeatures"></a>
+
+### Dashboard Features
+The dashboard is designed to be a quick view of the aggregate of all of a User's financial institutions. The total holdings, both with and without loans are displayed in the top left of the dashboard. The User Model has a method that runs through all of the User instance's Financial Institutions, summing their dollar totals, with a boolean input to signify whether or not to return the sum with loans included (loans are subtracted from the total as they are a dollar amount owed). Financial Institutions have a similar method that allows them to run through all of their Accounts and provide a dollar sum with or without loans. Both of these values are displayed and color coded (green signifies a positive balance, grey means a $0 balance, red is a negative balance).
+
+![Dashboard Dollar View](static/images/readme/DashboardDollarView.png)
+
+To the right of the dollar view in the dahsboard is a pie chart that shows a percentage breakdown of how Financial Institution sums (without loans) represent a User's total wealth. This utilizes Google Charts.
+
+![Pie Chart](static/images/readme/PieChart.png)
+
 4. Displays aggregated information of all financial institutions for quick view, aggregate of all accounts at singular financial institution, and more granular breakdown of each account
 5. Displays graphical 3D pie-chart breakdown of where a user's wealth is
 6. Capability to create a customized BudgetTracker with desired budget threshold and notification frequency for eligible accounts (type: credit or sub-type: checking)
