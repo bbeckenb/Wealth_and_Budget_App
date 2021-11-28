@@ -15,7 +15,8 @@ This website acts as a personal finance dashboard. It allows users to make a pro
     - [ APIs Integrated ](#APIs)
 2. [ Database Schema ](#Schema)
 3. [ Deployment ](#Deployment)
-4. [ Features ](#Features)
+4. [ Developer ](#Developer)
+5. [ Features ](#Features)
 
 <a name="Tech-Stack"></a>
 
@@ -48,8 +49,17 @@ Postgres
 
 <a name="Deployment"></a>
 
-### Depoloyment
+### Deployment
 CashView is deployed on heroku at [https://wealth-and-budget.herokuapp.com/](https://wealth-and-budget.herokuapp.com/)
+
+<a name="Developer"></a>
+
+### Developer
+#### Bryce Beckenbach
+![Me](static/images/professional_shot.jpeg)
+
+Email: [brycebeckenbach@gmail.com](mailto:brycebeckenbach@gmail.com)
+[ Linkedin ](https://www.linkedin.com/in/bryce-beckenbach-52a5276a/)
 
 <a name="Features"></a>
 
