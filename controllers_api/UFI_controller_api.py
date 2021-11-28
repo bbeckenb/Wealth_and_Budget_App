@@ -31,13 +31,13 @@ class UFIControllerAPI:
                         'userId': new_UFI.user_id,
                         'message': message,
                         'status_code': status_code
-                    })
+                    }), 201
         except Exception as e:
             message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
             return jsonify({
                 'message': message,
                 'status_code': 500
-            })
+            }), 500
         
     
     @classmethod

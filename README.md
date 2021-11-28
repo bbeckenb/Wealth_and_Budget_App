@@ -102,8 +102,17 @@ After the user does this, Plaid's Link interface experience will appear. You wil
 ![Link Portal](static/images/readme/PlaidLinkPortal.png)
 
 If the correct information is entered, CashView will go through the [ Plaid Token exchange process ](https://plaid.com/docs/link/) and receive an **access_token** associated with the specified financial institution. Using this access_token, the app makes two further API calls to Plaid:
-1. To retrieve data on the financial institution (called an 'item' in Plaid's vernacular)
-2. To retrieve data on accounts held by that financial institution
+1. To retrieve data on the financial institution (called an 'item' in Plaid's vernacular) [see Response Fields](https://plaid.com/docs/api/institutions/#institutionsget_by_id)
+2. To retrieve data on accounts held by that financial institution [see Response Fields](https://plaid.com/docs/api/products/#accountsbalanceget)
+
+Financial Institution and Account/s instances are created in the CashView database then json data is sent to the dashboard to create the required HTML to represent the instances. If a user already has Financial Institutions and Accounts associated with their User instance, Jinja2 templates create the required HTML upon page load.
+
+Financial Institution in CashView Dashboard
+![New UFI](static/images/readme/newUFI.png)
+
+Same Financial Institution in CshView Dashboard with some Accounts deleted and view uncollapsed
+![New Accounts](static/images/readme/newUFI.png)
+
 
 1. Full CRUD on all resources (User, UserFinancialInstitution, Account, BudgetTracker)
 3. Capability to securely pull financial institutions into application through Plaid 
