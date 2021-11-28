@@ -18,7 +18,7 @@ This website acts as a personal finance dashboard. It allows users to make a pro
 4. [ Developer ](#Developer)
 5. [ Features ](#Features)
     - [ Registration ](#Registration)
-    - [ Login and Demo User ](LoginAndDemo)
+    - [ Login and Demo User ](#LoginAndDemo)
 
 <a name="Tech-Stack"></a>
 
