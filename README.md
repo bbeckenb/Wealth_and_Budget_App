@@ -250,49 +250,43 @@ Retrieve free API keys from:
 <a name="ImportProj"></a>
 
 #### Import Project to your Local Machine
-Clone the repository:
-`git clone https://github.com/bbeckenb/Wealth_and_Budget_App.git`
-
-Change Directory to the project:
-`cd Wealth_and_Budget_App`
-
-Create and Activate Python Virtual Environment:
-`python3 -m venv venv`
-`source venv/bin/activate`
-
-Install requirements:
-`pip install -r requirements.txt`
-
-Set up local database:
-`createdb wealth_and_budget_db`
-
-Set up .env file:
-`touch .env`
-    Add the following fields and enter your information where it says **YOUR_INFO** 
-    PLAID_CLIENT_ID=YOUR_INFO
-    PLAID_SECRET=YOUR_INFO
-    PLAID_PRODUCTS=auth,transactions
-    PLAID_COUNTRY_CODES=US,CA
-    TWILIO_ACCOUNT_SID=YOUR_INFO
-    TWILIO_AUTH_TOKEN=YOUR_INFO
-    TWILIO_NUM=YOUR_INFO
-    SECRET_KEY=YOUR_INFO
-
-Job Scheduling:
+1. Clone the repository:
+    - `git clone https://github.com/bbeckenb/Wealth_and_Budget_App.git`
+2. Change Directory to the project:
+    - `cd Wealth_and_Budget_App`
+3. Create and Activate Python Virtual Environment:
+    - `python3 -m venv venv`
+    - `source venv/bin/activate`
+4. Install requirements:
+    - `pip install -r requirements.txt`
+5. Set up local database:
+    - `createdb wealth_and_budget_db`
+6. Set up .env file:
+    - `touch .env`
+7. Add the following fields and enter your information where it says **YOUR_INFO** 
+    - PLAID_CLIENT_ID=YOUR_INFO
+    - PLAID_SECRET=YOUR_INFO
+    - PLAID_PRODUCTS=auth,transactions
+    - PLAID_COUNTRY_CODES=US,CA
+    - TWILIO_ACCOUNT_SID=YOUR_INFO
+    - TWILIO_AUTH_TOKEN=YOUR_INFO
+    - TWILIO_NUM=YOUR_INFO
+    - SECRET_KEY=YOUR_INFO
+8. Job Scheduling:
     - Script `scheduled_jobs.py` is scheduled to run on Heroku
     - If you choose to run this locally, include following code in main `app.py` and follow directions below:
         - code:
-            **Dependencies to import**
-            `from flask_crontab import Crontab`
-            `from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts`
-            `from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs`
-            ** Initializations ***
-            `crontab = Crontab(app)`
-            **CRON schedule function definition**
-            `@crontab.job(minute=0, hour=12)`
-            `def scheduled_jobs():`
-               `scheduled_daily_refresh_all_accounts(plaid_inst)`
-               `scheduled_budget_tracker_jobs(plaid_inst, twilio_inst)`
+            - **Dependencies to import**
+                - `from flask_crontab import Crontab`
+                - `from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts`
+                - `from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs`
+            - ** Initializations ***
+                - `crontab = Crontab(app)`
+            - **CRON schedule function definition**
+                - ```@crontab.job(minute=0, hour=12)
+                        def scheduled_jobs():
+                            scheduled_daily_refresh_all_accounts(plaid_inst)
+                            scheduled_budget_tracker_jobs(plaid_inst, twilio_inst)```
         - directions:
             CRON Scheduled Jobs For local server
             **This will run everyday at 12pm UTC**
