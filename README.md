@@ -189,23 +189,25 @@ For each Financial Institution and Account (uncollapsed) on the dashboard, there
 
 #### Adding a BudgetTracker
 If an Account is elegible (is of type 'credit' or sub-type 'checking'), it will have a 'Create BudgetTracker' button displayed at the bottom. Clicking this will bring the user to a BudgetTracker creation form for that particular Account where they can enter their desired 'Monthly Budget Threshold' amount (must be greater than $0) and their desired Notification Frequency that they would like to receive text notifications at (must be between 1 and 15 days). These texts updates will occur at frequency multiples of the day frequency they enter (e.g. if they enter 2, they would receive a text notification every other day). This is enabled by a script that runs once each day to:
-- Update the most recent amount spent on the BudgetTracker
-- See if the notification date on the budget tracker is equal to the date that day
+- Update the most recent 'amount_spent' on BudgetTrackers (and all Accounts in the system)
+- See if the 'next_notification_date' on the BudgetTracker is equal to the current date
     - If it is not, it does nothing
-    - If it **is**, it fires off a text notification with the amount spent compared to the budget threshold and updates the next notification date using the desired notification frequency
+    - If it **is**, it:
+        - fires off a text notification with the 'amount_spent' compared to the budget threshold 
+        - updates the 'next_notification_date' using the 'notification_frequency' the user set to add the number of days to the Datetime Object in the database for next notification
 
 ![Add BT](static/images/readme/AddBT.png)
 
-The BudgetTracker will then appear on the Dashboard under the associated Account displaying all information (Budget Threshold, Amount Spent, Notification Frequency, Next Notification Date) which is updated by the script that runs daily.
+The BudgetTracker will then appear on the Dashboard under the associated Account displaying all information ('budget_threshold', 'amount_spent', 'notification_frequency', 'next_notification_date') which is updated by the script that runs daily.
 
-**NOTE:** If the User's Account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so for the 'development' User Account_type, unless your cellphone number is verified under my Twilio Account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
+**NOTE:** If the User's 'account_type' is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so for the 'development' User 'account_type', unless your cellphone number is verified under my Twilio Account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
 
 ![BT On Dashboard](static/images/readme/BTonDashboard.png)
 
 <a name="EditBT"></a>
 
 #### Editing a BudgetTracker
-Once a BudgetTracker is created, it will appear on the Dashboard where it can be edited or deleted. To edit, click the 'edit' icon at the bottom of the BudgetTracker. This will direct the User to the Update BudgetTracker form where the user can modify their Budget Threshold and/or their Notification Frequency. These values will be updated in the database and the new values will be reflected on the Dashboard.
+Once a BudgetTracker is created, it will appear on the Dashboard where it can be edited or deleted. To edit, click the 'edit' icon at the bottom of the BudgetTracker. This will direct the User to the Update BudgetTracker form where the user can modify the BudgetTracker's 'budget_threshold' and/or the 'notification_frequency'. These values will be updated in the database and the new values will be reflected on the Dashboard.
 
 *(BudgetTracker Update: Bottom of BudgetTracker blue 'edit' icon)*
 ![BT Edit](static/images/readme/BTEditorDelete.png)
@@ -231,9 +233,11 @@ The dashboard is designed to be a quick view of the aggregate of all of a User's
 
 ![Dashboard Dollar View](static/images/readme/DashboardDollarView.png)
 
-To the right of the dollar view in the dahsboard is a pie chart that shows a percentage breakdown of how Financial Institution sums (without loans) represent a User's total wealth. This utilizes Google Charts.
+To the right of the dollar view in the dashboard is a pie chart that shows a percentage breakdown of how Financial Institution sums (without loans) represent a User's total wealth. This utilizes Google Charts.
 
 ![Pie Chart](static/images/readme/PieChart.png)
+
+As a User deletes Financial Institutions and/or Accounts to track, the Dashboard will update on the static page to reflect the changes.
 
 <a name="RunningLocally"></a>
 
@@ -275,7 +279,7 @@ Retrieve free API keys from:
 6. Set up .env file:
     - `touch .env`
 
-7. Add the following fields and enter your information where it says **YOUR_INFO** 
+7. Add the following fields and enter your information (Requires API key retrieval step) where it says **YOUR_INFO** 
     ```
     PLAID_CLIENT_ID=YOUR_INFO
     PLAID_SECRET=YOUR_INFO
