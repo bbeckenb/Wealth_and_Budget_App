@@ -6,10 +6,10 @@
 
 ## Description:
 This website acts as a personal finance dashboard. 
-- It allows users to make a profile and pull financial data from all of their financial institutions into one place. 
-- The app itself aggregates balances from all of the user's accounts, displaying their overall worth (with and without loans). 
-- It uses graphics to illustrate the breakdown of the user's financial institutions and what percentage of their overall wealth is in each. 
-- Below the dashboard there is an account-level breakdown of each financial institution listed that displays the individual balances based on account type. 
+- It allows users to make a profile and pull financial data from all of their Financial Institutions into one place. 
+- The app itself aggregates balances from all of the user's Accounts, displaying their overall worth (with and without loans). 
+- It uses graphics to illustrate the breakdown of the user's Financial Institutions and what percentage of their overall wealth is in each. 
+- Below the dashboard there is an Account-level breakdown of each Financial Institution listed that displays the individual balances based on Account type. 
 - This was completed in approximately 60 hours as part of Springboard Software Engineering Program.
 
 ## Table of Contents
@@ -98,7 +98,7 @@ Please feel free to reach out!
 <a name="Registration"></a>
 
 #### Registration
-User Registration goes through the User model on the backend, user enters desired username, password, phone number, first name, last name, and desired account type (sandbox or development (more on that later)). All information is required and username must be unique for the model to generate a User instance. Password is run through Bcrypt hashing function where the output is stored in the database.
+User Registration goes through the User model on the backend, user enters desired username, password, phone number, first name, last name, and desired Account type (sandbox or development (more on that later)). All information is required and username must be unique for the model to generate a User instance. Password is run through Bcrypt hashing function where the output is stored in the database.
 
 ![Signup](static/images/readme/signup.png)
 
@@ -125,7 +125,7 @@ Once a user is logged in, they will see 'Update Profile' as an option on their n
 <a name="DeleteUser"></a>
 
 #### User Deletion
-Once a user is logged in, they will see an option to 'Delete Profile' under 'User Options'. Once they click this, their User instance will be removed from the database on the back-end and they will be redirected to the welcome page of CashView on the frontend. There is a cascading deletion set up in the database schema so all FinancialInstitutions, Accounts, and BudgetTrackers will be deleted as well.
+Once a user is logged in, they will see an option to 'Delete Profile' under 'User Options'. Once they click this, their User instance will be removed from the database on the back-end and they will be redirected to the welcome page of CashView on the frontend. There is a cascading deletion set up in the database schema so all Financial Institutions, Accounts, and BudgetTrackers will be deleted as well.
 
 <a name="FandAFeatures"></a>
 
@@ -134,21 +134,21 @@ Once a user is logged in, they will see an option to 'Delete Profile' under 'Use
 <a name="AddUFI"></a>
 
 #### Adding a Financial Institution and Accounts
-Using the Plaid API, a user can securely add their credentials to Plaid's Link interface that is embedded in the dashboard. **These credentials are not stored in the any area of CashView at any point**. To avoid this being an issue, I made sure users that sign up have the option of having a **development** account, which deals with real bank data, or a **sandbox** account, which deals with dummy bank accounts from Plaid. The Demo user experience is a **sandbox** account as well. 
+Using the Plaid API, a user can securely add their credentials to Plaid's Link interface that is embedded in the dashboard. **These credentials are not stored in the any area of CashView at any point**. To avoid this being an issue, I made sure users that sign up have the option of having a **development** Account, which deals with real bank data, or a **sandbox** Account, which deals with dummy bank Accounts from Plaid. The Demo user experience is a **sandbox** Account as well. 
 
 Once on the dashboard page, a user clicks on 'Link Institution' under 'User Options'.
 
 ![Link Institution](static/images/readme/LinkInstitution.png)
 
-After the user does this, Plaid's Link interface experience will appear. You will be able to choose your financial institution of choice from a list, then enter the required credentials to pull the data into CashView. If you have a **development** account, you enter your real credentials, if you have a **sandbox** account you enter the information under 'User Options' in the image above (can also be seen at the footer of the Link portal):
+After the user does this, Plaid's Link interface experience will appear. You will be able to choose your Financial Institution of choice from a list, then enter the required credentials to pull the data into CashView. If you have a **development** Account, you enter your real credentials, if you have a **sandbox** Account you enter the information under 'User Options' in the image above (can also be seen at the footer of the Link portal):
 - Username: user_good 
 - Password: pass_good
 
 ![Link Portal](static/images/readme/PlaidLinkPortal.png)
 
-If the correct information is entered, CashView will go through the [ Plaid Token exchange process ](https://plaid.com/docs/link/) and receive an **access_token** associated with the specified financial institution. Using this access_token, the app makes two further API calls to Plaid:
-1. To retrieve data on the financial institution (called an 'item' in Plaid's vernacular) [see Response Fields](https://plaid.com/docs/api/institutions/#institutionsget_by_id)
-2. To retrieve data on accounts held by that financial institution [see Response Fields](https://plaid.com/docs/api/products/#accountsbalanceget)
+If the correct information is entered, CashView will go through the [ Plaid Token exchange process ](https://plaid.com/docs/link/) and receive an **access_token** associated with the specified Financial Institution. Using this access_token, the app makes two further API calls to Plaid:
+1. To retrieve data on the Financial Institution (called an 'item' in Plaid's vernacular) [see Response Fields](https://plaid.com/docs/api/institutions/#institutionsget_by_id)
+2. To retrieve data on Accounts held by that Financial Institution [see Response Fields](https://plaid.com/docs/api/products/#Accountsbalanceget)
 
 Financial Institution and Account/s instances are created in the CashView database then json data is sent to the dashboard to create the required HTML to represent the instances. If a user already has Financial Institutions and Accounts associated with their User instance, Jinja2 templates create the required HTML upon page load.
 
@@ -158,7 +158,7 @@ Financial Institution and Account/s instances are created in the CashView databa
 *(Same Financial Institution in CashView Dashboard with some Accounts deleted and view uncollapsed)*
 ![New Accounts](static/images/readme/newAccounts.png)
 
-**NOTE:** Due to the fact I am using the free tier of Plaid's API, API calls for Account retrieval take upwards of 30 seconds. Because this is deployed on Heroku and their dynos timeout after a 30 second wait **the developer User account type will not allow you to connect your actual accounts on the heroku deployment of CashView**. However, it does work on local deployment, even though you have to wait ~40 seconds (what I benchmarked). I checked with Plaid's support team and they confirmed that the free tier of their API service would likely have longer wait times while the premium tier would see 2-3 second waits.
+**NOTE:** Due to the fact I am using the free tier of Plaid's API, API calls for Account retrieval take upwards of 30 seconds. Because this is deployed on Heroku and their dynos timeout after a 30 second wait **the developer User Account type will not allow you to connect your actual Accounts on the heroku deployment of CashView**. However, it does work on local deployment, even though you have to wait ~40 seconds (what I benchmarked). I checked with Plaid's support team and they confirmed that the free tier of their API service would likely have longer wait times while the premium tier would see 2-3 second waits.
 
 *(Confirmation of long API wait times for free tier of service)*
 ![New Accounts](static/images/readme/PlaidSupportEmail.png)
@@ -166,7 +166,7 @@ Financial Institution and Account/s instances are created in the CashView databa
 <a name="UpdateUFI"></a>
 
 #### Updating Financial Institution and Accounts
-For each Financial Institution on the dashboard, there is an 'Update' icon. This is for manual refreshing of account balances. This will make a call to the back-end to grab all the Plaid account IDs associated with that Financial Institution in the CashView database and get the most up-to-date balance information for these accounts from Plaid. This data will be sent back to the front-end and the HTML will be updated to reflect the most recent balances.
+For each Financial Institution on the dashboard, there is an 'Update' icon. This is for manual refreshing of Account balances. This will make a call to the back-end to grab all the Plaid Account IDs associated with that Financial Institution in the CashView database and get the most up-to-date balance information for these Accounts from Plaid. This data will be sent back to the front-end and the HTML will be updated to reflect the most recent balances.
 
 *(Top right blue refresh icon)*
 ![Update UFI](static/images/readme/UpdateUFI.png)
@@ -174,7 +174,7 @@ For each Financial Institution on the dashboard, there is an 'Update' icon. This
 <a name="DeleteUFI"></a>
 
 #### Deleting Financial Institution and Accounts
-For each Financial Institution and account (uncollapsed) on the dashboard, there is a 'Delete' icon. This is for deletion of desired Accounts you do not want to track and Financial Institutions, respectively. This will make a call to the back-end to delete the desired account or Financial Institution in the CashView database. Upon deletion, your overall wealth and balance information at the Financial Institution level will change (if you delete accounts from a Financial Institution). Updated roll-up balance data will be sent back to the front-end and the HTML will be updated to reflect the most recent balances.
+For each Financial Institution and Account (uncollapsed) on the dashboard, there is a 'Delete' icon. This is for deletion of desired Accounts you do not want to track and Financial Institutions, respectively. This will make a call to the back-end to delete the desired Account or Financial Institution in the CashView database. Upon deletion, your overall wealth and balance information at the Financial Institution level will change (if you delete Accounts from a Financial Institution). Updated roll-up balance data will be sent back to the front-end and the HTML will be updated to reflect the most recent balances.
 
 *(Financial Institution deletion: Top right of 'Chase', red deletion button icon)*
 ![Delete UFI](static/images/readme/UpdateUFI.png)
@@ -191,14 +191,14 @@ For each Financial Institution and account (uncollapsed) on the dashboard, there
 If an Account is elegible (is of type 'credit' or sub-type 'checking'), it will have a 'Create BudgetTracker' button displayed at the bottom. Clicking this will bring the user to a BudgetTracker creation form for that particular Account where they can enter their desired 'Monthly Budget Threshold' amount (must be greater than $0) and their desired Notification Frequency that they would like to receive text notifications at (must be between 1 and 15 days). These texts updates will occur at frequency multiples of the day frequency they enter (e.g. if they enter 2, they would receive a text notification every other day). This is enabled by a script that runs once each day to:
 - Update the most recent amount spent on the BudgetTracker
 - See if the notification date on the budget tracker is equal to the date that day
-    -If it is not, it does nothing
-    -If it **is**, it fires off a text notification with the amount spent compared to the budget threshold and updates the next notification date using the desired notification frequency
+    - If it is not, it does nothing
+    - If it **is**, it fires off a text notification with the amount spent compared to the budget threshold and updates the next notification date using the desired notification frequency
 
 ![Add BT](static/images/readme/AddBT.png)
 
 The BudgetTracker will then appear on the Dashboard under the associated Account displaying all information (Budget Threshold, Amount Spent, Notification Frequency, Next Notification Date) which is updated by the script that runs daily.
 
-**NOTE:** If the User's account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so for the 'development' User account_type, unless your cellphone number is verified under my Twilio account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
+**NOTE:** If the User's Account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so for the 'development' User Account_type, unless your cellphone number is verified under my Twilio Account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
 
 ![BT On Dashboard](static/images/readme/BTonDashboard.png)
 
@@ -227,7 +227,7 @@ To delete a BudgetTracker, navigate to the associated Account on the Dashboard w
 <a name="DashboardFeatures"></a>
 
 ### Dashboard Features
-The dashboard is designed to be a quick view of the aggregate of all of a User's financial institutions. The total holdings, both with and without loans are displayed in the top left of the dashboard. The User Model has a method that runs through all of the User instance's Financial Institutions, summing their dollar totals, with a boolean input to signify whether or not to return the sum with loans included (loans are subtracted from the total as they are a dollar amount owed). Financial Institutions have a similar method that allows them to run through all of their Accounts and provide a dollar sum with or without loans. Both of these values are displayed and color coded (green signifies a positive balance, grey means a $0 balance, red is a negative balance).
+The dashboard is designed to be a quick view of the aggregate of all of a User's Financial Institutions. The total holdings, both with and without loans are displayed in the top left of the dashboard. The User Model has a method that runs through all of the User instance's Financial Institutions, summing their dollar totals, with a boolean input to signify whether or not to return the sum with loans included (loans are subtracted from the total as they are a dollar amount owed). Financial Institutions have a similar method that allows them to run through all of their Accounts and provide a dollar sum with or without loans. Both of these values are displayed and color coded (green signifies a positive balance, grey means a $0 balance, red is a negative balance).
 
 ![Dashboard Dollar View](static/images/readme/DashboardDollarView.png)
 
@@ -281,7 +281,7 @@ Retrieve free API keys from:
     PLAID_SECRET=YOUR_INFO
     PLAID_PRODUCTS=auth,transactions
     PLAID_COUNTRY_CODES=US,CA
-    TWILIO_ACCOUNT_SID=YOUR_INFO
+    TWILIO_Account_SID=YOUR_INFO
     TWILIO_AUTH_TOKEN=YOUR_INFO
     TWILIO_NUM=YOUR_INFO
     SECRET_KEY=YOUR_INFO
@@ -294,7 +294,7 @@ Retrieve free API keys from:
         - **Dependencies to import:**
             ```
             from flask_crontab import Crontab
-            from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts
+            from CronJobs.UFI_jobs import scheduled_daily_refresh_all_Accounts
             from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs
             ```
         - **Initializations:**
@@ -303,7 +303,7 @@ Retrieve free API keys from:
             ```
             @crontab.job(minute=0, hour=12)
                 def scheduled_jobs():
-                    scheduled_daily_refresh_all_accounts(plaid_inst)
+                    scheduled_daily_refresh_all_Accounts(plaid_inst)
                     scheduled_budget_tracker_jobs(plaid_inst, twilio_inst)
             ```
         - **Command Line directions:**
@@ -333,7 +333,7 @@ I built this application as part of SpringBoard's Software Engineering curriculu
 I originally planned on having this app be a one-stop-shop to see all of your bank data, 401k, Roth IRA, etc., I think this would lead to a more useful application. However, after learning that the 'development' tier of Plaid would not enable the Web App to operate within acceptable API timing requirements, I deprioritized this functionality. I will come back to this in the future.
 
 #### Error handling and Logging
-I would build out logging functionality to store request/response and errors (separately) that occur in a central location. That way I could see if there are issues that I need to adjust for. I would build out my error handling according to this. I would also account for when the APIs integrated go down.
+I would build out logging functionality to store request/response and errors (separately) that occur in a central location. That way I could see if there are issues that I need to adjust for. I would build out my error handling according to this. I would also Account for when the APIs integrated go down.
 
 #### Administrative User functionality
 I would add an is_admin boolean to the User model and add an Admin portal on the web app itself. It would be much easier to manage data on the app, both test and real. 
