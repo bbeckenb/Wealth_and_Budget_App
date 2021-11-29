@@ -298,5 +298,9 @@ Retrieve free API keys from:
             - **These are additional command line commands to navigate jobs**
                 - `crontab -l` to see list of jobs
                 - `crontab -e` to manually edit list of jobs, 'esc' :wq 'enter' to leave list
+9. Run Flask Application
+`export FLASK_ENV=production`
+`export FLASK_RUN_PORT=5000`
+`flask run`
 
             
