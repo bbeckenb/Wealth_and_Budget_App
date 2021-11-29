@@ -274,6 +274,7 @@ Retrieve free API keys from:
     TWILIO_NUM=YOUR_INFO
     SECRET_KEY=YOUR_INFO
     ```
+    **NOTE:** SECRET_KEY can be whatever you want it to be, you can generate 16 random hex bytes using `hexdump -n 16 -e '4/4 "%08X" 1 "\n"' /dev/urandom` in the command line 
 8. Job Scheduling:
     - Script `scheduled_jobs.py` is scheduled to run on Heroku
     - If you choose to run this locally, include following code in main `app.py` and follow directions below:
