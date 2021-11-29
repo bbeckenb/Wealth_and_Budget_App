@@ -31,7 +31,11 @@ This website acts as a personal finance dashboard. It allows users to make a pro
         - [ Editing a BudgetTracker ](#EditBT)
         - [ Deleting a BudgetTracker ](#DeleteBT)
     - [ Dashboard Features ](#DashboardFeatures)
-6. [ Running Locally ](#RunningLocally)
+6. [ Running App Locally ](#RunningLocally)
+    - [ Requirements ](#Requirements)
+    - [ API Keys ](#APIKeys)
+    - [ Import Project to your Local Machine ](#ImportProj)
+    - [ Environmental Variables ](#.env)
 
 <a name="Tech-Stack"></a>
 
@@ -188,7 +192,7 @@ If an Account is elegible (is of type 'credit' or sub-type 'checking'), it will 
 
 The BudgetTracker will then appear on the Dashboard under the associated Account displaying all information (Budget Threshold, Amount Spent, Notification Frequency, Next Notification Date) which is updated by the script that runs daily.
 
-**NOTE:** If the User's account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so unless your cellphone number is verified under my Twilio account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
+**NOTE:** If the User's account_type is 'sandbox', they are ineligible for text notifications. I am also running the freemium of Twilio, so for the 'development' User account_type, unless your cellphone number is verified under my Twilio account for the web app, you would not receive a text message. If you would like to use the text notification feature, you would need to get your own API keys for Plaid and Twilio and run this app locally.
 
 ![BT On Dashboard](static/images/readme/BTonDashboard.png)
 
@@ -227,36 +231,76 @@ To the right of the dollar view in the dahsboard is a pie chart that shows a per
 
 <a name="RunningLocally"></a>
 
-### Running Locally
+### Running App Locally
 
-7. Scheduled auto-update of all accounts, grabbing the most recent account balance information daily
-8. Scheduled auto-notification SMS with most up to date 'amount spent' out of 'budget threshold' for users for budget tracking through Plaid and Twilio
+<a name="Requirements"></a>
 
+#### Requirements
+    - Python
+    - PostgresSQL
+    - pip 
 
+<a name="API Keys"></a>
 
-Notes:
-1. Job Scheduling:
-    - Script is scheduled to run on Heroku
-    - If you choose to run this locally, include following code in main app and follow directions below:
+#### API Keys
+Retrieve free API keys from:
+- [ Plaid ](https://plaid.com/docs/api)
+- [ Twilio ](https://www.twilio.com/docs)
+
+<a name="ImportProj"></a>
+
+#### Import Project to your Local Machine
+Clone the repository:
+`git clone https://github.com/bbeckenb/Wealth_and_Budget_App.git`
+
+Change Directory to the project:
+`cd Wealth_and_Budget_App`
+
+Create and Activate Python Virtual Environment:
+`python3 -m venv venv`
+`source venv/bin/activate`
+
+Install requirements:
+`pip install -r requirements.txt`
+
+Set up local database:
+`createdb wealth_and_budget_db`
+
+Set up .env file:
+`touch .env`
+    Add the following fields and enter your information where it says **YOUR_INFO** 
+    PLAID_CLIENT_ID=YOUR_INFO
+    PLAID_SECRET=YOUR_INFO
+    PLAID_PRODUCTS=auth,transactions
+    PLAID_COUNTRY_CODES=US,CA
+    TWILIO_ACCOUNT_SID=YOUR_INFO
+    TWILIO_AUTH_TOKEN=YOUR_INFO
+    TWILIO_NUM=YOUR_INFO
+    SECRET_KEY=YOUR_INFO
+
+Job Scheduling:
+    - Script `scheduled_jobs.py` is scheduled to run on Heroku
+    - If you choose to run this locally, include following code in main `app.py` and follow directions below:
         - code:
             **Dependencies to import**
-            from flask_crontab import Crontab
-            from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts
-            from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs
+            `from flask_crontab import Crontab`
+            `from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts`
+            `from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs`
             ** Initializations ***
-            crontab = Crontab(app)
+            `crontab = Crontab(app)`
             **CRON schedule function definition**
-            @crontab.job(minute=0, hour=12)
-            def scheduled_jobs():
-               scheduled_daily_refresh_all_accounts(plaid_inst)
-               scheduled_budget_tracker_jobs(plaid_inst, twilio_inst)
+            `@crontab.job(minute=0, hour=12)`
+            `def scheduled_jobs():`
+               `scheduled_daily_refresh_all_accounts(plaid_inst)`
+               `scheduled_budget_tracker_jobs(plaid_inst, twilio_inst)`
         - directions:
             CRON Scheduled Jobs For local server
             **This will run everyday at 12pm UTC**
-            run 'flask crontab add' in command line to initialize
+            run `flask crontab add` in command line to initialize
             **This will delete the CRON job**
-            run 'flask crontab remove' in command line to remove
+            run `flask crontab remove` in command line to remove
             **These are additional command line commands to navigate jobs**
-            'crontab -l' to see list of jobs
-            'crontab -e' to manually edit list of jobs, 'esc' :wq 'enter' to leave list
+            `crontab -l` to see list of jobs
+            `crontab -e` to manually edit list of jobs, 'esc' :wq 'enter' to leave list
+
             
