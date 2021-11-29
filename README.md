@@ -35,6 +35,8 @@ This website acts as a personal finance dashboard. It allows users to make a pro
     - [ Requirements ](#Requirements)
     - [ API Keys ](#APIKeys)
     - [ Import Project to your Local Machine ](#ImportProj)
+7. [ Testing ](#Testing) 
+8. [ Additional Steps ](#AdditionalSteps)
 
 <a name="Tech-Stack"></a>
 
@@ -312,4 +314,21 @@ Retrieve free API keys from:
 - `export FLASK_RUN_PORT=5000`
 - `flask run`
 
-            
+<a name="Testing"></a>
+
+### Testing
+Testing for Models and Views was written using Python's [ Unittest Framework ](https://docs.python.org/3/library/unittest.html). Tests can be seen in test folder.    
+
+<a name="AdditionalSteps"></a>
+
+### Additional Steps
+I built this application as part of SpringBoard's Software Engineering curriculum and put in ~60 hours. If I were to continue developing it, there would be several steps I would take.
+
+#### Pull in Investment Financial Institutions
+I originally planned on having this app be a one-stop-shop to see all of your bank data, 401k, Roth IRA, etc., I think this would lead to a more useful application. However, after learning that the 'development' tier of Plaid would not enable the Web App to operate within acceptable API timing requirements, I deprioritized this functionality. I will come back to this in the future.
+
+#### Error handling and Logging
+I would build out logging functionality to store request/response and errors (separately) that occur in a central location. That way I could see if there are issues that I need to adjust for. I would build out my error handling according to this. I would also account for when the APIs integrated go down.
+
+#### Administrative User functionality
+I would add an is_admin boolean to the User model and add an Admin portal on the web app itself. It would be much easier to manage data on the app, both test and real. 
