@@ -31,6 +31,7 @@ This website acts as a personal finance dashboard. It allows users to make a pro
         - [ Editing a BudgetTracker ](#EditBT)
         - [ Deleting a BudgetTracker ](#DeleteBT)
     - [ Dashboard Features ](#DashboardFeatures)
+6. [ Running Locally ](#RunningLocally)
 
 <a name="Tech-Stack"></a>
 
@@ -147,6 +148,11 @@ Financial Institution and Account/s instances are created in the CashView databa
 *(Same Financial Institution in CashView Dashboard with some Accounts deleted and view uncollapsed)*
 ![New Accounts](static/images/readme/newAccounts.png)
 
+**NOTE:** Due to the fact I am using the free tier of Plaid's API, API calls for Account retrieval take upwards of 30 seconds. Because this is deployed on Heroku and their dynos timeout after a 30 second wait **the developer User account type will not allow you to connect your actual accounts on the heroku deployment of CashView**. However, it does work on local deployment, even though you have to wait ~40 seconds (what I benchmarked). I checked with Plaid's support team and they confirmed that the free tier of their API service would likely have longer wait times while the premium tier would see 2-3 second waits.
+
+*(Confirmation of long API wait times for free tier of service)*
+![New Accounts](static/images/readme/PlaidSupportEmail.png)
+
 <a name="UpdateUFI"></a>
 
 #### Updating Financial Institution and Accounts
@@ -219,19 +225,14 @@ To the right of the dollar view in the dahsboard is a pie chart that shows a per
 
 ![Pie Chart](static/images/readme/PieChart.png)
 
-4. Displays aggregated information of all financial institutions for quick view, aggregate of all accounts at singular financial institution, and more granular breakdown of each account
-5. Displays graphical 3D pie-chart breakdown of where a user's wealth is
-6. Capability to create a customized BudgetTracker with desired budget threshold and notification frequency for eligible accounts (type: credit or sub-type: checking)
+<a name="RunningLocally"></a>
+
+### Running Locally
+
 7. Scheduled auto-update of all accounts, grabbing the most recent account balance information daily
 8. Scheduled auto-notification SMS with most up to date 'amount spent' out of 'budget threshold' for users for budget tracking through Plaid and Twilio
 
-Standard User Flow:
-1. User signs-up or logs in
-2. User views dashboard where they:
-    - add their financial institution/s
-    - create/update BudgetTrackers for desired accounts
-    - update their user profile information 
-    - logout or delete profile
+
 
 Notes:
 1. Job Scheduling:
