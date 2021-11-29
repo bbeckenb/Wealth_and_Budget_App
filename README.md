@@ -276,29 +276,27 @@ Retrieve free API keys from:
 8. Job Scheduling:
     - Script `scheduled_jobs.py` is scheduled to run on Heroku
     - If you choose to run this locally, include following code in main `app.py` and follow directions below:
-        - **Dependencies to import**
+        - **Dependencies to import:**
             ```
             from flask_crontab import Crontab
             from CronJobs.UFI_jobs import scheduled_daily_refresh_all_accounts
             from CronJobs.BudgetTracker_jobs import scheduled_budget_tracker_jobs
             ```
-        - ** Initializations ***
-            - `crontab = Crontab(app)`
-        - **CRON schedule function definition**
+        - **Initializations:**
+            `crontab = Crontab(app)`
+        - **CRON schedule function definition:**
             ```
             @crontab.job(minute=0, hour=12)
                 def scheduled_jobs():
                     scheduled_daily_refresh_all_accounts(plaid_inst)
                     scheduled_budget_tracker_jobs(plaid_inst, twilio_inst)
             ```
-        - Command Line directions:
-            CRON Scheduled Jobs For local server
-            **This will run everyday at 12pm UTC**
-            run `flask crontab add` in command line to initialize
-            **This will delete the CRON job**
-            run `flask crontab remove` in command line to remove
-            **These are additional command line commands to navigate jobs**
-            `crontab -l` to see list of jobs
-            `crontab -e` to manually edit list of jobs, 'esc' :wq 'enter' to leave list
+        - **Command Line directions:**
+            - CRON Scheduled Jobs For local server
+            - run `flask crontab add` in command line to initialize **This will run everyday at 12pm UTC**
+            - run `flask crontab remove` in command line to remove **This will delete the CRON job**
+            - **These are additional command line commands to navigate jobs**
+                - `crontab -l` to see list of jobs
+                - `crontab -e` to manually edit list of jobs, 'esc' :wq 'enter' to leave list
 
             
