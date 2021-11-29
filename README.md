@@ -35,7 +35,6 @@ This website acts as a personal finance dashboard. It allows users to make a pro
     - [ Requirements ](#Requirements)
     - [ API Keys ](#APIKeys)
     - [ Import Project to your Local Machine ](#ImportProj)
-    - [ Environmental Variables ](#.env)
 
 <a name="Tech-Stack"></a>
 
@@ -252,7 +251,7 @@ Retrieve free API keys from:
 #### Import Project to your Local Machine
 1. Clone the repository:
     - `git clone https://github.com/bbeckenb/Wealth_and_Budget_App.git`
-    
+
 2. Change Directory to the project:
     - `cd Wealth_and_Budget_App`
 
@@ -280,7 +279,7 @@ Retrieve free API keys from:
     TWILIO_NUM=YOUR_INFO
     SECRET_KEY=YOUR_INFO
     ```
-    **NOTE:** SECRET_KEY can be whatever you want it to be, you can generate 16 random bytes of hex digits using `hexdump -n 16 -e '4/4 "%08X" 1 "\n"' /dev/urandom` in the command line.
+    **NOTE:** `SECRET_KEY` can be whatever you want it to be, you can generate 16 random bytes of hex digits using `hexdump -n 16 -e '4/4 "%08X" 1 "\n"' /dev/urandom` in the command line.
 
 8. Job Scheduling:
     - Script `scheduled_jobs.py` is scheduled to run on Heroku
