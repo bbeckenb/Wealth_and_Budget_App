@@ -264,14 +264,14 @@ Retrieve free API keys from:
 6. Set up .env file:
     - `touch .env`
 7. Add the following fields and enter your information where it says **YOUR_INFO** 
-    - PLAID_CLIENT_ID=YOUR_INFO
-    - PLAID_SECRET=YOUR_INFO
-    - PLAID_PRODUCTS=auth,transactions
-    - PLAID_COUNTRY_CODES=US,CA
-    - TWILIO_ACCOUNT_SID=YOUR_INFO
-    - TWILIO_AUTH_TOKEN=YOUR_INFO
-    - TWILIO_NUM=YOUR_INFO
-    - SECRET_KEY=YOUR_INFO
+    ```PLAID_CLIENT_ID=YOUR_INFO
+    PLAID_SECRET=YOUR_INFO
+    PLAID_PRODUCTS=auth,transactions
+    PLAID_COUNTRY_CODES=US,CA
+    TWILIO_ACCOUNT_SID=YOUR_INFO
+    TWILIO_AUTH_TOKEN=YOUR_INFO
+    TWILIO_NUM=YOUR_INFO
+    SECRET_KEY=YOUR_INFO```
 8. Job Scheduling:
     - Script `scheduled_jobs.py` is scheduled to run on Heroku
     - If you choose to run this locally, include following code in main `app.py` and follow directions below:
