@@ -5,7 +5,12 @@
 
 
 ## Description:
-This website acts as a personal finance dashboard. It allows users to make a profile and pull financial data from all of their financial institutions into one place. The app itself aggregates balances from all of the user's accounts, displaying their overall worth (with and without loans). It also uses graphics to illustrate the breakdown of the user's financial institutions and what percentage of their overall wealth is in each. Below the dashboard there is an account-level breakdown of each financial institution listed that displays the individual balances based on account type. This was completed in approximately 60 hours as part of Springboard Software Engineering Program.
+This website acts as a personal finance dashboard. 
+- It allows users to make a profile and pull financial data from all of their financial institutions into one place. 
+- The app itself aggregates balances from all of the user's accounts, displaying their overall worth (with and without loans). 
+- It uses graphics to illustrate the breakdown of the user's financial institutions and what percentage of their overall wealth is in each. 
+- Below the dashboard there is an account-level breakdown of each financial institution listed that displays the individual balances based on account type. 
+- This was completed in approximately 60 hours as part of Springboard Software Engineering Program.
 
 ## Table of Contents
 1. [ Tech Stack ](#Tech-Stack)
