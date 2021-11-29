@@ -252,17 +252,23 @@ Retrieve free API keys from:
 #### Import Project to your Local Machine
 1. Clone the repository:
     - `git clone https://github.com/bbeckenb/Wealth_and_Budget_App.git`
+    
 2. Change Directory to the project:
     - `cd Wealth_and_Budget_App`
+
 3. Create and Activate Python Virtual Environment:
     - `python3 -m venv venv`
     - `source venv/bin/activate`
+
 4. Install requirements:
     - `pip install -r requirements.txt`
+
 5. Set up local database:
     - `createdb wealth_and_budget_db`
+
 6. Set up .env file:
     - `touch .env`
+
 7. Add the following fields and enter your information where it says **YOUR_INFO** 
     ```
     PLAID_CLIENT_ID=YOUR_INFO
@@ -274,7 +280,8 @@ Retrieve free API keys from:
     TWILIO_NUM=YOUR_INFO
     SECRET_KEY=YOUR_INFO
     ```
-    **NOTE:** SECRET_KEY can be whatever you want it to be, you can generate 16 random hex bytes using `hexdump -n 16 -e '4/4 "%08X" 1 "\n"' /dev/urandom` in the command line 
+    **NOTE:** SECRET_KEY can be whatever you want it to be, you can generate 16 random bytes of hex digits using `hexdump -n 16 -e '4/4 "%08X" 1 "\n"' /dev/urandom` in the command line.
+
 8. Job Scheduling:
     - Script `scheduled_jobs.py` is scheduled to run on Heroku
     - If you choose to run this locally, include following code in main `app.py` and follow directions below:
@@ -300,6 +307,7 @@ Retrieve free API keys from:
             - **These are additional command line commands to navigate jobs**
                 - `crontab -l` to see list of jobs
                 - `crontab -e` to manually edit list of jobs, 'esc' :wq 'enter' to leave list
+
 9. Run Flask Application
 - `export FLASK_ENV=production`
 - `export FLASK_RUN_PORT=5000`
