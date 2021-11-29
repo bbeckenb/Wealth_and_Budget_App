@@ -293,8 +293,8 @@ Retrieve free API keys from:
             ```
         - **Command Line directions:**
             - CRON Scheduled Jobs For local server
-            - run `flask crontab add` in command line to initialize **This will run everyday at 12pm UTC**
-            - run `flask crontab remove` in command line to remove **This will delete the CRON job**
+            - **This will run a job everyday at 12pm UTC:** run `flask crontab add` in command line to initialize 
+            - **This will delete the CRON job:** run `flask crontab remove` in command line to remove
             - **These are additional command line commands to navigate jobs**
                 - `crontab -l` to see list of jobs
                 - `crontab -e` to manually edit list of jobs, 'esc' :wq 'enter' to leave list
