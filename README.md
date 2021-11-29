@@ -236,9 +236,9 @@ To the right of the dollar view in the dahsboard is a pie chart that shows a per
 <a name="Requirements"></a>
 
 #### Requirements
-    - Python
-    - PostgresSQL
-    - pip 
+- Python
+- PostgresSQL
+- pip 
 
 <a name="API Keys"></a>
 
@@ -264,7 +264,8 @@ Retrieve free API keys from:
 6. Set up .env file:
     - `touch .env`
 7. Add the following fields and enter your information where it says **YOUR_INFO** 
-    ```PLAID_CLIENT_ID=YOUR_INFO
+    ```
+    PLAID_CLIENT_ID=YOUR_INFO
     PLAID_SECRET=YOUR_INFO
     PLAID_PRODUCTS=auth,transactions
     PLAID_COUNTRY_CODES=US,CA
