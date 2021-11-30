@@ -3,8 +3,11 @@
 {% block content %}
 <div class="row justify-content-md-center">
     <div class="col-md-4 row justify-content-md-center">
-      <h2 class="join-message" style="margin-top: 20px;">Sign up!</h2>
-            <form method="POST">
+      <h2 class="join-message" style="margin-top: 20px; 
+                                      margin-right: auto;
+                                      margin-left: auto;
+                                      max-width: 960px;">Sign up!</h2>
+            <form method="POST" style="width: 100%; position: relative;">
                 {{ form.hidden_tag() }}
 
                 {% for field in form if field.widget.input_type != 'hidden' %}
