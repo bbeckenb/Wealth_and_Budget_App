@@ -333,8 +333,8 @@ Testing for Models and Views was written using Python's [ Unittest Framework ](h
 ### Additional Steps
 I built this application as part of SpringBoard's Software Engineering curriculum and put in ~60 hours. If I were to continue developing it, there would be several steps I would take.
 
-#### Pull in Investment Financial Institutions
-I originally planned on having this app be a one-stop-shop to see all of your bank data, 401k, Roth IRA, etc., I think this would lead to a more useful application. However, after learning that the 'development' tier of Plaid would not enable the Web App to operate within acceptable API timing requirements, I deprioritized this functionality. I will come back to this in the future.
+#### Pull in Additional Data
+I originally planned on having this app be a one-stop-shop to see all of your bank data, house, 401k, Roth IRA, etc., I think this would lead to a more useful application. I would likely go back to Plaid to pull in investment account data, and to Zillow for house value, putting bank, house, and investment portfolio on different tabs on the Dashboard. I will come back to this in the future and look at ways I could alter the architecture to get around the >30 second API call for Plaid.
 
 #### Error handling and Logging
 I would build out logging functionality to store request/response and errors (separately) that occur in a central location. That way I could see if there are issues that I need to adjust for. I would build out my error handling according to this. I would also Account for when the APIs integrated go down.
