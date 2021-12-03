@@ -250,7 +250,7 @@ As a User deletes Financial Institutions and/or Accounts to track, the Dashboard
 - PostgresSQL
 - pip 
 
-<a name="API Keys"></a>
+<a name="APIKeys"></a>
 
 #### API Keys
 Retrieve free API keys from:
