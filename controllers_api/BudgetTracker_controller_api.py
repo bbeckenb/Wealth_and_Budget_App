@@ -1,5 +1,6 @@
 from flask import g, jsonify
 from models.BudgetTracker import BudgetTracker
+import logging
 
 class BudgetTrackerControllerAPI:
     """Controller for BudgetTracker views"""      
@@ -28,6 +29,7 @@ class BudgetTrackerControllerAPI:
             message = {'message': f"Budget Tracker for {hold_acct_name} deleted!", 'category': "success"}
             status_code = 200
         except Exception as e:
+            logging.error(f'delete_specified_budget_tracker: {e}')
             message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
             status_code = 500
         return jsonify({

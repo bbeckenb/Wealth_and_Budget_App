@@ -3,6 +3,7 @@ from models.User import User
 from database.database import db
 from forms import SignUpUserForm, LoginForm, UpdateUserForm
 from sqlalchemy.exc import IntegrityError
+import logging
 
 class UserController:
     """Controller for user views"""      
@@ -60,6 +61,7 @@ class UserController:
                 db.session.commit()
             except Exception as e:
                 flash(f"Username already taken: {e}", 'danger')
+                logging.error(f'signup_user: {e}') 
                 return render_template('users/signup.html', form=form) 
             cls.do_login(new_user)
             flash(f"Welcome to CashView {new_user.username}!", "primary")
@@ -123,8 +125,9 @@ class UserController:
                     g.user.first_name = form.first_name.data or g.user.first_name
                     g.user.last_name = form.last_name.data or g.user.last_name
                     db.session.commit()
-                except IntegrityError:
+                except IntegrityError as e:
                     db.session.rollback()
+                    logging.error(f'update_user_profile: {e}') 
                     flash("Username already taken", 'danger')
                     return render_template('users/update.html', form=form)   
                 flash("Profile successfully updated!", "info")

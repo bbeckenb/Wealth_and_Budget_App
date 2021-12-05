@@ -1,6 +1,7 @@
 from flask import flash, g, redirect, jsonify
 from models.Account import Account
 from models.UserFinancialInstitution import UserFinancialInstitute
+import logging
 
 class AccountControllerAPI:
     """Controller for Account views"""      
@@ -34,6 +35,7 @@ class AccountControllerAPI:
                         'status_code': 200
                         }), 200
         except Exception as e:
+            logging.error(f'populate_accounts_of_UFI: {e}') 
             message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
             return jsonify({
                 'message': message,
@@ -67,6 +69,7 @@ class AccountControllerAPI:
                         'status_code': 200
                         }), 200
         except Exception as e:
+            logging.error(f'delete_specified_account: {e}')
             message = {'message': f"Something went wrong when attempting to delete {acct_to_delete.name}: {e}", 'category': "danger"}
             return jsonify({
                 'message': message,

@@ -11,7 +11,8 @@ from database.database import connect_db
 from dotenv import load_dotenv
 from flask import Flask
 import os
-
+import logging, logging.config
+import yaml
 ##############################################################################
 # Configurations
 app = Flask(__name__)
@@ -24,6 +25,7 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', os.getenv('SECRET_KEY'))
 # Initializations
 load_dotenv()
 connect_db(app)
+logging.config.dictConfig(yaml.load(open('logging.conf'), Loader=yaml.FullLoader))
 ##############################################################################
 # User
 @app.before_request

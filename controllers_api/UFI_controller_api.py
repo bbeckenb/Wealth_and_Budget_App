@@ -1,6 +1,7 @@
 from flask import flash, g, redirect, jsonify
 from models.PlaidClient import PlaidClient
 from models.UserFinancialInstitution import UserFinancialInstitute
+import logging
 
 class UFIControllerAPI:
     """Controller for UFI API"""      
@@ -33,6 +34,7 @@ class UFIControllerAPI:
                         'status_code': status_code
                     }), 201
         except Exception as e:
+            logging.error(f'get_plaid_access_key_create_UFI: {e}')
             message = {'message': f"Something went wrong with the server: {e}", 'category': "danger"}
             return jsonify({
                 'message': message,
@@ -63,6 +65,7 @@ class UFIControllerAPI:
             status_code = 200
         except Exception as e:
             message = {'message': f"Something went wrong when delete was attempted: {e}", 'category': "danger"}
+            logging.error(f'delete_UFI_instance: {e}')
             status_code = 500
         return jsonify({
                         'dashboardBalanceNoLoan': g.user.aggregate_UFI_balances(),
@@ -96,9 +99,9 @@ class UFIControllerAPI:
                         }
             else:
                 message = {'message': "No accounts to update!", 'category': "info"}
-                payload = {'message': message,
-                            'status_code': 204}
+                payload = {'message': message, 'status_code': 204}
         except Exception as e:
+            logging.error(f'update_UFI_Accounts: {e}')
             message = {'message': f"Something went wrong when account update was attempted: {e}", 'category': "danger"}
             payload = {'message': message,
                         'status_code': 500}

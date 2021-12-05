@@ -5,6 +5,7 @@ from database.database import db
 from forms import CreateBudgetTrackerForm, UpdateBudgetTrackerForm
 import datetime
 from datetime import timedelta
+import logging
 
 class BudgetTrackerController:
     """Controller for BudgetTracker views"""      
@@ -52,6 +53,7 @@ class BudgetTrackerController:
                 flash(f"Budget Tracker for {specified_acct.name} created!", "success")
             except Exception as e:
                 flash(f"Something went wrong with the server: {e}", "danger")
+                logging.error(f'create_new_budget_tracker: {e}') 
                 return render_template('budget_tracker/create.html', form=form, account=specified_acct) 
             return redirect('/')
         else:
@@ -86,6 +88,7 @@ class BudgetTrackerController:
                 flash(f"Budget Tracker for {specified_bt.account.name} updated!", "info")
             except Exception as e:
                 flash(f"Something went wrong with the server: {e}", "danger")
+                logging.error(f'update_existing_budget_tracker: {e}') 
                 return render_template('budget_tracker/update.html', form=form, account=specified_bt.account) 
             return redirect('/')
         else:

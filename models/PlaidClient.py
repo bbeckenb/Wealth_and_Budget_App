@@ -12,7 +12,6 @@ from plaid.model.item_get_request import ItemGetRequest
 from plaid.model.country_code import CountryCode
 from plaid.model.products import Products
 from plaid.api import plaid_api
-import asyncio
 import datetime
 import time
 import plaid

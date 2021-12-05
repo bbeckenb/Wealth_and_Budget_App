@@ -1,0 +1,9 @@
+
+2021-12-05 12:59:30,254 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2021-12-05 12:59:30,255 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:01:48,592 - root - ERROR - signup_user: (psycopg2.errors.UniqueViolation) duplicate key value violates unique constraint "users_username_key"
+DETAIL:  Key (username)=(21_Sandwich) already exists.
+
+[SQL: INSERT INTO users (username, password, phone_number, first_name, last_name, account_type) VALUES (%(username)s, %(password)s, %(phone_number)s, %(first_name)s, %(last_name)s, %(account_type)s) RETURNING users.id]
+[parameters: {'username': '21_Sandwich', 'password': '$2b$12$1CftUB3djsks8m4guBbq6eHPMb1mcpTYK4Uu8PRkVyv9wrl.bkda6', 'phone_number': '9045363143', 'first_name': 'Bryce', 'last_name': 'Beckenbach', 'account_type': 'sandbox'}]
+(Background on this error at: https://sqlalche.me/e/14/gkpj)
