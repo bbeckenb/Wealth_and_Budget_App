@@ -102,3 +102,7 @@ def delete_budget_tracker(acct_id):
 @app.route('/about')
 def render_about_page():
     return WebAppInfoController.render_about_page()
+
+# @app.route('/about')
+# def render_about_page():
+#     return WebAppInfoController.render_dashboard()

@@ -8,3 +8,7 @@ class WebAppInfoController:
     @classmethod
     def render_about_page(cls):
         return render_template('about.html')
+
+    # @classmethod
+    # def render_dashboard(cls):
+    #     return render_template('user_home.html')

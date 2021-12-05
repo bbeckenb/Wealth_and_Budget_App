@@ -7,3 +7,14 @@ DETAIL:  Key (username)=(21_Sandwich) already exists.
 [SQL: INSERT INTO users (username, password, phone_number, first_name, last_name, account_type) VALUES (%(username)s, %(password)s, %(phone_number)s, %(first_name)s, %(last_name)s, %(account_type)s) RETURNING users.id]
 [parameters: {'username': '21_Sandwich', 'password': '$2b$12$1CftUB3djsks8m4guBbq6eHPMb1mcpTYK4Uu8PRkVyv9wrl.bkda6', 'phone_number': '9045363143', 'first_name': 'Bryce', 'last_name': 'Beckenbach', 'account_type': 'sandbox'}]
 (Background on this error at: https://sqlalche.me/e/14/gkpj)
+2021-12-05 13:17:08,700 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2021-12-05 13:17:08,701 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:17:45,371 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:17:47,242 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:17:54,855 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:18:27,920 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:19:20,883 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:19:26,232 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:19:32,733 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:19:54,264 - werkzeug - INFO -  * Restarting with stat
+2021-12-05 13:19:59,565 - werkzeug - INFO -  * Restarting with stat
