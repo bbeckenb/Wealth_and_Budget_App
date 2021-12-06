@@ -35,3 +35,6 @@ DETAIL:  Failing row contains (13, Credit Card, 2, 2500, null, 2500, credit, cre
 2021-12-06 10:20:24,502 - werkzeug - INFO -  * Restarting with stat
 2021-12-06 10:25:55,523 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
 2021-12-06 10:25:55,524 - werkzeug - INFO -  * Restarting with stat
+2021-12-06 11:30:04,455 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2021-12-06 11:30:04,456 - werkzeug - INFO -  * Restarting with stat
+2021-12-06 11:37:45,764 - werkzeug - INFO -  * Restarting with stat

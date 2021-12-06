@@ -120,7 +120,6 @@ class UserFinancialInstitute(db.Model):
             db.session.add(update_account)
             db.session.commit()
             accounts_out.append({**parsed_account, 'UFI_id':self.id, 'id': update_account.id})
-        print('******************', account_ids, accounts_out)
         return accounts_out
 
     def aggregate_account_balances(self, with_loans:bool=False) -> float:
