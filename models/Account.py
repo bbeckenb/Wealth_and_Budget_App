@@ -17,8 +17,7 @@ class Account(db.Model):
                         db.ForeignKey('users_financial_institutions.id', ondelete='CASCADE'),
                         nullable=False)
     available = db.Column(db.Float)
-    current = db.Column(db.Float,
-                        nullable=False)
+    current = db.Column(db.Float)
     limit = db.Column(db.Float)                   
     type = db.Column(db.Text,
                         nullable=False)

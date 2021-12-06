@@ -18,3 +18,20 @@ DETAIL:  Key (username)=(21_Sandwich) already exists.
 2021-12-05 13:19:32,733 - werkzeug - INFO -  * Restarting with stat
 2021-12-05 13:19:54,264 - werkzeug - INFO -  * Restarting with stat
 2021-12-05 13:19:59,565 - werkzeug - INFO -  * Restarting with stat
+2021-12-06 10:01:14,267 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2021-12-06 10:01:14,268 - werkzeug - INFO -  * Restarting with stat
+2021-12-06 10:12:52,677 - root - ERROR - update_UFI_Accounts: (psycopg2.errors.NotNullViolation) null value in column "current" of relation "accounts" violates not-null constraint
+DETAIL:  Failing row contains (13, Credit Card, 2, 2500, null, 2500, credit, credit card, o6Xgavk6B4T6vNQrY64eHL3gVwDBMXIBrojBA, t).
+
+[SQL: UPDATE accounts SET available=%(available)s, current=%(current)s WHERE accounts.id = %(accounts_id)s]
+[parameters: {'available': 2500.0, 'current': None, 'accounts_id': 13}]
+(Background on this error at: https://sqlalche.me/e/14/gkpj)
+2021-12-06 10:13:03,667 - root - ERROR - update_UFI_Accounts: (psycopg2.errors.NotNullViolation) null value in column "current" of relation "accounts" violates not-null constraint
+DETAIL:  Failing row contains (13, Credit Card, 2, 2500, null, 2500, credit, credit card, o6Xgavk6B4T6vNQrY64eHL3gVwDBMXIBrojBA, t).
+
+[SQL: UPDATE accounts SET available=%(available)s, current=%(current)s WHERE accounts.id = %(accounts_id)s]
+[parameters: {'available': 2500.0, 'current': None, 'accounts_id': 13}]
+(Background on this error at: https://sqlalche.me/e/14/gkpj)
+2021-12-06 10:20:24,502 - werkzeug - INFO -  * Restarting with stat
+2021-12-06 10:25:55,523 - werkzeug - INFO -  * Running on http://127.0.0.1:5000/ (Press CTRL+C to quit)
+2021-12-06 10:25:55,524 - werkzeug - INFO -  * Restarting with stat
