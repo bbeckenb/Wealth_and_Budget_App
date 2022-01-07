@@ -20,19 +20,21 @@ from flask import jsonify, request
 import os
 
 class PlaidClient:
-    """Class to represent my connection to Plaid and house methods to call their API for this application"""
+    """Class to represent my connection to Plaid and house methods to
+    call their API for this application"""
     def __init__(self, plaid_env='sandbox'):
         self.plaid_client = self.create_plaid_client(plaid_env)
-        
+       
     def create_plaid_client(self, environment='sandbox'):
-        """Establishes plaid client to enable app to communicate with Plaid server in 'sandbox' or 'development' mode"""
+        """Establishes plaid client to enable app to communicate with
+        Plaid server in 'sandbox' or 'development' mode"""
         if environment == 'development':
             host = plaid.Environment.Development 
             secret = os.getenv('PLAID_SECRET')
         else:
             host = plaid.Environment.Sandbox
-            secret = '0aae90632ad426c5d97740c670814f' #sandbox key
-        configuration =  plaid.Configuration(
+            secret = '0aae90632ad426c5d97740c670814f'
+        configuration = plaid.Configuration(
             host=host,
             api_key={
                 'clientId': os.getenv('PLAID_CLIENT_ID'),
@@ -43,17 +45,17 @@ class PlaidClient:
         api_client = plaid.ApiClient(configuration)
         plaid_client = plaid_api.PlaidApi(api_client)
         return plaid_client
-  
+
     def get_UFI_info_from_Plaid(self, access_token) -> dict:
-            """retrieves institution name, website, logo, and color to create UFI instance"""
-            item_request =  ItemGetRequest(access_token=access_token)
-            item_response = self.plaid_client.item_get(item_request)
-            institution_request =  InstitutionsGetByIdRequest(
-                institution_id=item_response['item']['institution_id'],
-                country_codes=list(map(lambda x: CountryCode(x), os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')))
-            )
-            institution_response =  self.plaid_client.institutions_get_by_id(institution_request)
-            return institution_response['institution']
+        """retrieves institution name, website, logo, and color to create UFI instance"""
+        item_request =  ItemGetRequest(access_token=access_token)
+        item_response = self.plaid_client.item_get(item_request)
+        institution_request =  InstitutionsGetByIdRequest(
+            institution_id=item_response['item']['institution_id'],
+            country_codes=list(map(lambda x: CountryCode(x), os.getenv('PLAID_COUNTRY_CODES', 'US').split(',')))
+        )
+        institution_response =  self.plaid_client.institutions_get_by_id(institution_request)
+        return institution_response['institution']
 
     def create_plaid_link_token(self):
         """Stage 1 server side of token passing process for UFI access token security"""
@@ -61,14 +63,14 @@ class PlaidClient:
             products = []
             for product in os.getenv('PLAID_PRODUCTS', 'transactions').split(','):
                 products.append(Products(product))
-            request =  LinkTokenCreateRequest(
-                                                products=products,
-                                                client_name="W_and_B_app",
-                                                country_codes=list(map(lambda x: CountryCode(x), os.getenv('PLAID_COUNTRY_CODES', 'US').split(','))),
-                                                language='en',
-                                                user=LinkTokenCreateRequestUser(
-                                                                                client_user_id=str(time.time())
-                                                    )
+            request = LinkTokenCreateRequest(
+                                            products=products,
+                                            client_name="W_and_B_app",
+                                            country_codes=list(map(lambda x: CountryCode(x), os.getenv('PLAID_COUNTRY_CODES', 'US').split(','))),
+                                            language='en',
+                                            user=LinkTokenCreateRequestUser(
+                                                                            client_user_id=str(time.time())
+                                                )
                       )
             response =  self.plaid_client.link_token_create(request)
             return jsonify(response.to_dict())
@@ -76,7 +78,7 @@ class PlaidClient:
             return json.loads(e.body)
 
     def exchange_public_token_generate_access_token(self):
-        """Stage 2 server side of token passing process for UFI access token security""" 
+        """Stage 2 server side of token passing process for UFI access token security"""
         public_token = request.form['public_token']
         req =  ItemPublicTokenExchangeRequest(
             public_token=public_token
@@ -85,7 +87,7 @@ class PlaidClient:
         access_token = response['access_token']
         item_id = response['item_id']
         return access_token, item_id 
-    
+  
     def close_out_UFI_access_key_with_Plaid(self, access_token:str) -> dict:
         """Destroys an item's access token on Plaid's server"""
         request =  ItemRemoveRequest(access_token=access_token)
